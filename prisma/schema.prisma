@@ -1,0 +1,297 @@
+// Portable schema: only features supported by both SQLite and PostgreSQL.
+// The provider line is rewritten from DATABASE_URL by scripts/prisma-provider.mjs.
+// Enumerations are stored as strings; allowed values live in src/lib/constants.ts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model StaffUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         String // ADMIN | OFFICIAL | MEDICAL | COACH
+  sportId      String? // coaches are linked to one sport
+  sport        Sport?    @relation(fields: [sportId], references: [id], onDelete: SetNull)
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  measurements Measurement[]
+  weighIns     WeighIn[]
+}
+
+model Student {
+  id          String @id @default(cuid())
+  status      String @default("DRAFT") // DRAFT | PENDING | VERIFIED | APPROVED | FLAGGED | REJECTED
+  studentType String // OUR_INDIAN | OUTSIDE_INDIAN | INTERNATIONAL
+  isOurUniversity Boolean @default(false)
+
+  // One person = one profile. sha256 of (aadhaarLast4|name|dob) or (PASSPORT|nationality|number).
+  identityKey String? @unique
+
+  // Verified identity (never typed by the student for Indian students)
+  fullName        String?
+  dob             String? // YYYY-MM-DD, locked after verification
+  dobSource       String? // DIGILOCKER | PASSPORT | ADMIN_CORRECTION
+  dobLocked       Boolean   @default(false)
+  identityVerifiedAt DateTime?
+  gender          String?
+  aadhaarLast4    String? // masked Aadhaar only — full number is never stored
+
+  // Contact
+  mobile   String?
+  email    String?
+  address  String?
+  bloodGroup String?
+  emergencyName  String?
+  emergencyPhone String?
+
+  // Academic
+  prn            String?  @unique
+  universityName String?
+  collegeId      String?
+  college        College? @relation(fields: [collegeId], references: [id], onDelete: SetNull)
+  collegeOfficeEmail String?
+  course         String?
+  year           Int?
+  apaarId        String?
+
+  // International
+  passportNumber String?
+  nationality    String?
+  passportExpiry String? // YYYY-MM-DD
+  mrzValid       Boolean?
+  passportDeskVerified   Boolean   @default(false)
+  passportDeskVerifiedAt DateTime?
+  passportDeskVerifiedBy String?
+
+  // Sports
+  playingPosition String?
+
+  // Medical & consent
+  medicalConditions   String? // visible only to MEDICAL role
+  declarationAccepted Boolean @default(false)
+  privacyAccepted     Boolean @default(false)
+
+  // Workflow
+  wizardStep    Int       @default(0)
+  statusReason  String? // reason shown to the student for FLAGGED / REJECTED
+  submittedAt   DateTime?
+  verifiedAt    DateTime?
+  verifiedById  String?
+  approvedAt    DateTime?
+  approvedById  String?
+  sportsId      String?   @unique // printed ID, e.g. RMU-26-4F7K2Q
+  deletionRequestedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents     Document[]
+  registrations Registration[]
+  checks        VerificationCheck[]
+  measurements  Measurement[]
+  weighIns      WeighIn[]
+  deletionRequests DeletionRequest[]
+
+  @@index([status])
+  @@index([studentType])
+  @@index([mobile])
+  @@index([email])
+  @@index([passportNumber])
+}
+
+model College {
+  id             String    @id @default(cuid())
+  name           String
+  normalizedName String    @unique
+  officeEmail    String?
+  trusted        Boolean   @default(false)
+  confirmedById  String?
+  confirmedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  students       Student[]
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  studentId    String
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  type         String // see DOC_TYPES
+  source       String // UPLOAD | CAMERA | DIGILOCKER | ERP | PASSPORT | SEED
+  storageKey   String   @unique // file name inside the private uploads folder
+  originalName String
+  mimeType     String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  @@index([studentId, type])
+}
+
+model VerificationCheck {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  type      String // see CHECK_TYPES
+  passed    Boolean
+  expected  String?
+  actual    String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  @@index([studentId])
+}
+
+model Sport {
+  id                String   @id @default(cuid())
+  name              String   @unique
+  slug              String   @unique
+  isWeightCategory  Boolean  @default(false)
+  isTeam            Boolean  @default(false)
+  positions         String? // comma-separated playing positions, if any
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  events           Event[]
+  weightCategories WeightCategory[]
+  coaches          StaffUser[]
+}
+
+model Event {
+  id        String    @id @default(cuid())
+  sportId   String
+  sport     Sport     @relation(fields: [sportId], references: [id], onDelete: Cascade)
+  name      String
+  gender    String // MALE | FEMALE | MIXED
+  eventDate String? // YYYY-MM-DD
+  venue     String?
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  registrations Registration[]
+  weighIns      WeighIn[]
+}
+
+model AgeCategory {
+  id        String @id @default(cuid())
+  name      String @unique // U-19, U-21, U-23, Open
+  maxAge    Int? // eligible if age on cutoff date < maxAge; null = Open
+  sortOrder Int    @default(0)
+}
+
+model WeightCategory {
+  id      String  @id @default(cuid())
+  sportId String
+  sport   Sport   @relation(fields: [sportId], references: [id], onDelete: Cascade)
+  name    String
+  gender  String // MALE | FEMALE
+  minKg   Float?
+  maxKg   Float?
+
+  registrations Registration[]
+}
+
+model Registration {
+  id               String          @id @default(cuid())
+  studentId        String
+  student          Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  eventId          String
+  event            Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  weightCategoryId String?
+  weightCategory   WeightCategory? @relation(fields: [weightCategoryId], references: [id], onDelete: SetNull)
+  createdAt        DateTime        @default(now())
+
+  @@unique([studentId, eventId])
+}
+
+/// Height/weight are entered only by an Official at the verification desk.
+model Measurement {
+  id           String    @id @default(cuid())
+  studentId    String
+  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  heightCm     Float
+  weightKg     Float
+  measuredById String
+  measuredBy   StaffUser @relation(fields: [measuredById], references: [id])
+  createdAt    DateTime  @default(now())
+
+  @@index([studentId, createdAt])
+}
+
+/// Event-day weigh-in for weight-category sports.
+model WeighIn {
+  id             String    @id @default(cuid())
+  studentId      String
+  student        Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  eventId        String
+  event          Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  weightKg       Float
+  withinCategory Boolean?
+  categoryName   String?
+  notes          String?
+  recordedById   String
+  recordedBy     StaffUser @relation(fields: [recordedById], references: [id])
+  createdAt      DateTime  @default(now())
+
+  @@index([studentId, eventId, createdAt])
+}
+
+model OtpChallenge {
+  id         String    @id @default(cuid())
+  target     String // phone or email the code was sent to
+  channel    String // SMS | EMAIL
+  purpose    String // REGISTER | LOGIN
+  codeHash   String
+  meta       String? // JSON: { path, prn, ... }
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([target, createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorType  String // STAFF | STUDENT | SYSTEM
+  actorId    String?
+  actorName  String?
+  actorRole  String?
+  action     String
+  studentId  String? // kept as plain string so history survives deletion
+  entityType String?
+  entityId   String?
+  summary    String
+  details    String? // JSON
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([studentId])
+  @@index([action])
+}
+
+model DeletionRequest {
+  id            String    @id @default(cuid())
+  studentId     String?
+  student       Student?  @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  studentLabel  String // name/PRN snapshot for the admin queue
+  reason        String?
+  status        String    @default("PENDING") // PENDING | COMPLETED | DECLINED
+  processedById String?
+  processedAt   DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model Setting {
+  key   String @id
+  value String
+}

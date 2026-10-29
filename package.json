@@ -12,7 +12,7 @@
     "db:push": "npm run db:provider && prisma db push",
     "db:seed": "prisma db seed",
     "db:reset": "npm run db:provider && prisma db push --force-reset && prisma db seed",
-    "setup": "npm run db:reset",
+    "setup": "npm run db:push && npm run db:seed",
     "postinstall": "node scripts/prisma-provider.mjs && prisma generate"
   },
   "prisma": {

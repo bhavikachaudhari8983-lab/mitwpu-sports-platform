@@ -17,7 +17,10 @@ export function FiltersBar({ sports, exportHref }: { sports: Array<{ id: string;
 
   function update(next: Record<string, string>) {
     const sp = new URLSearchParams(params.toString());
-    for (const [k, v] of Object.entries(next)) v ? sp.set(k, v) : sp.delete(k);
+    for (const [k, v] of Object.entries(next)) {
+      if (v) sp.set(k, v);
+      else sp.delete(k);
+    }
     sp.delete("page");
     start(() => router.replace(`${pathname}?${sp.toString()}`, { scroll: false }));
   }

@@ -8,7 +8,6 @@ import { Field, Input, Select, fieldA11y } from "@/components/ui/field";
 import { Alert } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/toast";
 import { api } from "@/lib/client-api";
-import { UNIVERSITY_NAME } from "@/lib/constants";
 import { NATIONALITIES } from "@/lib/nationalities";
 import type { DraftCheck, RegistrationDraft } from "@/lib/registration-types";
 import { cn } from "@/lib/utils";
@@ -67,11 +66,11 @@ export function PassportForm() {
 
           <fieldset>
             <legend className="mb-2 font-medium">
-              Are you a student of {UNIVERSITY_NAME}? <span className="text-danger-fg">*</span>
+              Are you a student of the host university? <span className="text-danger-fg">*</span>
             </legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {[
-                { v: true, l: `Yes, I study at ${UNIVERSITY_NAME}` },
+                { v: true, l: "Yes, I study at the host university" },
                 { v: false, l: "No, another university" },
               ].map((o) => (
                 <label key={String(o.v)} className={cn("flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border p-3", f.isOurUniversity === o.v ? "border-accent bg-surface-2" : "border-border")}>

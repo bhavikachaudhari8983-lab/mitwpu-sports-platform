@@ -91,7 +91,7 @@ model Student {
   verifiedById  String?
   approvedAt    DateTime?
   approvedById  String?
-  sportsId      String?   @unique // printed ID, e.g. RMU-26-4F7K2Q
+  sportsId      String?   @unique // printed ID, e.g. SS-26-4F7K2Q
   deletionRequestedAt DateTime?
 
   createdAt DateTime @default(now())

@@ -9,7 +9,7 @@ export type AppSettings = {
 export const DEFAULT_SETTINGS: AppSettings = {
   ageCutoffDate: "2026-12-01",
   retentionDays: 365,
-  meetName: "Rivermount Inter-University Games 2026",
+  meetName: "Sports Sphere Inter-University Games 2026",
 };
 
 export async function getSettings(): Promise<AppSettings> {

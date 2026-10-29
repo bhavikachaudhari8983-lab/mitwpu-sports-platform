@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, fieldA11y } from "@/components/ui/field";
 import { Alert } from "@/components/ui/badge";
 import { api } from "@/lib/client-api";
-import { UNIVERSITY_NAME, UNIVERSITY_SHORT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { OtpEntry } from "./otp-entry";
 import { DemoPanel, useDemoHints } from "./demo-panel";
@@ -17,7 +16,7 @@ type Path = "A" | "B" | "C";
 type Sent = { challengeId: string; maskedTarget: string; demoCode?: string };
 
 const PATHS: Array<{ id: Path; title: string; desc: string; icon: typeof GraduationCap; needs: string }> = [
-  { id: "A", title: `${UNIVERSITY_SHORT} student (Indian)`, desc: `I study at ${UNIVERSITY_NAME}.`, icon: GraduationCap, needs: "PRN, DigiLocker, live selfie" },
+  { id: "A", title: "Host university student (Indian)", desc: "I study at the university hosting the games.", icon: GraduationCap, needs: "PRN, DigiLocker, live selfie" },
   { id: "B", title: "Other university (Indian)", desc: "I study at another college or university in India.", icon: Building2, needs: "Mobile, DigiLocker, college ID + bonafide letter" },
   { id: "C", title: "International / OCI / NRI", desc: "I hold a foreign passport or have no Aadhaar.", icon: Globe2, needs: "Passport, visa, FRRO permit" },
 ];
@@ -115,7 +114,7 @@ function PathA({ demo }: { demo: boolean }) {
       </div>
       {!lookup ? (
         <form onSubmit={find} className="space-y-4" noValidate>
-          <Field id="prn" label="PRN / enrollment number" error={error} hint="As printed on your university ID card, e.g. RMU24CS006" required>
+          <Field id="prn" label="PRN / enrollment number" error={error} hint="As printed on your university ID card, e.g. SS24CS006" required>
             <Input {...fieldA11y("prn", error, true)} value={prn} onChange={(e) => setPrn(e.target.value.toUpperCase())} autoCapitalize="characters" autoComplete="off" spellCheck={false} className="font-mono uppercase" />
           </Field>
           <Button type="submit" loading={loading}>
@@ -157,7 +156,7 @@ function PathA({ demo }: { demo: boolean }) {
       )}
       {demo && hints && !lookup && (
         <DemoPanel title="Demo PRNs">
-          <p>Tap a fictional ERP record to fill the PRN. Try an unknown PRN (e.g. RMU99XX999) to see the “not registered” message.</p>
+          <p>Tap a fictional ERP record to fill the PRN. Try an unknown PRN (e.g. SS99XX999) to see the “not registered” message.</p>
           <ul className="grid gap-1 sm:grid-cols-2">
             {hints.erp
               .filter((e) => !e.note?.startsWith("Seeded"))

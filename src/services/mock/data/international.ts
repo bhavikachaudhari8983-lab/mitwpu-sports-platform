@@ -23,12 +23,12 @@ export type DemoPassport = {
 
 /** Our university's international admissions office (6 records). */
 export const ADMISSIONS_RECORDS: AdmissionsRecord[] = [
-  { passportNumber: "N4821733", nationality: "NPL", name: "Sujan Thapa Magar", dob: "2004-04-18", gender: "MALE", program: "B.Tech Computer Science", email: "sujan.thapa@intl.rivermount.example" },
-  { passportNumber: "KE7710245", nationality: "KEN", name: "Wanjiru Achieng Otieno", dob: "2003-09-02", gender: "FEMALE", program: "BBA", email: "wanjiru.otieno@intl.rivermount.example" },
-  { passportNumber: "A09126654", nationality: "AFG", name: "Farid Ahmadzai", dob: "2002-08-01", gender: "MALE", program: "MBA", email: "farid.ahmadzai@intl.rivermount.example" },
-  { passportNumber: "BG3317720", nationality: "BGD", name: "Nusrat Jahan Mim", dob: "2005-01-27", gender: "FEMALE", program: "B.Pharm", email: "nusrat.mim@intl.rivermount.example" },
-  { passportNumber: "VN1029384", nationality: "VNM", name: "Minh Anh Nguyen", dob: "2004-11-11", gender: "FEMALE", program: "B.Sc Data Science", email: "minh.anh@intl.rivermount.example" },
-  { passportNumber: "ZW5566120", nationality: "ZWE", name: "Tatenda Moyo", dob: "2003-06-30", gender: "MALE", program: "B.Tech Mechanical", email: "tatenda.moyo@intl.rivermount.example" },
+  { passportNumber: "N4821733", nationality: "NPL", name: "Sujan Thapa Magar", dob: "2004-04-18", gender: "MALE", program: "B.Tech Computer Science", email: "sujan.thapa@intl.sportssphere.example" },
+  { passportNumber: "KE7710245", nationality: "KEN", name: "Wanjiru Achieng Otieno", dob: "2003-09-02", gender: "FEMALE", program: "BBA", email: "wanjiru.otieno@intl.sportssphere.example" },
+  { passportNumber: "A09126654", nationality: "AFG", name: "Farid Ahmadzai", dob: "2002-08-01", gender: "MALE", program: "MBA", email: "farid.ahmadzai@intl.sportssphere.example" },
+  { passportNumber: "BG3317720", nationality: "BGD", name: "Nusrat Jahan Mim", dob: "2005-01-27", gender: "FEMALE", program: "B.Pharm", email: "nusrat.mim@intl.sportssphere.example" },
+  { passportNumber: "VN1029384", nationality: "VNM", name: "Minh Anh Nguyen", dob: "2004-11-11", gender: "FEMALE", program: "B.Sc Data Science", email: "minh.anh@intl.sportssphere.example" },
+  { passportNumber: "ZW5566120", nationality: "ZWE", name: "Tatenda Moyo", dob: "2003-06-30", gender: "MALE", program: "B.Tech Mechanical", email: "tatenda.moyo@intl.sportssphere.example" },
 ];
 
 /** Passports for the demo helper. The DOB of Farid's passport differs from the admissions record (mismatch test). */

@@ -1,5 +1,5 @@
 import { createHmac, randomInt, timingSafeEqual } from "node:crypto";
-import { UNIVERSITY_SHORT } from "./constants";
+import { ID_PREFIX } from "./constants";
 
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -7,7 +7,7 @@ export function generateSportsId(): string {
   const yy = new Date().getFullYear().toString().slice(-2);
   let code = "";
   for (let i = 0; i < 6; i++) code += ALPHABET[randomInt(ALPHABET.length)];
-  return `${UNIVERSITY_SHORT}-${yy}-${code}`;
+  return `${ID_PREFIX}-${yy}-${code}`;
 }
 
 function secret(): string {

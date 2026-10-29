@@ -23,7 +23,7 @@ export function SiteHeader() {
   const staffHome = role && role !== "STUDENT" ? staffHomeFor(role) : null;
 
   return (
-    <header className="sticky top-0 z-40 bg-brand-deep text-white">
+    <header className="sticky top-0 z-40 bg-surface text-fg shadow-card">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Logo />
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
@@ -35,8 +35,8 @@ export function SiteHeader() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-11 items-center rounded-lg px-3 font-medium text-white/85 hover:bg-white/10 hover:text-white",
-                  active && "bg-white/10 text-white",
+                  "flex min-h-11 items-center rounded-lg px-3 font-medium text-muted hover:bg-surface-2 hover:text-fg",
+                  active && "bg-surface-2 text-fg shadow-[inset_0_-3px_0_var(--accent)]",
                 )}
               >
                 {l.label}
@@ -45,15 +45,15 @@ export function SiteHeader() {
           })}
         </nav>
         <div className="flex items-center gap-1">
-          <ThemeToggle className="text-white" />
+          <ThemeToggle className="text-fg hover:bg-surface-2" />
           {staffHome ? (
-            <Link href={staffHome} className={buttonClass("outline", "sm", "border-white/30 bg-transparent text-white hover:bg-white/10")}>
+            <Link href={staffHome} className={buttonClass("outline", "sm")}>
               <ShieldCheck className="size-4" aria-hidden />
               <span className="hidden sm:inline">Staff area</span>
             </Link>
           ) : (
-            <Link href="/staff/login" className="flex min-h-11 items-center rounded-lg px-3 text-small font-medium text-white/85 hover:bg-white/10 hover:text-white">
-              Staff login
+            <Link href="/staff/login" aria-label="Staff login" className="flex min-h-11 items-center rounded-lg px-2 text-small font-semibold whitespace-nowrap text-primary hover:bg-surface-2 sm:px-3">
+              Staff<span className="hidden sm:inline">&nbsp;login</span>
             </Link>
           )}
         </div>

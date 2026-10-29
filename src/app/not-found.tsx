@@ -5,11 +5,12 @@ import { Logo } from "@/components/layout/logo";
 export default function NotFound() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="bg-brand-deep px-4 text-white">
+      <header className="bg-surface px-4 shadow-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center">
           <Logo />
         </div>
       </header>
+      <div aria-hidden className="brand-stripe" />
       <main id="main" className="grid flex-1 place-items-center px-4 py-16">
         <div className="max-w-md text-center">
           <p className="font-mono text-6xl font-semibold text-muted">404</p>

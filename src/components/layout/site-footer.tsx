@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { CONTACT_EMAIL, CONTACT_PHONE, UNIVERSITY_NAME } from "@/lib/constants";
+import { APP_NAME, CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/constants";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-surface pb-20 md:pb-0">
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 md:grid-cols-3">
         <div>
-          <p className="font-heading text-lg font-bold">{UNIVERSITY_NAME} — Sports Office</p>
+          <p className="font-heading text-lg font-bold">{APP_NAME} — Sports Office</p>
           <p className="text-small text-muted">Paperless registration. Verified identities. Fair play.</p>
         </div>
         <div className="text-small">

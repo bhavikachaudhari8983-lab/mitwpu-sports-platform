@@ -20,10 +20,10 @@ import { UNIVERSITY_NAME } from "../src/lib/constants";
 const prisma = new PrismaClient();
 
 export const DEMO_STAFF = [
-  { email: "admin@rivermount.example", name: "Asha Admin (demo)", role: "ADMIN", password: "Admin@12345" },
-  { email: "official@rivermount.example", name: "Omar Official (demo)", role: "OFFICIAL", password: "Official@12345" },
-  { email: "medical@rivermount.example", name: "Dr. Mira Medical (demo)", role: "MEDICAL", password: "Medical@12345" },
-  { email: "coach@rivermount.example", name: "Coach Kiran (demo, Football)", role: "COACH", password: "Coach@12345", sport: "Football" },
+  { email: "admin@sportssphere.example", name: "Asha Admin (demo)", role: "ADMIN", password: "Admin@12345" },
+  { email: "official@sportssphere.example", name: "Omar Official (demo)", role: "OFFICIAL", password: "Official@12345" },
+  { email: "medical@sportssphere.example", name: "Dr. Mira Medical (demo)", role: "MEDICAL", password: "Medical@12345" },
+  { email: "coach@sportssphere.example", name: "Coach Kiran (demo, Football)", role: "COACH", password: "Coach@12345", sport: "Football" },
 ] as const;
 
 async function clearUploads() {
@@ -253,11 +253,11 @@ async function main() {
 
   console.log("Seeding students…");
   // 1. Approved student with QR
-  const aarav = await seedIndian({ erpPrn: "RMU23CS001", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Football", "MALE").id }, { eventId: eventOf("Athletics", "MALE", "100 m").id }], position: "Forward", measurement: { h: 176, w: 68.4 }, submittedDaysAgo: 12 });
+  const aarav = await seedIndian({ erpPrn: "SS23CS001", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Football", "MALE").id }, { eventId: eventOf("Athletics", "MALE", "100 m").id }], position: "Forward", measurement: { h: 176, w: 68.4 }, submittedDaysAgo: 12 });
   // 2. DOB mismatch (flagged)
-  const rohanErp = erp("RMU23ME002");
+  const rohanErp = erp("SS23ME002");
   await seedIndian({
-    erpPrn: "RMU23ME002", status: "FLAGGED", submittedDaysAgo: 5,
+    erpPrn: "SS23ME002", status: "FLAGGED", submittedDaysAgo: 5,
     statusReason: "Date of birth from DigiLocker (14 May 2001) does not match the university record (14 May 2003). Please visit the sports office with your original documents.",
     regs: [{ eventId: eventOf("Cricket", "MALE").id }], position: "Bowler",
     checks: [
@@ -266,9 +266,9 @@ async function main() {
     ],
   });
   // 3. Name mismatch (flagged)
-  const snehaErp = erp("RMU24BC003");
+  const snehaErp = erp("SS24BC003");
   await seedIndian({
-    erpPrn: "RMU24BC003", status: "FLAGGED", submittedDaysAgo: 4,
+    erpPrn: "SS24BC003", status: "FLAGGED", submittedDaysAgo: 4,
     statusReason: "Name on DigiLocker (Sneha Ramesh Jadhav) does not match the university record (Sneha Patil).",
     regs: [{ eventId: eventOf("Kho-Kho", "FEMALE").id }], position: "Chaser",
     checks: [
@@ -277,14 +277,14 @@ async function main() {
     ],
   });
   // 4. Under-18 (pending, guardian consent uploaded)
-  await seedIndian({ erpPrn: "RMU26BA004", status: "PENDING", minorConsent: true, submittedDaysAgo: 2, regs: [{ eventId: eventOf("Badminton", "FEMALE", "Singles").id }] });
+  await seedIndian({ erpPrn: "SS26BA004", status: "PENDING", minorConsent: true, submittedDaysAgo: 2, regs: [{ eventId: eventOf("Badminton", "FEMALE", "Singles").id }] });
   // Others for a realistic dashboard
-  await seedIndian({ erpPrn: "RMU22CE008", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Football", "MALE").id }], position: "Goalkeeper", measurement: { h: 183, w: 79.1 }, submittedDaysAgo: 15 });
-  await seedIndian({ erpPrn: "RMU23BB009", status: "VERIFIED", regs: [{ eventId: eventOf("Basketball", "FEMALE").id }], position: "Point guard", measurement: { h: 168, w: 58.2 }, submittedDaysAgo: 6 });
-  await seedIndian({ erpPrn: "RMU24CS010", status: "PENDING", regs: [{ eventId: eventOf("Wrestling", "MALE").id, weightCategoryId: weightCat("Wrestling", "MALE", "−74 kg").id }], submittedDaysAgo: 3, conditions: "Mild asthma — carries inhaler (fictional)" });
-  await seedIndian({ erpPrn: "RMU22LW011", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Badminton", "FEMALE", "Singles").id }, { eventId: eventOf("Badminton", "MIXED").id }], measurement: { h: 162, w: 54 }, submittedDaysAgo: 10 });
-  await seedIndian({ erpPrn: "RMU25AR012", status: "REJECTED", statusReason: "Medical fitness certificate is older than 6 months. Please register again with a current certificate.", regs: [{ eventId: eventOf("Swimming", "MALE", "50 m").id }], submittedDaysAgo: 8 });
-  await seedIndian({ erpPrn: "RMU23PH013", status: "DRAFT", regs: [], submittedDaysAgo: 1, wizardStep: 3 });
+  await seedIndian({ erpPrn: "SS22CE008", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Football", "MALE").id }], position: "Goalkeeper", measurement: { h: 183, w: 79.1 }, submittedDaysAgo: 15 });
+  await seedIndian({ erpPrn: "SS23BB009", status: "VERIFIED", regs: [{ eventId: eventOf("Basketball", "FEMALE").id }], position: "Point guard", measurement: { h: 168, w: 58.2 }, submittedDaysAgo: 6 });
+  await seedIndian({ erpPrn: "SS24CS010", status: "PENDING", regs: [{ eventId: eventOf("Wrestling", "MALE").id, weightCategoryId: weightCat("Wrestling", "MALE", "−74 kg").id }], submittedDaysAgo: 3, conditions: "Mild asthma — carries inhaler (fictional)" });
+  await seedIndian({ erpPrn: "SS22LW011", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Badminton", "FEMALE", "Singles").id }, { eventId: eventOf("Badminton", "MIXED").id }], measurement: { h: 162, w: 54 }, submittedDaysAgo: 10 });
+  await seedIndian({ erpPrn: "SS25AR012", status: "REJECTED", statusReason: "Medical fitness certificate is older than 6 months. Please register again with a current certificate.", regs: [{ eventId: eventOf("Swimming", "MALE", "50 m").id }], submittedDaysAgo: 8 });
+  await seedIndian({ erpPrn: "SS23PH013", status: "DRAFT", regs: [], submittedDaysAgo: 1, wizardStep: 3 });
 
   // 5. Outside student awaiting college confirmation
   await seedIndian({ aadhaar: "000020000001", status: "PENDING", college: { id: pendingCollege.id, officeEmail: pendingCollege.officeEmail! }, regs: [{ eventId: eventOf("Kabaddi", "MALE").id }], position: "Raider", submittedDaysAgo: 2 });
@@ -304,7 +304,7 @@ async function main() {
       fullName: adm.name, dob: pp.dob, dobSource: "PASSPORT", dobLocked: true, identityVerifiedAt: daysAgo(3), gender: pp.gender,
       mobile: "+917000030001", email: adm.email, emailVerified: true, address: "International Hostel, Block B (fictional)", bloodGroup: "B+",
       emergencyName: "Guardian (fictional)", emergencyPhone: "+9779800000000",
-      universityName: UNIVERSITY_NAME, prn: "RMU24INT01", course: adm.program, year: 2,
+      universityName: UNIVERSITY_NAME, prn: "SS24INT01", course: adm.program, year: 2,
       passportNumber: pp.passportNumber, nationality: pp.nationality, passportExpiry: pp.expiry, mrzValid: true,
       declarationAccepted: true, privacyAccepted: true, wizardStep: 6, submittedAt: daysAgo(2), createdAt: daysAgo(3), playingPosition: "Midfielder",
     },
@@ -339,7 +339,7 @@ async function main() {
   console.log(`\n✔ Seeded ${count} student profiles, ${sports.length} sports, ${DEMO_STAFF.length} staff users.`);
   console.log("\nDemo staff logins (fictional):");
   for (const s of DEMO_STAFF) console.log(`  ${s.role.padEnd(9)} ${s.email.padEnd(32)} ${s.password}`);
-  console.log(`\nApproved student with QR: Aarav Kulkarni (PRN RMU23CS001, mobile ${erp("RMU23CS001").phone})`);
+  console.log(`\nApproved student with QR: Aarav Kulkarni (PRN SS23CS001, mobile ${erp("SS23CS001").phone})`);
 }
 
 main()

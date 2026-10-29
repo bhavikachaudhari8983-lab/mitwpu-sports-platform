@@ -127,7 +127,7 @@ export function Scanner() {
                 <span className="mb-1.5 flex items-center gap-1.5 font-medium">
                   <Keyboard className="size-4" aria-hidden /> Manual Sports ID lookup
                 </span>
-                <Input value={manual} onChange={(e) => setManual(e.target.value.toUpperCase())} placeholder="RMU-26-XXXXXX" autoCapitalize="characters" spellCheck={false} className="font-mono" />
+                <Input value={manual} onChange={(e) => setManual(e.target.value.toUpperCase())} placeholder="SS-26-XXXXXX" autoCapitalize="characters" spellCheck={false} className="font-mono" />
               </label>
               <Button type="submit" variant="outline" loading={checking}>
                 Check

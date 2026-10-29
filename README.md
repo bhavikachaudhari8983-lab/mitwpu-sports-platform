@@ -1,6 +1,6 @@
-# Rivermount Sports Registration Portal
+# Sports Sphere — Sports Registration Portal
 
-A paperless sports registration portal for a (fictional) Indian university. Students from the university, from other universities, and international students register online. Their identity and age come from verified sources, never from what they type. Officials measure height and weight at a desk, and approved athletes get a signed QR Sports ID that is checked live at venues.
+Sports Sphere is a paperless sports registration portal for inter-university games in India. The host university is configurable with `NEXT_PUBLIC_UNIVERSITY_NAME` (default "Host University"). Students from the university, from other universities, and international students register online. Their identity and age come from verified sources, never from what they type. Officials measure height and weight at a desk, and approved athletes get a signed QR Sports ID that is checked live at venues.
 
 > **Demo system.** Every person, number and document in the seed data is fictional. DigiLocker, OTP delivery, the university ERP, passport MRZ verification and the international admissions office are **mocked** (see [Replacing the mocks](#replacing-the-mocks-with-real-services)).
 
@@ -34,10 +34,10 @@ npm run dev            # http://localhost:3000
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | admin@rivermount.example | Admin@12345 |
-| Official | official@rivermount.example | Official@12345 |
-| Medical | medical@rivermount.example | Medical@12345 |
-| Coach (Football) | coach@rivermount.example | Coach@12345 |
+| Admin | admin@sportssphere.example | Admin@12345 |
+| Official | official@sportssphere.example | Official@12345 |
+| Medical | medical@sportssphere.example | Medical@12345 |
+| Coach (Football) | coach@sportssphere.example | Coach@12345 |
 
 **Students** sign in with an OTP on `/status`. In demo mode the OTP is shown on screen in a box labelled "Demo OTP".
 
@@ -48,9 +48,9 @@ npm run dev            # http://localhost:3000
 | Name mismatch (flagged) | Sneha (Patil in the ERP / Jadhav on DigiLocker), `7000010003` |
 | Under 18, pending | Kavya Iyer, `7000010004` |
 | Outside student awaiting college confirmation | Nikhil Sawant, `7000020001` |
-| International, waiting for desk passport check | Sujan Thapa Magar, email `sujan.thapa@intl.rivermount.example` |
+| International, waiting for desk passport check | Sujan Thapa Magar, email `sujan.thapa@intl.sportssphere.example` |
 | Duplicate attempt | Register as an outside student and use DigiLocker Aadhaar `0000 1000 0001` (already Aarav's) |
-| Fresh DOB mismatch for a walkthrough | PRN `RMU24EE005` (Vikram) |
+| Fresh DOB mismatch for a walkthrough | PRN `SS24EE005` (Vikram) |
 
 Fictional Aadhaar numbers start with `0000`, a prefix UIDAI never issues. Each screen has a **Demo helper** panel that lists the test PRNs, Aadhaar numbers and passports (with valid MRZ lines).
 
@@ -126,5 +126,6 @@ Also remove `src/services/mock/demo-hints.ts` and `/api/demo/hints` (they are al
 * Auto-check mismatches are shown immediately, but the status changes to FLAGGED **on submit**. That way the student can still complete the form.
 * Approve requires VERIFIED. Verify requires a measurement, a confirmed college (outside students) and the desk passport tick (international students). A flagged registration must be resolved by an admin before desk verification.
 * Admins see everything except declared medical conditions (medical staff only). Coaches see only approved players in their own sport, and no ID or medical documents.
-* Colours follow the MIT-WPU palette from mitwpu.edu.in and the logo: deep navy `#132A5C` (header/hero/sidebar), logo blue `#14457F` (primary), crimson `#DA3948` (main buttons, white text 4.51:1, passes AA), golden `#F3BE34` (highlights on dark navy) and teal `#5DCDDB` / `#1F6F7A` (secondary). They are defined as tokens in `src/app/globals.css`.
+* **Branding.** The name is "Sports Sphere", and Sports IDs look like `SS-26-XXXXXX`. Colours come from the MIT-WPU logo and website. Logo blue `#14457F` (primary) and logo crimson `#B32D41` (main buttons, white text 6.2:1) are used in the wordmark and sphere mark. Deep navy `#132A5C` is used for the hero and staff sidebar, golden `#F3BE34` for highlights on navy, and teal `#5DCDDB` / `#1F6F7A` as the secondary colour. There is a multicolour rule under the white header. All tokens are in `src/app/globals.css`.
+* **Fonts** (Google Fonts via `next/font`): **Montserrat** 600/700/800 for headings (MIT-WPU's own heading face), **Inter** for body and form text, and **JetBrains Mono** for IDs, PRNs and measurements.
 * Each student may enter at most 4 events. The age cutoff defaults to 1 Dec 2026 and retention to 365 days (both editable).

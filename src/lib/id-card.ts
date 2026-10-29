@@ -5,7 +5,7 @@ import { qrPayload } from "./qr";
 import { readStoredFile } from "./storage";
 import { getAgeCategory } from "./registration";
 import { getSettings } from "./settings";
-import { UNIVERSITY_NAME } from "./constants";
+import { APP_NAME, UNIVERSITY_NAME } from "./constants";
 
 export type IdCardData = {
   sportsId: string;
@@ -48,18 +48,18 @@ export async function renderIdCardPdf(card: IdCardData): Promise<Uint8Array> {
   const H = 214;
   const doc = await PDFDocument.create();
   doc.setTitle(`Sports ID ${card.sportsId}`);
-  doc.setAuthor(UNIVERSITY_NAME);
+  doc.setAuthor(APP_NAME);
   const page = doc.addPage([W, H]);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const mono = await doc.embedFont(StandardFonts.CourierBold);
   const navy = rgb(0.075, 0.165, 0.361); // #132A5C
-  const orange = rgb(0.855, 0.224, 0.282); // MIT-WPU crimson #DA3948
+  const orange = rgb(0.702, 0.176, 0.255); // logo crimson #B32D41
 
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(1, 1, 1) });
   page.drawRectangle({ x: 0, y: H - 40, width: W, height: 40, color: navy });
   page.drawRectangle({ x: 0, y: H - 44, width: W, height: 4, color: orange });
-  page.drawText(card.university.toUpperCase(), { x: 12, y: H - 18, size: 9, font: bold, color: rgb(1, 1, 1) });
+  page.drawText("SPORTS SPHERE", { x: 12, y: H - 18, size: 10, font: bold, color: rgb(1, 1, 1) });
   page.drawText(`SPORTS ID · ${card.meetName}`.slice(0, 60), { x: 12, y: H - 31, size: 7, font, color: rgb(0.85, 0.88, 0.93) });
 
   // Photo
@@ -87,6 +87,7 @@ export async function renderIdCardPdf(card: IdCardData): Promise<Uint8Array> {
   page.drawText("AGE CATEGORY", { x: tx, y: 132, size: 6, font: bold, color: rgb(0.39, 0.45, 0.55) });
   page.drawText(card.ageCategory ?? "-", { x: tx, y: 119, size: 12, font: bold, color: rgb(0.08, 0.5, 0.24) });
   page.drawText("SPORTS", { x: tx, y: 104, size: 6, font: bold, color: rgb(0.39, 0.45, 0.55) });
+  page.drawText(card.university.slice(0, 40), { x: tx, y: 140, size: 6.5, font, color: rgb(0.39, 0.45, 0.55) });
   card.sports.slice(0, 4).forEach((sp, i) => page.drawText(sp.replace("−", "-").slice(0, 26), { x: tx, y: 93 - i * 10, size: 8, font, color: rgb(0.06, 0.09, 0.16) }));
   page.drawText(card.sportsId, { x: 12, y: 22, size: 11, font: mono, color: navy });
   page.drawText(`Valid until ${card.validUntil} · Verify by scanning`, { x: 12, y: 10, size: 6, font, color: rgb(0.39, 0.45, 0.55) });

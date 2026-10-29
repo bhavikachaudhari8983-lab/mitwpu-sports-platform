@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
-import { CONTACT_EMAIL, CONTACT_PHONE, UNIVERSITY_NAME, UNIVERSITY_SHORT } from "@/lib/constants";
+import { APP_NAME, CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/constants";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 
@@ -64,7 +64,7 @@ const STEPS = [
 const DOCS = [
   {
     icon: GraduationCap,
-    title: `${UNIVERSITY_SHORT} students (Indian)`,
+    title: "Host university students (Indian)",
     fetched: ["Name, DOB, gender, photo — DigiLocker", "Class 10 certificate — DigiLocker", "Course & year — university ERP"],
     upload: ["Passport-size photo", "Live selfie (camera)", "Medical fitness certificate", "Guardian consent (if under 18)"],
   },
@@ -77,7 +77,7 @@ const DOCS = [
   {
     icon: Globe2,
     title: "International, OCI & NRI",
-    fetched: ["Passport checked via MRZ", `DOB matched with admissions (${UNIVERSITY_SHORT} students)`],
+    fetched: ["Passport checked via MRZ", "DOB matched with admissions (host-university students)"],
     upload: ["Passport photo page", "Student visa", "FRRO residence permit", "Passport-size photo & live selfie", "Medical fitness certificate"],
   },
 ];
@@ -103,13 +103,13 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-small font-medium">
             <Trophy className="size-4 text-highlight" aria-hidden />
-            {settings?.meetName ?? `${UNIVERSITY_NAME} Games`}
+            {settings?.meetName ?? APP_NAME}
           </p>
           <h1 className="mt-5 max-w-3xl text-white">
-            Register. Get verified. <span className="text-highlight">Play fair.</span>
+            Register. Get verified. <span className="whitespace-nowrap text-highlight">Play fair.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-lg text-white/85">
-            One paperless registration for {UNIVERSITY_NAME} events — open to our students, other universities and international students. Verified age, verified identity, one QR Sports ID.
+            One paperless registration for inter-university games — open to host-university students, other universities and international students. Verified age, verified identity, one QR Sports ID.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/register" size="lg">
@@ -144,12 +144,12 @@ export default async function HomePage() {
           {sports.map((s) => {
             const Icon = SPORT_ICON[s.name] ?? Trophy;
             return (
-              <li key={s.name} className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 shadow-card">
-                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary text-primary-fg">
+              <li key={s.name} className="flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-surface p-3 shadow-card sm:gap-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-fg sm:size-10">
                   <Icon className="size-5" aria-hidden />
                 </span>
                 <span className="min-w-0">
-                  <span className="block font-heading text-lg leading-tight font-semibold">{s.name}</span>
+                  <span className="block font-heading text-[0.95rem] leading-tight font-semibold break-words hyphens-auto sm:text-lg">{s.name}</span>
                   <span className="block text-small text-muted">{s.isWeightCategory ? "Weight classes" : s.isTeam ? "Team" : "Individual"}</span>
                 </span>
               </li>
@@ -264,7 +264,7 @@ export default async function HomePage() {
               <li className="flex items-start gap-3">
                 <MapPin className="mt-1 size-5 shrink-0 text-muted" aria-hidden />
                 <span>
-                  Sports Office, Ground floor, Pavilion Building, {UNIVERSITY_NAME} (fictional campus)
+                  Sports Office, Ground floor, Pavilion Building (demo address)
                   <span className="block text-small text-muted">Mon–Sat, 10:00–17:00</span>
                 </span>
               </li>

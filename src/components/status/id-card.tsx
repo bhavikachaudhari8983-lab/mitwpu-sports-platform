@@ -46,11 +46,11 @@ export function IdCard() {
       ctx.fillRect(0, 0, W, H);
       ctx.fillStyle = "#132A5C";
       ctx.fillRect(0, 0, W, 120);
-      ctx.fillStyle = "#DA3948";
+      ctx.fillStyle = "#B32D41";
       ctx.fillRect(0, 120, W, 12);
       ctx.fillStyle = "#ffffff";
-      ctx.font = "700 30px 'Barlow Semi Condensed', Arial";
-      ctx.fillText(card.university.toUpperCase(), 36, 58);
+      ctx.font = "700 30px Montserrat, Arial";
+      ctx.fillText("SPORTS SPHERE", 36, 58);
       ctx.font = "400 22px Inter, Arial";
       ctx.fillText(`SPORTS ID · ${card.meetName}`, 36, 96);
       if (card.photoDocId) {
@@ -65,13 +65,16 @@ export function IdCard() {
         ctx.restore();
       }
       ctx.fillStyle = "#132A5C";
-      ctx.font = "700 40px 'Barlow Semi Condensed', Arial";
+      ctx.font = "700 40px Montserrat, Arial";
       ctx.fillText(card.name, 300, 200);
+      ctx.fillStyle = "#475569";
+      ctx.font = "400 18px Inter, Arial";
+      ctx.fillText(card.university, 300, 226);
       ctx.fillStyle = "#64748B";
       ctx.font = "600 18px Inter, Arial";
       ctx.fillText("AGE CATEGORY", 300, 250);
       ctx.fillStyle = "#15803D";
-      ctx.font = "700 40px 'Barlow Semi Condensed', Arial";
+      ctx.font = "700 40px Montserrat, Arial";
       ctx.fillText(card.ageCategory ?? "—", 300, 292);
       ctx.fillStyle = "#64748B";
       ctx.font = "600 18px Inter, Arial";
@@ -105,10 +108,10 @@ export function IdCard() {
     <div className="space-y-4">
       <figure aria-label={`Sports ID card for ${card.name}`} className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-white text-[#0f172a] shadow-card">
         <div className="bg-[#132a5c] px-4 py-3 text-white">
-          <p className="font-heading text-lg leading-tight font-bold uppercase">{card.university}</p>
+          <p className="font-heading text-lg leading-tight font-bold uppercase tracking-wide">Sports Sphere</p>
           <p className="text-small text-white/80">Sports ID · {card.meetName}</p>
         </div>
-        <div className="h-1.5 bg-[#da3948]" />
+        <div className="h-1.5 bg-[#b32d41]" />
         <div className="grid grid-cols-[88px_1fr] gap-3 p-4 sm:grid-cols-[104px_1fr_auto]">
           {card.photoDocId ? (
             // eslint-disable-next-line @next/next/no-img-element -- authorised private route
@@ -118,6 +121,7 @@ export function IdCard() {
           )}
           <div className="min-w-0">
             <p className="font-heading text-xl leading-tight font-bold text-[#132a5c]">{card.name}</p>
+            <p className="text-small text-[#475569]">{card.university}</p>
             <p className="mt-2 text-small font-semibold text-[#475569]">AGE CATEGORY</p>
             <p className="font-mono text-xl font-semibold text-[#166534]">{card.ageCategory}</p>
             <p className="mt-2 text-small font-semibold text-[#475569]">SPORTS</p>

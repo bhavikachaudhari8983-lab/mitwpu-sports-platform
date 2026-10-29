@@ -1,9 +1,11 @@
 // Shared enumerations. Stored as strings in the DB so the schema stays portable (SQLite ⇄ PostgreSQL).
 
-export const APP_NAME = "Rivermount Sports Portal";
-export const UNIVERSITY_NAME = process.env.NEXT_PUBLIC_UNIVERSITY_NAME ?? "Rivermount University";
-export const UNIVERSITY_SHORT = "RMU";
-export const CONTACT_EMAIL = "sports.office@rivermount.example";
+export const APP_NAME = "Sports Sphere";
+/** Prefix printed on Sports IDs, e.g. SS-26-4F7K2Q */
+export const ID_PREFIX = "SS";
+/** The university hosting the games. Stored on host-university students' records; set NEXT_PUBLIC_UNIVERSITY_NAME to brand it. */
+export const UNIVERSITY_NAME = process.env.NEXT_PUBLIC_UNIVERSITY_NAME ?? "Host University";
+export const CONTACT_EMAIL = "sports.office@sportssphere.example";
 export const CONTACT_PHONE = "+91 20 5550 0100";
 
 export const STATUSES = ["DRAFT", "PENDING", "VERIFIED", "APPROVED", "FLAGGED", "REJECTED"] as const;
@@ -22,7 +24,7 @@ export const STUDENT_TYPES = ["OUR_INDIAN", "OUTSIDE_INDIAN", "INTERNATIONAL"] a
 export type StudentType = (typeof STUDENT_TYPES)[number];
 
 export const STUDENT_TYPE_LABEL: Record<StudentType, string> = {
-  OUR_INDIAN: `${UNIVERSITY_SHORT} student (Indian)`,
+  OUR_INDIAN: "Host university student (Indian)",
   OUTSIDE_INDIAN: "Other university (Indian)",
   INTERNATIONAL: "International / OCI / NRI",
 };

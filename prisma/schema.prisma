@@ -49,6 +49,8 @@ model Student {
   // Contact
   mobile   String?
   email    String?
+  mobileVerified Boolean @default(false) // verified contacts are locked and usable for login
+  emailVerified  Boolean @default(false)
   address  String?
   bloodGroup String?
   emergencyName  String?

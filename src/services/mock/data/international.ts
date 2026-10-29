@@ -27,7 +27,7 @@ export const ADMISSIONS_RECORDS: AdmissionsRecord[] = [
   { passportNumber: "KE7710245", nationality: "KEN", name: "Wanjiru Achieng Otieno", dob: "2003-09-02", gender: "FEMALE", program: "BBA", email: "wanjiru.otieno@intl.rivermount.example" },
   { passportNumber: "A09126654", nationality: "AFG", name: "Farid Ahmadzai", dob: "2002-08-01", gender: "MALE", program: "MBA", email: "farid.ahmadzai@intl.rivermount.example" },
   { passportNumber: "BG3317720", nationality: "BGD", name: "Nusrat Jahan Mim", dob: "2005-01-27", gender: "FEMALE", program: "B.Pharm", email: "nusrat.mim@intl.rivermount.example" },
-  { passportNumber: "VN1029384", nationality: "VNM", name: "Nguyen Minh Anh", dob: "2004-11-11", gender: "FEMALE", program: "B.Sc Data Science", email: "minh.anh@intl.rivermount.example" },
+  { passportNumber: "VN1029384", nationality: "VNM", name: "Minh Anh Nguyen", dob: "2004-11-11", gender: "FEMALE", program: "B.Sc Data Science", email: "minh.anh@intl.rivermount.example" },
   { passportNumber: "ZW5566120", nationality: "ZWE", name: "Tatenda Moyo", dob: "2003-06-30", gender: "MALE", program: "B.Tech Mechanical", email: "tatenda.moyo@intl.rivermount.example" },
 ];
 
@@ -41,22 +41,4 @@ export const DEMO_PASSPORTS: DemoPassport[] = [
   { passportNumber: "ZW5566120", nationality: "ZWE", surname: "MOYO", givenNames: "TATENDA", dob: "2003-06-30", expiry: "2030-06-29", gender: "MALE", label: "Tatenda Moyo (Zimbabwe) — ours, clean" },
   { passportNumber: "LK8834501", nationality: "LKA", surname: "PERERA", givenNames: "DILSHAN KAVINDA", dob: "2004-02-02", expiry: "2031-12-31", gender: "MALE", label: "Dilshan Perera (Sri Lanka) — outside university" },
   { passportNumber: "Z7123456", nationality: "IND", surname: "D SOUZA", givenNames: "ELENA", dob: "2005-05-05", expiry: "2034-05-04", gender: "FEMALE", label: "Elena D'Souza (OCI cardholder, no Aadhaar) — outside" },
-];
-
-export const NATIONALITIES: Array<{ code: string; name: string }> = [
-  { code: "AFG", name: "Afghanistan" },
-  { code: "BGD", name: "Bangladesh" },
-  { code: "BTN", name: "Bhutan" },
-  { code: "GBR", name: "United Kingdom" },
-  { code: "IND", name: "India (OCI / NRI)" },
-  { code: "KEN", name: "Kenya" },
-  { code: "LKA", name: "Sri Lanka" },
-  { code: "MDV", name: "Maldives" },
-  { code: "MUS", name: "Mauritius" },
-  { code: "MMR", name: "Myanmar" },
-  { code: "NGA", name: "Nigeria" },
-  { code: "NPL", name: "Nepal" },
-  { code: "USA", name: "United States" },
-  { code: "VNM", name: "Vietnam" },
-  { code: "ZWE", name: "Zimbabwe" },
 ];

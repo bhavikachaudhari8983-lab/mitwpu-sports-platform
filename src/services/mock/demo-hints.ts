@@ -8,7 +8,7 @@ export type DemoHints = {
   erp: Array<{ prn: string; name: string; note?: string; aadhaar: string }>;
   outside: Array<{ aadhaar: string; label: string; mobile: string }>;
   duplicateAadhaar: string;
-  passports: Array<{ passportNumber: string; nationality: string; dob: string; expiry: string; gender: string; mrzLine2: string; label: string }>;
+  passports: Array<{ fullName: string; passportNumber: string; nationality: string; dob: string; expiry: string; gender: string; mrzLine2: string; label: string }>;
 };
 
 export function getDemoHints(): DemoHints {
@@ -17,6 +17,7 @@ export function getDemoHints(): DemoHints {
     outside: DIGILOCKER_ACCOUNTS.filter((a) => a.aadhaar.startsWith("00002")).map((a) => ({ aadhaar: a.aadhaar, label: a.label, mobile: a.mobile })),
     duplicateAadhaar: DUPLICATE_TEST_AADHAAR,
     passports: DEMO_PASSPORTS.map((p) => ({
+      fullName: titleCase(`${p.givenNames} ${p.surname}`),
       passportNumber: p.passportNumber,
       nationality: p.nationality,
       dob: p.dob,
@@ -26,4 +27,8 @@ export function getDemoHints(): DemoHints {
       label: p.label,
     })),
   };
+}
+
+function titleCase(s: string) {
+  return s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 }

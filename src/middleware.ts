@@ -27,7 +27,7 @@ export default withAuth(
           ? NextResponse.json({ error: "You do not have permission to do this." }, { status: 403 })
           : NextResponse.json({ error: "Please sign in." }, { status: 401 });
       }
-      return NextResponse.rewrite(new URL("/forbidden", req.url));
+      return NextResponse.rewrite(new URL("/forbidden", req.url), { status: 403 });
     }
     return NextResponse.next();
   },

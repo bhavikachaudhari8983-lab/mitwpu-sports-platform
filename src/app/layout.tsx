@@ -6,7 +6,7 @@ import { themeInitScript } from "@/components/layout/theme-toggle";
 import { APP_NAME } from "@/lib/constants";
 
 // Montserrat = MIT-WPU's heading typeface; Inter for highly legible body/UI text; JetBrains Mono for IDs & numbers.
-const montserrat = Montserrat({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-montserrat", display: "swap" });
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["600", "700", "800"], style: ["normal", "italic"], variable: "--font-montserrat", display: "swap" });
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-inter", display: "swap" });
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-jetbrains", display: "swap" });
 

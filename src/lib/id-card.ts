@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import QRCode from "qrcode";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { prisma } from "./prisma";
@@ -53,14 +55,21 @@ export async function renderIdCardPdf(card: IdCardData): Promise<Uint8Array> {
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const mono = await doc.embedFont(StandardFonts.CourierBold);
-  const navy = rgb(0.075, 0.165, 0.361); // #132A5C
-  const orange = rgb(0.702, 0.176, 0.255); // logo crimson #B32D41
+  const navy = rgb(0.063, 0.106, 0.239); // brand navy #101B3D
+  const orange = rgb(0.933, 0.478, 0.169); // logo orange #EE7A2B
 
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(1, 1, 1) });
   page.drawRectangle({ x: 0, y: H - 40, width: W, height: 40, color: navy });
   page.drawRectangle({ x: 0, y: H - 44, width: W, height: 4, color: orange });
-  page.drawText("SPORTS SPHERE", { x: 12, y: H - 18, size: 10, font: bold, color: rgb(1, 1, 1) });
-  page.drawText(`SPORTS ID · ${card.meetName}`.slice(0, 60), { x: 12, y: H - 31, size: 7, font, color: rgb(0.85, 0.88, 0.93) });
+  const logoBytes = await readFile(join(process.cwd(), "public/brand/sports-sphere-logo.png")).catch(() => null);
+  if (logoBytes) {
+    const logo = await doc.embedPng(logoBytes);
+    page.drawCircle({ x: 26, y: H - 20, size: 16, color: rgb(1, 1, 1) });
+    page.drawImage(logo, { x: 11, y: H - 35, width: 30, height: 30 });
+  }
+  page.drawText("SPORTS", { x: 48, y: H - 18, size: 10, font: bold, color: rgb(1, 1, 1) });
+  page.drawText("SPHERE", { x: 48 + bold.widthOfTextAtSize("SPORTS ", 10), y: H - 18, size: 10, font: bold, color: rgb(0.961, 0.639, 0.227) });
+  page.drawText(`SPORTS ID · ${card.meetName}`.slice(0, 56), { x: 48, y: H - 31, size: 7, font, color: rgb(0.85, 0.88, 0.93) });
 
   // Photo
   const px = 12, py = 40, pw = 78, ph = 100;

@@ -29,7 +29,7 @@ export function BottomNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn("flex min-h-14 flex-col items-center justify-center gap-0.5 text-small font-medium", active ? "text-fg" : "text-muted")}
               >
-                <Icon className={cn("size-5", active && "text-accent")} aria-hidden />
+                <Icon className={cn("size-5", active && "text-primary")} aria-hidden />
                 {label}
                 {active && <span aria-hidden className="mt-0.5 h-0.5 w-6 rounded-full bg-accent" />}
               </Link>

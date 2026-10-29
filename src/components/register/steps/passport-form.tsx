@@ -73,8 +73,8 @@ export function PassportForm() {
                 { v: true, l: "Yes, I study at the host university" },
                 { v: false, l: "No, another university" },
               ].map((o) => (
-                <label key={String(o.v)} className={cn("flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border p-3", f.isOurUniversity === o.v ? "border-accent bg-surface-2" : "border-border")}>
-                  <input type="radio" name="isOurUniversity" checked={f.isOurUniversity === o.v} onChange={() => set("isOurUniversity", o.v)} className="size-5 accent-[var(--accent)]" />
+                <label key={String(o.v)} className={cn("flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border p-3", f.isOurUniversity === o.v ? "border-primary bg-surface-2" : "border-border")}>
+                  <input type="radio" name="isOurUniversity" checked={f.isOurUniversity === o.v} onChange={() => set("isOurUniversity", o.v)} className="size-5 accent-[var(--primary)]" />
                   {o.l}
                 </label>
               ))}

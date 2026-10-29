@@ -44,15 +44,30 @@ export function IdCard() {
       if (!ctx) throw new Error("no canvas");
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "#132A5C";
+      ctx.fillStyle = "#101B3D";
       ctx.fillRect(0, 0, W, 120);
-      ctx.fillStyle = "#B32D41";
+      ctx.fillStyle = "#EE7A2B";
       ctx.fillRect(0, 120, W, 12);
       ctx.fillStyle = "#ffffff";
       ctx.font = "700 30px Montserrat, Arial";
-      ctx.fillText("SPORTS SPHERE", 36, 58);
+      const logo = await loadImg("/brand/sports-sphere-logo.png");
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(76, 60, 46, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.clip();
+      ctx.drawImage(logo, 30, 14, 92, 92);
+      ctx.restore();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "italic 800 30px Montserrat, Arial";
+      ctx.fillText("SPORTS", 140, 58);
+      ctx.fillStyle = "#F5A33A";
+      ctx.fillText("SPHERE", 140 + ctx.measureText("SPORTS ").width, 58);
       ctx.font = "400 22px Inter, Arial";
-      ctx.fillText(`SPORTS ID · ${card.meetName}`, 36, 96);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "400 22px Inter, Arial";
+      ctx.fillText(`SPORTS ID · ${card.meetName}`, 140, 96);
       if (card.photoDocId) {
         const photo = await loadImg(`/api/documents/${card.photoDocId}`);
         const pw = 232, ph = 298, px = 36, py = 166;
@@ -64,7 +79,7 @@ export function IdCard() {
         ctx.drawImage(photo, px + (pw - photo.width * s) / 2, py + (ph - photo.height * s) / 2, photo.width * s, photo.height * s);
         ctx.restore();
       }
-      ctx.fillStyle = "#132A5C";
+      ctx.fillStyle = "#101B3D";
       ctx.font = "700 40px Montserrat, Arial";
       ctx.fillText(card.name, 300, 200);
       ctx.fillStyle = "#475569";
@@ -82,7 +97,7 @@ export function IdCard() {
       ctx.fillStyle = "#0F172A";
       ctx.font = "500 24px Inter, Arial";
       card.sports.slice(0, 4).forEach((sp, i) => ctx.fillText(sp, 300, 370 + i * 32));
-      ctx.fillStyle = "#132A5C";
+      ctx.fillStyle = "#101B3D";
       ctx.font = "600 34px 'JetBrains Mono', monospace";
       ctx.fillText(card.sportsId, 36, 560);
       ctx.fillStyle = "#64748B";
@@ -107,11 +122,19 @@ export function IdCard() {
   return (
     <div className="space-y-4">
       <figure aria-label={`Sports ID card for ${card.name}`} className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-white text-[#0f172a] shadow-card">
-        <div className="bg-[#132a5c] px-4 py-3 text-white">
-          <p className="font-heading text-lg leading-tight font-bold uppercase tracking-wide">Sports Sphere</p>
-          <p className="text-small text-white/80">Sports ID · {card.meetName}</p>
+        <div className="bg-[#101b3d] px-4 py-3 text-white">
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element -- static brand asset */}
+            <img src="/brand/sports-sphere-logo.png" alt="" className="size-11 shrink-0 rounded-full bg-white" />
+            <div className="min-w-0">
+              <p className="font-heading text-lg leading-tight font-extrabold uppercase italic">
+                Sports <span className="text-[#f5a33a]">Sphere</span>
+              </p>
+              <p className="text-small text-white/80">Sports ID · {card.meetName}</p>
+            </div>
+          </div>
         </div>
-        <div className="h-1.5 bg-[#b32d41]" />
+        <div className="h-1.5 bg-[#ee7a2b]" />
         <div className="grid grid-cols-[88px_1fr] gap-3 p-4 sm:grid-cols-[104px_1fr_auto]">
           {card.photoDocId ? (
             // eslint-disable-next-line @next/next/no-img-element -- authorised private route
@@ -120,7 +143,7 @@ export function IdCard() {
             <div className="aspect-[3/4] w-full rounded-lg bg-slate-200" />
           )}
           <div className="min-w-0">
-            <p className="font-heading text-xl leading-tight font-bold text-[#132a5c]">{card.name}</p>
+            <p className="font-heading text-xl leading-tight font-bold text-[#101b3d]">{card.name}</p>
             <p className="text-small text-[#475569]">{card.university}</p>
             <p className="mt-2 text-small font-semibold text-[#475569]">AGE CATEGORY</p>
             <p className="font-mono text-xl font-semibold text-[#166534]">{card.ageCategory}</p>
@@ -135,7 +158,7 @@ export function IdCard() {
           <img src={card.qrDataUrl} alt={`QR code for Sports ID ${card.sportsId}`} className="col-span-2 mx-auto size-40 sm:col-span-1 sm:size-32 sm:self-end" />
         </div>
         <figcaption className="flex flex-wrap items-center justify-between gap-x-3 border-t border-slate-200 px-4 py-2">
-          <span className="font-mono font-semibold whitespace-nowrap text-[#132a5c] tabular">{card.sportsId}</span>
+          <span className="font-mono font-semibold whitespace-nowrap text-[#101b3d] tabular">{card.sportsId}</span>
           <span className="text-small text-[#475569]">Valid until {card.validUntil}</span>
         </figcaption>
       </figure>

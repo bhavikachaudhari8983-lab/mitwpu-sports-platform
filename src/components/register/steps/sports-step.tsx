@@ -112,9 +112,9 @@ export function SportsStep() {
                     const checked = !!reg;
                     const wErr = errors[`weight-${e.id}`];
                     return (
-                      <div key={e.id} className={cn("rounded-xl border p-3", checked ? "border-accent bg-surface-2" : "border-border")}>
+                      <div key={e.id} className={cn("rounded-xl border p-3", checked ? "border-primary bg-surface-2" : "border-border")}>
                         <label className="flex min-h-11 cursor-pointer items-start gap-3">
-                          <input type="checkbox" checked={checked} disabled={!checked && full} onChange={() => toggleEvent(e.id)} className="mt-1 size-5 shrink-0 accent-[var(--accent)]" />
+                          <input type="checkbox" checked={checked} disabled={!checked && full} onChange={() => toggleEvent(e.id)} className="mt-1 size-5 shrink-0 accent-[var(--primary)]" />
                           <span className="min-w-0">
                             <span className="block font-medium">{e.name}</span>
                             <span className="flex flex-wrap gap-x-3 text-small text-muted">

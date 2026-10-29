@@ -6,7 +6,7 @@ export async function samplePdf(title: string, lines: string[]): Promise<Uint8Ar
   const page = doc.addPage([595, 842]);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const font = await doc.embedFont(StandardFonts.Helvetica);
-  page.drawRectangle({ x: 0, y: 782, width: 595, height: 60, color: rgb(0.075, 0.165, 0.361) });
+  page.drawRectangle({ x: 0, y: 782, width: 595, height: 60, color: rgb(0.063, 0.106, 0.239) });
   page.drawText(title, { x: 40, y: 805, size: 18, font: bold, color: rgb(1, 1, 1) });
   let y = 740;
   for (const line of lines) {

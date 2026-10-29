@@ -2,27 +2,25 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ---------- Design tokens (light) ---------- */
 :root {
-  /* MIT-WPU palette (sampled from mitwpu.edu.in and the university logo) */
-  --brand-deep: #132a5c; /* header, hero, sidebar — same in both themes */
-  --primary: #14457f; /* logo blue */
-  --primary-hover: #0f3766;
+  /* Sports Sphere palette, sampled from the official logo:
+     navy "SPORTS" #0E1430 · orange "SPHERE" #EE7A2B→#E4572A · ring red/orange/yellow/green · water blue */
+  --brand-deep: #101b3d; /* header-hero-sidebar navy */
+  --primary: #1d3576; /* navy-blue for links, selected states, secondary buttons (11.5:1) */
+  --primary-hover: #15295e;
   --primary-fg: #ffffff;
 
-  /* MIT-WPU logo crimson: primary actions only. White text = 6.2:1 (AA). */
-  --accent: #b32d41;
-  --accent-hover: #962436;
-  --accent-fg: #ffffff;
+  /* Logo orange: primary actions & highlights. Text on it is logo navy (6.4:1, AA). */
+  --accent: #ee7a2b;
+  --accent-hover: #e0651c;
+  --accent-fg: #0e1430;
 
-  /* Golden yellow: highlights on dark brand surfaces (8:1 on --brand-deep) */
-  --highlight: #f3be34;
+  --highlight: #f5a33a; /* orange on navy (8.2:1) */
+  --highlight-2: #f6c642; /* ring yellow on navy (10.5:1) */
+  --wordmark-1: #0e1430; /* "SPORTS" */
+  --wordmark-2: #e4572a; /* "SPHERE" (large bold text, 3.7:1) */
 
-  /* Wordmark colours (logo blue + logo crimson), re-stepped for dark mode */
-  --wordmark-1: #14457f;
-  --wordmark-2: #b32d41;
-
-  --secondary: #1f6f7a; /* deep teal (MIT-WPU teal #5dcddb darkened for text contrast) */
+  --secondary: #2e7d32; /* ring green, darkened for text (5.1:1) */
   --secondary-fg: #ffffff;
 
   --bg: #f8fafc;
@@ -32,7 +30,7 @@
   --border-strong: #cbd5e1;
   --fg: #0f172a;
   --muted: #64748b;
-  --ring: #14457f;
+  --ring: #1d3576;
 
   --success: #16a34a;
   --success-fg: #166534;
@@ -57,15 +55,15 @@
 
 /* ---------- Design tokens (dark) ---------- */
 .dark {
-  --primary: #2a5fa8;
-  --primary-hover: #3570bf;
+  --primary: #3b5bc4;
+  --primary-hover: #4a6fd0;
   --primary-fg: #ffffff;
-  --accent: #c93848;
-  --accent-hover: #da3948;
-  --accent-fg: #ffffff;
+  --accent: #ee7a2b;
+  --accent-hover: #f5a33a;
+  --accent-fg: #0e1430;
   --wordmark-1: #ffffff;
-  --wordmark-2: #f06b79;
-  --secondary: #5dcddb;
+  --wordmark-2: #f5a33a;
+  --secondary: #7cc47f;
   --secondary-fg: #0b1220;
 
   --bg: #0b1220;
@@ -75,7 +73,7 @@
   --border-strong: #334466;
   --fg: #e2e8f0;
   --muted: #94a3b8;
-  --ring: #f3be34;
+  --ring: #f5a33a;
 
   --success-fg: #86efac;
   --success-bg: rgb(22 163 74 / 0.18);
@@ -103,6 +101,7 @@
   --color-accent-fg: var(--accent-fg);
   --color-brand-deep: var(--brand-deep);
   --color-highlight: var(--highlight);
+  --color-highlight-2: var(--highlight-2);
   --color-wordmark-1: var(--wordmark-1);
   --color-wordmark-2: var(--wordmark-2);
   --color-secondary: var(--secondary);
@@ -206,10 +205,10 @@
         rgb(255 255 255 / 0.035) 0 18px,
         transparent 18px 44px
       ),
-      radial-gradient(ellipse 120% 70% at 110% 120%, transparent 54%, rgb(201 56 72 / 0.7) 54.3%, transparent 54.9%,
-        transparent 58%, rgb(243 190 52 / 0.35) 58.3%, transparent 58.8%,
-        transparent 62%, rgb(93 205 219 / 0.25) 62.3%, transparent 62.8%,
-        transparent 66%, rgb(255 255 255 / 0.07) 66.3%, transparent 66.8%);
+      radial-gradient(ellipse 120% 70% at 110% 120%, transparent 54%, rgb(238 122 43 / 0.75) 54.3%, transparent 54.9%,
+        transparent 58%, rgb(246 198 66 / 0.45) 58.3%, transparent 58.8%,
+        transparent 62%, rgb(124 179 66 / 0.35) 62.3%, transparent 62.8%,
+        transparent 66%, rgb(78 126 180 / 0.35) 66.3%, transparent 66.8%);
   }
   .track-stripe {
     background-image: repeating-linear-gradient(-45deg, var(--accent) 0 8px, transparent 8px 16px);
@@ -217,7 +216,15 @@
   /* Multicolour rule under the header, as on mitwpu.edu.in */
   .brand-stripe {
     height: 4px;
-    background: linear-gradient(90deg, #da3948 0%, #ee7832 22%, #f3be34 42%, #5dcddb 64%, #3053d3 84%, #253c88 100%);
+    /* the logo's ring: red → orange → yellow → green → water blue */
+    background: linear-gradient(90deg, #ea4248 0%, #ee7a2b 25%, #f6c642 50%, #7cb342 72%, #4e7eb4 100%);
+  }
+  /* "SPHERE"-style orange gradient text (used on navy only) */
+  .text-gradient-sphere {
+    background: linear-gradient(90deg, #f6c642, #f5a33a 45%, #ee7a2b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);

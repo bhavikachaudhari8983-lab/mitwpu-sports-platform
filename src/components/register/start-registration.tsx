@@ -38,7 +38,7 @@ export function StartRegistration({ demo }: { demo: boolean }) {
                 key={p.id}
                 type="button"
                 onClick={() => setPath(p.id)}
-                className="group flex w-full items-center gap-4 rounded-xl border border-border bg-surface p-4 text-left shadow-card transition-colors hover:border-accent sm:p-5"
+                className="group flex w-full items-center gap-4 rounded-xl border border-border bg-surface p-4 text-left shadow-card transition-colors hover:border-primary sm:p-5"
               >
                 <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary text-primary-fg">
                   <p.icon className="size-6" aria-hidden />
@@ -134,8 +134,8 @@ function PathA({ demo }: { demo: boolean }) {
                 { v: "EMAIL", label: "Email", target: lookup.maskedEmail, icon: Mail },
               ] as const
             ).map((o) => (
-              <label key={o.v} className={cn("flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border p-3", channel === o.v ? "border-accent bg-surface-2" : "border-border")}>
-                <input type="radio" name="channel" value={o.v} checked={channel === o.v} onChange={() => setChannel(o.v)} className="size-5 accent-[var(--accent)]" />
+              <label key={o.v} className={cn("flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border p-3", channel === o.v ? "border-primary bg-surface-2" : "border-border")}>
+                <input type="radio" name="channel" value={o.v} checked={channel === o.v} onChange={() => setChannel(o.v)} className="size-5 accent-[var(--primary)]" />
                 <o.icon className="size-5 text-muted" aria-hidden />
                 <span>
                   {o.label}: <span className="font-mono tabular">{o.target}</span>

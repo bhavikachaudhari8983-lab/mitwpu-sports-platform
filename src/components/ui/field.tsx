@@ -79,7 +79,7 @@ export function Textarea({ className, ...rest }: ComponentProps<"textarea">) {
 export function Checkbox({ id, label, className, ...rest }: ComponentProps<"input"> & { id: string; label: ReactNode }) {
   return (
     <label htmlFor={id} className={cn("flex min-h-11 cursor-pointer items-start gap-3 py-2", className)}>
-      <input id={id} type="checkbox" className="mt-0.5 size-5 shrink-0 accent-[var(--accent)]" {...rest} />
+      <input id={id} type="checkbox" className="mt-0.5 size-5 shrink-0 accent-[var(--primary)]" {...rest} />
       <span className="text-fg">{label}</span>
     </label>
   );

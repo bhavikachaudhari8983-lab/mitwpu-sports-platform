@@ -119,7 +119,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
         <button type="button" onClick={() => setMobileOpen(true)} aria-label="Open navigation" aria-expanded={mobileOpen} aria-controls="staff-drawer" className="-ml-2 grid size-11 place-items-center rounded-lg hover:bg-white/10">
           <Menu className="size-6" aria-hidden />
         </button>
-        <Logo href="/" onDark />
+        <Logo href="/" onDark stacked />
         <ThemeToggle className="text-white" />
       </header>
 
@@ -129,7 +129,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
           <button type="button" aria-label="Close navigation" className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col gap-4 bg-brand-deep p-4 text-white">
             <div className="flex items-center justify-between">
-              <Logo onDark />
+              <Logo onDark stacked />
               <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close navigation" className="grid size-11 place-items-center rounded-lg hover:bg-white/10">
                 <X className="size-5" aria-hidden />
               </button>
@@ -150,7 +150,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
         )}
       >
         <div className={cn("flex items-center gap-2", collapsed ? "justify-center" : "justify-between pl-1")}>
-          {!collapsed && <Logo onDark />}
+          {!collapsed && <Logo onDark stacked />}
           <button
             type="button"
             onClick={toggleCollapsed}

@@ -156,7 +156,7 @@ export function ReviewStep({ onGoTo }: StepProps) {
         </ul>
       </Section>
 
-      <Card className="border-accent">
+      <Card className="border-primary">
         <CardBody className="space-y-4">
           <p className="text-fg">
             When you submit, your registration goes to the sports office for verification. {willFlag && <strong>Because some details didn&apos;t match, it will be flagged for manual review.</strong>} You won&apos;t be able to edit it afterwards.

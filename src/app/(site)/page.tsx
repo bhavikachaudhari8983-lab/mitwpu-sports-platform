@@ -32,6 +32,7 @@ import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { APP_NAME, CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/constants";
 import { ButtonLink } from "@/components/ui/button";
+import { LogoMark } from "@/components/layout/logo";
 import { Card, CardBody } from "@/components/ui/card";
 
 export const revalidate = 300;
@@ -100,13 +101,14 @@ export default async function HomePage() {
     <>
       {/* Hero */}
       <section className="hero-pattern relative overflow-hidden text-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
+        <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 sm:gap-10 sm:px-6 sm:py-20 lg:grid-cols-[1fr_auto] lg:py-24">
+          <div className="order-2 lg:order-1">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-small font-medium">
             <Trophy className="size-4 text-highlight" aria-hidden />
             {settings?.meetName ?? APP_NAME}
           </p>
           <h1 className="mt-5 max-w-3xl text-white">
-            Register. Get verified. <span className="whitespace-nowrap text-highlight">Play fair.</span>
+            Register. Get verified. <span className="text-gradient-sphere whitespace-nowrap italic">Play fair.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-lg text-white/85">
             One paperless registration for inter-university games — open to host-university students, other universities and international students. Verified age, verified identity, one QR Sports ID.
@@ -130,6 +132,12 @@ export default async function HomePage() {
               </li>
             ))}
           </ul>
+          </div>
+          <div className="order-1 flex justify-center lg:order-2">
+            <div className="rounded-full bg-white p-2 shadow-[0_0_0_6px_rgb(255_255_255/0.08),0_20px_60px_-10px_rgb(238_122_43/0.45)]">
+              <LogoMark size={296} priority alt="Sports Sphere — MIT-WPU: Fueling passion, building champions" className="size-28 sm:size-52 lg:size-72" />
+            </div>
+          </div>
         </div>
         <div aria-hidden className="track-stripe h-2 opacity-80" />
       </section>

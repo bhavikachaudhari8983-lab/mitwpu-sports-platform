@@ -1,0 +1,79 @@
+// Contracts for every external system. The app only depends on these interfaces.
+// Mock implementations live in ./mock; real ones are wired in ./index.ts.
+
+export class ServiceError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ServiceError";
+  }
+}
+
+export type BinaryFile = { data: Uint8Array; mimeType: "image/png" | "image/jpeg" | "application/pdf"; fileName: string };
+
+// ---------- University ERP ----------
+export type ErpStudent = {
+  prn: string;
+  name: string;
+  dob: string; // YYYY-MM-DD
+  gender: "MALE" | "FEMALE" | "OTHER";
+  phone: string;
+  email: string;
+  course: string;
+  year: number;
+};
+
+export interface ErpService {
+  findStudentByPrn(prn: string): Promise<ErpStudent | null>;
+  getStudentPhoto(prn: string): Promise<BinaryFile | null>;
+}
+
+// ---------- DigiLocker (Aadhaar e-KYC + issued documents) ----------
+export type DigiLockerProfile = {
+  name: string;
+  dob: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  aadhaarLast4: string; // the provider never returns more than this to us
+  address: string;
+  photo: BinaryFile;
+  class10Certificate: BinaryFile | null;
+};
+
+export interface DigiLockerService {
+  /** Begins the consent flow; the provider sends an OTP to the Aadhaar-linked mobile. */
+  startConsent(input: { aadhaarNumber: string }): Promise<{ requestId: string; maskedMobile: string; demoOtp?: string }>;
+  /** Completes consent after the student enters the OTP and approves sharing. */
+  completeConsent(input: { requestId: string; otp: string }): Promise<DigiLockerProfile>;
+}
+
+// ---------- OTP delivery (SMS / email gateway) ----------
+export type OtpChannel = "SMS" | "EMAIL";
+
+export interface OtpDeliveryService {
+  send(input: { channel: OtpChannel; to: string; code: string; purpose: string }): Promise<{ delivered: boolean; demoCode?: string }>;
+}
+
+// ---------- Passport MRZ verification ----------
+export type MrzInput = { passportNumber: string; nationality: string; dob: string; expiry: string; mrzLine2: string };
+
+export interface PassportVerificationService {
+  verifyMrz(input: MrzInput): Promise<{ valid: boolean; problems: string[] }>;
+  /** Photo extracted from the passport chip / photo page, used as the reference image. */
+  getReferencePhoto(input: { passportNumber: string; nationality: string }): Promise<BinaryFile | null>;
+}
+
+// ---------- International admissions office ----------
+export type AdmissionsRecord = {
+  passportNumber: string;
+  nationality: string;
+  name: string;
+  dob: string;
+  program: string;
+  email: string;
+};
+
+export interface InternationalAdmissionsService {
+  findByPassport(passportNumber: string, nationality: string): Promise<AdmissionsRecord | null>;
+}

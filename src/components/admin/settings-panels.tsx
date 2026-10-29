@@ -231,7 +231,7 @@ function SportItem({ sport }: { sport: SportRow }) {
                     .map((w) => (
                       <li key={w.id} className="inline-flex items-center gap-1 rounded-full bg-surface-2 py-1 pr-1 pl-3 text-small">
                         {w.name}
-                        <button type="button" aria-label={`Delete ${w.name}`} onClick={() => run({ op: "weight-delete", id: w.id }, "Weight category deleted", `w-${w.id}`)} className="grid size-9 place-items-center rounded-full text-muted hover:bg-surface hover:text-danger-fg">
+                        <button type="button" aria-label={`Delete ${w.name}`} onClick={() => run({ op: "weight-delete", id: w.id }, "Weight category deleted", `w-${w.id}`)} className="grid size-11 place-items-center rounded-full text-muted hover:bg-surface hover:text-danger-fg">
                           <Trash2 className="size-4" aria-hidden />
                         </button>
                       </li>

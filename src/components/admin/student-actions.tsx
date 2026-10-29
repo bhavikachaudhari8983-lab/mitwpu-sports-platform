@@ -81,7 +81,7 @@ export function StudentActions({ studentId, name, status, dob, canConfirmCollege
           Flag
         </Button>
         <Button variant="outline" onClick={() => openAction("reopen")} disabled={status !== "FLAGGED" && status !== "REJECTED"} icon={<RotateCcw className="size-4" aria-hidden />}>
-          Resolve → pending
+          Resolve flag
         </Button>
         {canConfirmCollege && (
           <Button variant="secondary" onClick={() => openAction("confirm-college")} icon={<Building2 className="size-4" aria-hidden />} className="sm:col-span-2">

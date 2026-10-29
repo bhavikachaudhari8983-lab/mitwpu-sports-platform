@@ -37,7 +37,7 @@ export function AuditList({ entries, showStudentLink }: { entries: Entry[]; show
             </div>
             <p className="break-words text-fg">{e.summary}</p>
             {showStudentLink && e.studentId && (
-              <Link href={`/admin/students/${e.studentId}`} className="inline-flex min-h-11 items-center text-small font-medium underline underline-offset-4 sm:min-h-0">
+              <Link href={`/admin/students/${e.studentId}`} className="inline-flex min-h-11 items-center text-small font-medium underline underline-offset-4">
                 Open student
               </Link>
             )}

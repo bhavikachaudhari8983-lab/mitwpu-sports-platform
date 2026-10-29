@@ -12,12 +12,12 @@ export function SiteFooter() {
         <div className="text-small">
           <p className="font-semibold">Contact</p>
           <p>
-            <a className="underline-offset-4 hover:underline" href={`mailto:${CONTACT_EMAIL}`}>
+            <a className="inline-flex min-h-11 items-center underline-offset-4 hover:underline" href={`mailto:${CONTACT_EMAIL}`}>
               {CONTACT_EMAIL}
             </a>
           </p>
           <p>
-            <a className="underline-offset-4 hover:underline" href={`tel:${CONTACT_PHONE.replace(/\s/g, "")}`}>
+            <a className="inline-flex min-h-11 items-center underline-offset-4 hover:underline" href={`tel:${CONTACT_PHONE.replace(/\s/g, "")}`}>
               {CONTACT_PHONE}
             </a>
           </p>
@@ -25,17 +25,17 @@ export function SiteFooter() {
         <nav aria-label="Footer" className="text-small">
           <ul className="space-y-1">
             <li>
-              <Link className="inline-flex min-h-11 items-center underline-offset-4 hover:underline md:min-h-0" href="/privacy">
+              <Link className="inline-flex min-h-11 items-center underline-offset-4 hover:underline" href="/privacy">
                 Privacy notice (DPDP Act)
               </Link>
             </li>
             <li>
-              <Link className="inline-flex min-h-11 items-center underline-offset-4 hover:underline md:min-h-0" href="/status">
+              <Link className="inline-flex min-h-11 items-center underline-offset-4 hover:underline" href="/status">
                 Check registration status
               </Link>
             </li>
             <li>
-              <Link className="inline-flex min-h-11 items-center underline-offset-4 hover:underline md:min-h-0" href="/staff/login">
+              <Link className="inline-flex min-h-11 items-center underline-offset-4 hover:underline" href="/staff/login">
                 Staff login
               </Link>
             </li>

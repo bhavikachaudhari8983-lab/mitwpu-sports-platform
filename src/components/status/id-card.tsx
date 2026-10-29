@@ -130,8 +130,8 @@ export function IdCard() {
           {/* eslint-disable-next-line @next/next/no-img-element -- generated data URL */}
           <img src={card.qrDataUrl} alt={`QR code for Sports ID ${card.sportsId}`} className="col-span-2 mx-auto size-40 sm:col-span-1 sm:size-32 sm:self-end" />
         </div>
-        <figcaption className="flex items-center justify-between border-t border-slate-200 px-4 py-2">
-          <span className="font-mono font-semibold text-[#0b1f3a] tabular">{card.sportsId}</span>
+        <figcaption className="flex flex-wrap items-center justify-between gap-x-3 border-t border-slate-200 px-4 py-2">
+          <span className="font-mono font-semibold whitespace-nowrap text-[#0b1f3a] tabular">{card.sportsId}</span>
           <span className="text-small text-[#475569]">Valid until {card.validUntil}</span>
         </figcaption>
       </figure>

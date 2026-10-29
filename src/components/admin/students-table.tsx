@@ -19,12 +19,12 @@ type Row = {
 
 const sportsOf = (r: Row) => [...new Set(r.registrations.map((x) => x.event.sport.name))].join(", ") || "—";
 
-/** Table on ≥768px; stacked cards on phones. */
+/** Table on ≥1024px; stacked cards on phones and tablets. */
 export function StudentsTable({ rows, hrefBase = "/admin/students" }: { rows: Row[]; hrefBase?: string }) {
   if (!rows.length) return <EmptyState icon={<Users className="size-7" aria-hidden />} title="No registrations match" description="Try clearing a filter or searching for something else." />;
   return (
     <>
-      <ul className="space-y-3 md:hidden">
+      <ul className="space-y-3 lg:hidden">
         {rows.map((r) => (
           <li key={r.id}>
             <Link href={`${hrefBase}/${r.id}`} className="block rounded-xl border border-border bg-surface p-4 shadow-card hover:border-border-strong">
@@ -39,7 +39,7 @@ export function StudentsTable({ rows, hrefBase = "/admin/students" }: { rows: Ro
           </li>
         ))}
       </ul>
-      <div className="hidden overflow-x-auto rounded-xl border border-border bg-surface shadow-card md:block">
+      <div className="relative hidden overflow-x-auto rounded-xl border border-border bg-surface shadow-card lg:block">
         <table className="w-full text-left">
           <thead className="border-b border-border bg-surface-2 text-small text-muted">
             <tr>

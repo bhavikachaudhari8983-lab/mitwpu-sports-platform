@@ -21,6 +21,8 @@ type Props = {
   multiple?: boolean;
   error?: string;
   readOnly?: boolean;
+  /** "user" opens the front camera (selfies); default rear camera for documents */
+  cameraFacing?: "user" | "environment";
 };
 
 const ACCEPT_ALL = "image/jpeg,image/png,image/webp,application/pdf";
@@ -45,7 +47,7 @@ function uploadWithProgress(form: FormData, onProgress: (pct: number) => void): 
   });
 }
 
-export function DocumentUpload({ type, label, description, required, imageOnly, docs, onChange, multiple, error, readOnly }: Props) {
+export function DocumentUpload({ type, label, description, required, imageOnly, docs, onChange, multiple, error, readOnly, cameraFacing = "environment" }: Props) {
   const id = useId();
   const fileRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
@@ -167,7 +169,7 @@ export function DocumentUpload({ type, label, description, required, imageOnly, 
       {(canAdd || (!multiple && mine.length > 0 && !readOnly)) && progress === null && (
         <div className="mt-3 flex flex-wrap gap-2">
           <input ref={fileRef} type="file" accept={imageOnly ? ACCEPT_IMG : ACCEPT_ALL} className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => { void handle(e.target.files?.[0], "UPLOAD"); e.target.value = ""; }} />
-          <input ref={camRef} type="file" accept="image/*" capture="environment" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => { void handle(e.target.files?.[0], "CAMERA"); e.target.value = ""; }} />
+          <input ref={camRef} type="file" accept="image/*" capture={cameraFacing} className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => { void handle(e.target.files?.[0], "CAMERA"); e.target.value = ""; }} />
           <Button variant="outline" size="sm" icon={<Upload className="size-4" aria-hidden />} onClick={() => fileRef.current?.click()}>
             {mine.length > 0 && !multiple ? "Replace file" : "Choose file"}
           </Button>

@@ -1,0 +1,56 @@
+{
+  "name": "sports-registration-portal",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "db:provider": "node scripts/prisma-provider.mjs",
+    "db:push": "npm run db:provider && prisma db push",
+    "db:seed": "prisma db seed",
+    "db:reset": "npm run db:provider && prisma db push --force-reset && prisma db seed",
+    "setup": "npm run db:reset",
+    "postinstall": "node scripts/prisma-provider.mjs && prisma generate"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "bcryptjs": "^3.0.3",
+    "html5-qrcode": "^2.3.8",
+    "lucide-react": "^1.64.0",
+    "next": "^15.5.28",
+    "next-auth": "^4.24.15",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4",
+    "react": "19.1",
+    "react-dom": "19.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.6",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.28",
+    "postcss": "^8.5.32",
+    "prisma": "^6.19.3",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "5.9"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "esbuild@0.28.2": true,
+    "prisma@6.19.3": true,
+    "unrs-resolver@1.12.2": true
+  }
+}

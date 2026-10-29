@@ -25,10 +25,10 @@ export const passportSchema = z
 export const personalSchema = z.object({
   mobile: anyMobile,
   email,
-  address: z.string().trim().min(10, "Enter your full address").max(300),
+  address: z.string({ error: "Enter your address" }).trim().min(10, "Enter your full address").max(300),
   bloodGroup,
-  emergencyName: personName,
-  emergencyPhone: anyMobile,
+  emergencyName: z.string({ error: "Enter an emergency contact name" }).pipe(personName),
+  emergencyPhone: z.string({ error: "Enter the emergency contact's phone" }).pipe(anyMobile),
 });
 
 const ACADEMIC_YEARS = [1, 2, 3, 4, 5, 6] as const;

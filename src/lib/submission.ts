@@ -1,0 +1,117 @@
+import type { Document, Registration, Student, VerificationCheck } from "@prisma/client";
+import { prisma } from "./prisma";
+import { audit, type Actor } from "./audit";
+import { ApiError } from "./api";
+import { academicSchema, personalSchema } from "./validation/registration";
+import { validateRegistrations } from "./eligibility";
+import { getAgeCategory } from "./registration";
+import { isMinor } from "./age";
+import { CHECK_LABEL, type CheckType, type DocType } from "./constants";
+import { formatDob, normaliseName } from "./utils";
+
+type Full = Student & { documents: Document[]; registrations: Registration[]; checks: VerificationCheck[] };
+
+/** Server-side validation of the complete registration. Keys are "<section>.<field>". */
+export async function validateSubmission(s: Full): Promise<Record<string, string>> {
+  const errors: Record<string, string> = {};
+  const has = (t: DocType) => s.documents.some((d) => d.type === t);
+
+  if (!s.dobLocked || !s.dob || !s.identityKey) errors["identity.verified"] = "Verify your identity first";
+  if (s.studentType === "INTERNATIONAL") {
+    if (!has("PASSPORT")) errors["identity.PASSPORT"] = "Upload your passport photo page";
+    if (!has("VISA")) errors["identity.VISA"] = "Upload your student visa";
+    if (!has("FRRO")) errors["identity.FRRO"] = "Upload your FRRO residence permit";
+  }
+  if (!has("SELFIE")) errors["selfie.SELFIE"] = "Take a live selfie";
+
+  const personal = personalSchema.safeParse({
+    mobile: s.mobile ?? undefined,
+    email: s.email ?? undefined,
+    address: s.address ?? undefined,
+    bloodGroup: s.bloodGroup ?? undefined,
+    emergencyName: s.emergencyName ?? undefined,
+    emergencyPhone: s.emergencyPhone ?? undefined,
+  });
+  if (!personal.success) for (const i of personal.error.issues) errors[`personal.${i.path.join(".")}`] ??= `Personal: ${i.message}`;
+  if (!has("PHOTO")) errors["personal.PHOTO"] = "Upload a passport-size photo";
+
+  const academic = academicSchema.safeParse({
+    universityName: s.universityName ?? undefined,
+    prn: s.prn ?? undefined,
+    course: s.course ?? undefined,
+    year: s.year ?? undefined,
+    apaarId: s.apaarId ?? undefined,
+    collegeOfficeEmail: s.collegeOfficeEmail ?? undefined,
+  });
+  if (!academic.success) for (const i of academic.error.issues) errors[`academic.${i.path.join(".")}`] ??= `Academic: ${i.message}`;
+  if (s.studentType === "OUTSIDE_INDIAN") {
+    if (!s.collegeOfficeEmail) errors["academic.collegeOfficeEmail"] = "Enter your college office email";
+    if (!has("COLLEGE_ID")) errors["academic.COLLEGE_ID"] = "Upload your college ID card";
+    if (!has("BONAFIDE")) errors["academic.BONAFIDE"] = "Upload your bonafide letter";
+  }
+
+  if (s.registrations.length === 0) errors["sports.registrations"] = "Choose at least one event";
+  else {
+    const { errors: regErrors } = await validateRegistrations(s.registrations, s.gender, { requireWeight: true });
+    for (const msg of Object.values(regErrors)) errors[`sports.${Object.keys(errors).length}`] = msg;
+  }
+
+  if (!has("MEDICAL_CERT")) errors["medical.MEDICAL_CERT"] = "Upload your medical fitness certificate";
+  if (isMinor(s.dob) && !has("GUARDIAN_CONSENT")) errors["medical.GUARDIAN_CONSENT"] = "Parent/guardian consent is required for athletes under 18";
+  if (!s.declarationAccepted) errors["medical.declarationAccepted"] = "Accept the declaration";
+  if (!s.privacyAccepted) errors["medical.privacyAccepted"] = "Accept the privacy notice";
+
+  const { ageCategory } = await getAgeCategory(s.dob);
+  if (s.dob && !ageCategory) errors["identity.age"] = "No age category is configured for your age — contact the sports office";
+  return errors;
+}
+
+/** Human-readable reason shown to the student when auto-checks fail. */
+export function flagReasonFrom(checks: VerificationCheck[]): string | null {
+  const failed = checks.filter((c) => !c.passed);
+  if (!failed.length) return null;
+  return (
+    failed
+      .map((c) => {
+        const label = CHECK_LABEL[c.type as CheckType] ?? c.type;
+        const fmt = (v: string | null) => (c.type.includes("DOB") ? formatDob(v) : v ?? "—");
+        return `${label} — record: ${fmt(c.expected)}, verified source: ${fmt(c.actual)}`;
+      })
+      .join(". ") + ". Please visit the sports office with your original documents."
+  );
+}
+
+export async function submitRegistration(studentId: string, actor: Actor, ip: string | null) {
+  const s = await prisma.student.findUnique({ where: { id: studentId }, include: { documents: true, registrations: true, checks: true } });
+  if (!s) throw new ApiError(404, "Registration not found");
+  if (s.status !== "DRAFT") throw new ApiError(409, "This registration has already been submitted.");
+
+  const errors = await validateSubmission(s);
+  if (Object.keys(errors).length) throw new ApiError(400, "Some required information is missing.", errors);
+
+  // One person = one profile (the unique index also enforces this).
+  const dup = await prisma.student.findFirst({ where: { identityKey: s.identityKey, NOT: { id: s.id } }, select: { id: true } });
+  if (dup) throw new ApiError(409, "A registration already exists for this person.");
+
+  // Outside students: link to a college record; untrusted colleges need admin confirmation.
+  let collegeId = s.collegeId;
+  if (s.studentType === "OUTSIDE_INDIAN" && s.universityName) {
+    const normalizedName = normaliseName(s.universityName);
+    const college = await prisma.college.upsert({
+      where: { normalizedName },
+      update: {},
+      create: { name: s.universityName.trim(), normalizedName, officeEmail: s.collegeOfficeEmail },
+    });
+    collegeId = college.id;
+  }
+
+  const reason = flagReasonFrom(s.checks);
+  const status = reason ? "FLAGGED" : "PENDING";
+  await prisma.student.update({
+    where: { id: s.id },
+    data: { status, statusReason: reason, submittedAt: new Date(), collegeId, wizardStep: 6 },
+  });
+  await audit({ actor, action: "REGISTRATION_SUBMITTED", studentId: s.id, summary: `Registration submitted (${s.registrations.length} event${s.registrations.length === 1 ? "" : "s"})`, ip });
+  await audit({ actor: { type: "SYSTEM" }, action: "STATUS_CHANGED", studentId: s.id, summary: `Status DRAFT → ${status}${reason ? " (auto-check mismatch)" : ""}`, details: reason ? { reason } : undefined, ip });
+  return status;
+}

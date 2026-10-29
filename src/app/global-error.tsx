@@ -8,7 +8,7 @@ export default function GlobalError({ reset }: { error: Error; reset: () => void
         <main style={{ maxWidth: 420, textAlign: "center" }}>
           <h1 style={{ fontSize: 28 }}>The portal is temporarily unavailable</h1>
           <p style={{ color: "#475569" }}>Please try again in a moment.</p>
-          <button onClick={reset} style={{ minHeight: 44, padding: "0 20px", borderRadius: 8, border: 0, background: "#F97316", color: "#0F172A", fontWeight: 600, fontSize: 16 }}>
+          <button onClick={reset} style={{ minHeight: 44, padding: "0 20px", borderRadius: 8, border: 0, background: "#DA3948", color: "#FFFFFF", fontWeight: 600, fontSize: 16 }}>
             Try again
           </button>
         </main>

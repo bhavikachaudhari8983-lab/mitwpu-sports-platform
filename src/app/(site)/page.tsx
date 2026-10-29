@@ -102,11 +102,11 @@ export default async function HomePage() {
       <section className="hero-pattern relative overflow-hidden text-white">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-small font-medium">
-            <Trophy className="size-4 text-accent" aria-hidden />
+            <Trophy className="size-4 text-highlight" aria-hidden />
             {settings?.meetName ?? `${UNIVERSITY_NAME} Games`}
           </p>
           <h1 className="mt-5 max-w-3xl text-white">
-            Register. Get verified. <span className="text-accent">Play fair.</span>
+            Register. Get verified. <span className="text-highlight">Play fair.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-lg text-white/85">
             One paperless registration for {UNIVERSITY_NAME} events — open to our students, other universities and international students. Verified age, verified identity, one QR Sports ID.
@@ -126,7 +126,7 @@ export default async function HomePage() {
               { icon: QrCode, t: "Signed QR Sports ID" },
             ].map(({ icon: Icon, t }) => (
               <li key={t} className="flex items-center gap-2">
-                <Icon className="size-5 shrink-0 text-accent" aria-hidden /> {t}
+                <Icon className="size-5 shrink-0 text-highlight" aria-hidden /> {t}
               </li>
             ))}
           </ul>
@@ -270,12 +270,12 @@ export default async function HomePage() {
               </li>
             </ul>
           </div>
-          <Card className="self-start bg-primary text-primary-fg">
+          <Card className="self-start border-0 bg-brand-deep text-white">
             <CardBody className="space-y-3">
-              <ShieldCheck className="size-8 text-accent" aria-hidden />
+              <ShieldCheck className="size-8 text-highlight" aria-hidden />
               <h3 className="text-white">Your data, protected</h3>
               <p className="text-white/85">We collect only what&apos;s needed to verify athletes, keep documents private, log every access, and delete your data on request — in line with India&apos;s DPDP Act, 2023.</p>
-              <Link href="/privacy" className="inline-flex min-h-11 items-center gap-1 font-semibold text-white underline decoration-accent decoration-2 underline-offset-4">
+              <Link href="/privacy" className="inline-flex min-h-11 items-center gap-1 font-semibold text-white underline decoration-highlight decoration-2 underline-offset-4">
                 Read the privacy notice <ArrowRight className="size-4" aria-hidden />
               </Link>
             </CardBody>

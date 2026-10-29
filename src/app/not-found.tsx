@@ -5,7 +5,7 @@ import { Logo } from "@/components/layout/logo";
 export default function NotFound() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="bg-[#0b1f3a] px-4 text-white">
+      <header className="bg-brand-deep px-4 text-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center">
           <Logo />
         </div>

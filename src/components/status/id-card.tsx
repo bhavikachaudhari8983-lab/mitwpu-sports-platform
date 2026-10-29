@@ -44,9 +44,9 @@ export function IdCard() {
       if (!ctx) throw new Error("no canvas");
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "#0B1F3A";
+      ctx.fillStyle = "#132A5C";
       ctx.fillRect(0, 0, W, 120);
-      ctx.fillStyle = "#F97316";
+      ctx.fillStyle = "#DA3948";
       ctx.fillRect(0, 120, W, 12);
       ctx.fillStyle = "#ffffff";
       ctx.font = "700 30px 'Barlow Semi Condensed', Arial";
@@ -64,7 +64,7 @@ export function IdCard() {
         ctx.drawImage(photo, px + (pw - photo.width * s) / 2, py + (ph - photo.height * s) / 2, photo.width * s, photo.height * s);
         ctx.restore();
       }
-      ctx.fillStyle = "#0B1F3A";
+      ctx.fillStyle = "#132A5C";
       ctx.font = "700 40px 'Barlow Semi Condensed', Arial";
       ctx.fillText(card.name, 300, 200);
       ctx.fillStyle = "#64748B";
@@ -79,7 +79,7 @@ export function IdCard() {
       ctx.fillStyle = "#0F172A";
       ctx.font = "500 24px Inter, Arial";
       card.sports.slice(0, 4).forEach((sp, i) => ctx.fillText(sp, 300, 370 + i * 32));
-      ctx.fillStyle = "#0B1F3A";
+      ctx.fillStyle = "#132A5C";
       ctx.font = "600 34px 'JetBrains Mono', monospace";
       ctx.fillText(card.sportsId, 36, 560);
       ctx.fillStyle = "#64748B";
@@ -104,11 +104,11 @@ export function IdCard() {
   return (
     <div className="space-y-4">
       <figure aria-label={`Sports ID card for ${card.name}`} className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-white text-[#0f172a] shadow-card">
-        <div className="bg-[#0b1f3a] px-4 py-3 text-white">
+        <div className="bg-[#132a5c] px-4 py-3 text-white">
           <p className="font-heading text-lg leading-tight font-bold uppercase">{card.university}</p>
           <p className="text-small text-white/80">Sports ID · {card.meetName}</p>
         </div>
-        <div className="h-1.5 bg-[#f97316]" />
+        <div className="h-1.5 bg-[#da3948]" />
         <div className="grid grid-cols-[88px_1fr] gap-3 p-4 sm:grid-cols-[104px_1fr_auto]">
           {card.photoDocId ? (
             // eslint-disable-next-line @next/next/no-img-element -- authorised private route
@@ -117,7 +117,7 @@ export function IdCard() {
             <div className="aspect-[3/4] w-full rounded-lg bg-slate-200" />
           )}
           <div className="min-w-0">
-            <p className="font-heading text-xl leading-tight font-bold text-[#0b1f3a]">{card.name}</p>
+            <p className="font-heading text-xl leading-tight font-bold text-[#132a5c]">{card.name}</p>
             <p className="mt-2 text-small font-semibold text-[#475569]">AGE CATEGORY</p>
             <p className="font-mono text-xl font-semibold text-[#166534]">{card.ageCategory}</p>
             <p className="mt-2 text-small font-semibold text-[#475569]">SPORTS</p>
@@ -131,7 +131,7 @@ export function IdCard() {
           <img src={card.qrDataUrl} alt={`QR code for Sports ID ${card.sportsId}`} className="col-span-2 mx-auto size-40 sm:col-span-1 sm:size-32 sm:self-end" />
         </div>
         <figcaption className="flex flex-wrap items-center justify-between gap-x-3 border-t border-slate-200 px-4 py-2">
-          <span className="font-mono font-semibold whitespace-nowrap text-[#0b1f3a] tabular">{card.sportsId}</span>
+          <span className="font-mono font-semibold whitespace-nowrap text-[#132a5c] tabular">{card.sportsId}</span>
           <span className="text-small text-[#475569]">Valid until {card.validUntil}</span>
         </figcaption>
       </figure>

@@ -77,7 +77,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
               title={isCollapsed ? label : undefined}
               className={cn(
                 "flex min-h-11 items-center gap-3 rounded-lg px-3 font-medium text-white/80 hover:bg-white/10 hover:text-white",
-                active && "bg-white/12 text-white shadow-[inset_3px_0_0_var(--accent)]",
+                active && "bg-white/12 text-white shadow-[inset_3px_0_0_var(--highlight)]",
                 isCollapsed && "justify-center px-0",
               )}
             >
@@ -115,7 +115,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
   return (
     <div className="min-h-dvh lg:flex">
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-2 bg-[#0b1f3a] px-4 text-white lg:hidden">
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-2 bg-brand-deep px-4 text-white lg:hidden">
         <button type="button" onClick={() => setMobileOpen(true)} aria-label="Open navigation" aria-expanded={mobileOpen} aria-controls="staff-drawer" className="-ml-2 grid size-11 place-items-center rounded-lg hover:bg-white/10">
           <Menu className="size-6" aria-hidden />
         </button>
@@ -127,7 +127,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Staff navigation" id="staff-drawer">
           <button type="button" aria-label="Close navigation" className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col gap-4 bg-[#0b1f3a] p-4 text-white">
+          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col gap-4 bg-brand-deep p-4 text-white">
             <div className="flex items-center justify-between">
               <Logo />
               <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close navigation" className="grid size-11 place-items-center rounded-lg hover:bg-white/10">
@@ -145,7 +145,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "sticky top-0 hidden h-dvh shrink-0 flex-col gap-4 bg-[#0b1f3a] p-3 text-white transition-[width] lg:flex",
+          "sticky top-0 hidden h-dvh shrink-0 flex-col gap-4 bg-brand-deep p-3 text-white transition-[width] lg:flex",
           collapsed ? "w-20" : "w-64",
         )}
       >

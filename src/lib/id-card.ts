@@ -53,8 +53,8 @@ export async function renderIdCardPdf(card: IdCardData): Promise<Uint8Array> {
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const mono = await doc.embedFont(StandardFonts.CourierBold);
-  const navy = rgb(0.043, 0.122, 0.227);
-  const orange = rgb(0.976, 0.451, 0.086);
+  const navy = rgb(0.075, 0.165, 0.361); // #132A5C
+  const orange = rgb(0.855, 0.224, 0.282); // MIT-WPU crimson #DA3948
 
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(1, 1, 1) });
   page.drawRectangle({ x: 0, y: H - 40, width: W, height: 40, color: navy });

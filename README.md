@@ -126,5 +126,5 @@ Also remove `src/services/mock/demo-hints.ts` and `/api/demo/hints` (they are al
 * Auto-check mismatches are shown immediately, but the status changes to FLAGGED **on submit**. That way the student can still complete the form.
 * Approve requires VERIFIED. Verify requires a measurement, a confirmed college (outside students) and the desk passport tick (international students). A flagged registration must be resolved by an admin before desk verification.
 * Admins see everything except declared medical conditions (medical staff only). Coaches see only approved players in their own sport, and no ID or medical documents.
-* Orange buttons use dark navy text, because white on `#F97316` fails WCAG AA.
+* Colours follow the MIT-WPU palette from mitwpu.edu.in and the logo: deep navy `#132A5C` (header/hero/sidebar), logo blue `#14457F` (primary), crimson `#DA3948` (main buttons, white text 4.51:1, passes AA), golden `#F3BE34` (highlights on dark navy) and teal `#5DCDDB` / `#1F6F7A` (secondary). They are defined as tokens in `src/app/globals.css`.
 * Each student may enter at most 4 events. The age cutoff defaults to 1 Dec 2026 and retention to 365 days (both editable).

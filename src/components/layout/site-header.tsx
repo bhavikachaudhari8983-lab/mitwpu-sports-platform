@@ -23,7 +23,7 @@ export function SiteHeader() {
   const staffHome = role && role !== "STUDENT" ? staffHomeFor(role) : null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0b1f3a] text-white">
+    <header className="sticky top-0 z-40 bg-brand-deep text-white">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Logo />
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
@@ -58,6 +58,7 @@ export function SiteHeader() {
           )}
         </div>
       </div>
+      <div aria-hidden className="brand-stripe" />
     </header>
   );
 }

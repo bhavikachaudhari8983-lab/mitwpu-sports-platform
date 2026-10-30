@@ -35,6 +35,7 @@ npm run dev            # http://localhost:3000
 | Role | Email | Password |
 |---|---|---|
 | Admin | admin@sportssphere.example | Admin@12345 |
+| Second admin (approves DOB corrections) | admin2@sportssphere.example | Admin2@12345 |
 | Official | official@sportssphere.example | Official@12345 |
 | Medical | medical@sportssphere.example | Medical@12345 |
 | Coach (Football) | coach@sportssphere.example | Coach@12345 |
@@ -62,7 +63,12 @@ DRAFT ──submit──▶ PENDING ──desk verify──▶ VERIFIED ──ad
    └────────▶ FLAGGED ───────┘ admin "Resolve flag"      any submitted status ──▶ REJECTED / FLAGGED (reason shown to student)
 ```
 
-* **DOB is never typed by Indian students.** It comes from DigiLocker (or the passport + MRZ check for international students), and is then locked. Only an admin can change it (`Edit DOB`), the reason is mandatory, and the old and new values go to the audit log.
+* **DOB is never typed by Indian students.** It comes from DigiLocker (or the passport + MRZ check for international students), and is then locked. Coaches, officials and students can never change it. An admin can only **propose** a correction with a reason, and it takes effect when a **different admin** approves it. Both names, the old and new values and the reason go to the audit log. On approval the age category is recalculated, and if the athlete is no longer eligible for an event, the registration is flagged.
+* **Fake-age detection.** At submission, a profile with the same name, Aadhaar last 4 and gender as an existing profile but a different DOB is flagged (`SAME_PERSON_OTHER_DOB`), and the other profile's audit log notes it. Coaches, officials and medical staff can raise an **age concern** (by Sports ID). It never changes the athlete's status by itself: an admin checks original documents and upholds it (the registration is flagged) or dismisses it.
+* **Event limits.** Each event can have an entry limit, a minimum squad size and an age limit (e.g. "U-23 only"), set in Settings → Sports. Students only see events they're eligible for, and full events are refused.
+* **After submission** students can withdraw from an event immediately, or request a change, which an admin approves or declines after eligibility and places are re-checked.
+* **Admin tools.** `/admin/sports` shows entries per sport, event and weight class, split by gender, age category and approval, with every number linking to that list. It also has entry-limit and squad-size warnings, a college summary, an "approved but not match-ready" list and printable **entry sheets**. `/admin/ready` bulk-approves verified records that have no failed checks and no open concern. The student list sorts flagged records first and filters by gender, age category, event and weight class.
+* **Two admins at once.** An open record shows "X is reviewing this record" to other admins. Every action carries the record's version, so if someone else acted first the action is refused with "record changed, refresh".
 * **Age category** (U-19/U-21/U-23/Open) is computed from the verified DOB on the cutoff date set in Settings.
 * **Height and weight** are entered only at `/desk` by an Official or Admin, and stored with who measured them and when (history kept). Weight-category sports (wrestling, boxing, judo, weightlifting) also have per-event **weigh-ins**, flagged as within or outside the declared category.
 * **One person = one profile.** `identityKey` is a unique hash of masked Aadhaar (last 4) + normalised name + a DOB hash, or of nationality + passport number. A collision is blocked and audited.
@@ -75,7 +81,7 @@ DRAFT ──submit──▶ PENDING ──desk verify──▶ VERIFIED ──ad
 * Every page **and** every API route checks the role server-side (`src/lib/rbac.ts`). `src/middleware.ts` is an extra first layer. Staff are re-checked against the database on each request, so deactivation takes effect immediately.
 * Uploads go to `./uploads` (or `UPLOAD_DIR`), which is outside `/public`. They are served only by `/api/documents/[id]` after an ownership or role check (`DOC_ACCESS` in `src/lib/constants.ts`), and **every view is audited**. File type is checked by magic bytes, with a 5 MB limit. Images are compressed in the browser first.
 * bcrypt staff passwords, rate-limited login (5 per 15 min), OTP send (3 per 10 min per target) and OTP verify (5 attempts). OTP codes are stored only as HMACs.
-* Only the last 4 Aadhaar digits are stored. CSV export excludes medical data and guards against spreadsheet formula injection.
+* Only the last 4 Aadhaar digits are stored. CSV export excludes medical data and guards against spreadsheet formula injection. The default export also leaves out DOB and masks mobile and email. A **full export** needs a written reason. Every export and entry-sheet print is logged.
 * DPDP Act: privacy notice at `/privacy`, a "Request data deletion" button on `/status`, an admin deletion queue, and a retention purge (Settings). Deletion erases files and the profile, and redacts the name in the audit log.
 
 ## Folder structure

@@ -8,6 +8,7 @@ import {
   ClipboardCheck,
   HeartPulse,
   LayoutDashboard,
+  ListChecks,
   LogOut,
   Menu,
   PanelLeftClose,
@@ -15,6 +16,7 @@ import {
   ScanLine,
   ScrollText,
   Settings,
+  Trophy,
   Users,
   X,
 } from "lucide-react";
@@ -27,6 +29,8 @@ type NavItem = { href: string; label: string; icon: typeof LayoutDashboard; role
 
 const NAV: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: ["ADMIN"], exact: true },
+  { href: "/admin/ready", label: "Ready to approve", icon: ListChecks, roles: ["ADMIN"] },
+  { href: "/admin/sports", label: "Sports & events", icon: Trophy, roles: ["ADMIN"] },
   { href: "/desk", label: "Verification desk", icon: ClipboardCheck, roles: ["ADMIN", "OFFICIAL"] },
   { href: "/scan", label: "QR scanner", icon: ScanLine, roles: ["ADMIN", "OFFICIAL"] },
   { href: "/medical", label: "Medical", icon: HeartPulse, roles: ["MEDICAL"] },
@@ -115,7 +119,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
   return (
     <div className="min-h-dvh lg:flex">
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-2 border-b border-border bg-surface px-4 text-fg shadow-card lg:hidden">
+      <header className="sticky top-0 z-40 flex h-16 print:hidden items-center justify-between gap-2 border-b border-border bg-surface px-4 text-fg shadow-card lg:hidden">
         <button type="button" onClick={() => setMobileOpen(true)} aria-label="Open navigation" aria-expanded={mobileOpen} aria-controls="staff-drawer" className="-ml-2 grid size-11 place-items-center rounded-lg hover:bg-surface-2">
           <Menu className="size-6" aria-hidden />
         </button>
@@ -145,7 +149,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "sticky top-0 hidden h-dvh shrink-0 flex-col gap-4 border-r border-border bg-surface p-3 text-fg transition-[width] lg:flex",
+          "sticky top-0 hidden h-dvh shrink-0 flex-col gap-4 border-r border-border bg-surface p-3 text-fg transition-[width] lg:flex print:hidden",
           collapsed ? "w-20" : "w-64",
         )}
       >
@@ -167,7 +171,7 @@ export function StaffShell({ user, children }: { user: { name: string; role: Sta
         {userBlock(collapsed)}
       </aside>
 
-      <main id="main" className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <main id="main" className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8 print:p-0">
         <div className="mx-auto max-w-7xl">{children}</div>
       </main>
     </div>

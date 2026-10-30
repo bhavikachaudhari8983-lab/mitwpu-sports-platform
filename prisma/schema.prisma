@@ -103,6 +103,10 @@ model Student {
   measurements  Measurement[]
   weighIns      WeighIn[]
   deletionRequests DeletionRequest[]
+  dobCorrections   DobCorrection[]
+  ageConcerns      AgeConcern[]
+  changeRequests   EventChangeRequest[]
+  reviewLock       ReviewLock?
 
   @@index([status])
   @@index([studentType])
@@ -175,11 +179,17 @@ model Event {
   gender    String // MALE | FEMALE | MIXED
   eventDate String? // YYYY-MM-DD
   venue     String?
+  minEntries Int? // team sports: smallest squad that can take part
+  maxEntries Int? // entry limit; new entries are refused once reached
+  ageCategoryId String? // null = open to every age
+  ageCategory   AgeCategory? @relation(fields: [ageCategoryId], references: [id], onDelete: SetNull)
   active    Boolean   @default(true)
   createdAt DateTime  @default(now())
 
   registrations Registration[]
   weighIns      WeighIn[]
+  changeRequestsFrom EventChangeRequest[] @relation("changeFrom")
+  changeRequestsTo   EventChangeRequest[] @relation("changeTo")
 }
 
 model AgeCategory {
@@ -187,6 +197,7 @@ model AgeCategory {
   name      String @unique // U-19, U-21, U-23, Open
   maxAge    Int? // eligible if age on cutoff date < maxAge; null = Open
   sortOrder Int    @default(0)
+  events    Event[]
 }
 
 model WeightCategory {
@@ -212,6 +223,79 @@ model Registration {
   createdAt        DateTime        @default(now())
 
   @@unique([studentId, eventId])
+}
+
+/// A locked DOB only changes when a SECOND admin approves the correction (maker–checker).
+model DobCorrection {
+  id              String    @id @default(cuid())
+  studentId       String
+  student         Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  fromDob         String
+  toDob           String
+  reason          String
+  status          String    @default("PENDING") // PENDING | APPLIED | DECLINED
+  requestedById   String
+  requestedByName String
+  decidedById     String?
+  decidedByName   String?
+  decisionNote    String?
+  decidedAt       DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([status])
+  @@index([studentId])
+}
+
+/// Raised by a coach, official or medical officer who doubts an athlete's age. Never changes status by itself.
+model AgeConcern {
+  id             String    @id @default(cuid())
+  studentId      String
+  student        Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  reason         String
+  raisedById     String
+  raisedByName   String
+  raisedByRole   String
+  status         String    @default("OPEN") // OPEN | UPHELD | DISMISSED
+  resolution     String?
+  resolvedById   String?
+  resolvedByName String?
+  resolvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([status])
+  @@index([studentId])
+}
+
+/// Student asks to swap one event for another after submitting. Withdrawals don't need one.
+model EventChangeRequest {
+  id               String    @id @default(cuid())
+  studentId        String
+  student          Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  fromEventId      String
+  fromEvent        Event     @relation("changeFrom", fields: [fromEventId], references: [id], onDelete: Cascade)
+  toEventId        String
+  toEvent          Event     @relation("changeTo", fields: [toEventId], references: [id], onDelete: Cascade)
+  weightCategoryId String?
+  reason           String
+  status           String    @default("PENDING") // PENDING | APPROVED | DECLINED
+  decidedById      String?
+  decidedByName    String?
+  decisionNote     String?
+  decidedAt        DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([status])
+  @@index([studentId])
+}
+
+/// Soft "being reviewed by" marker so two admins don't work on the same record. Expires after a few minutes.
+model ReviewLock {
+  studentId String   @id
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  staffId   String
+  staffName String
+  since     DateTime @default(now())
+  seenAt    DateTime @default(now())
 }
 
 /// Height/weight are entered only by an Official at the verification desk.

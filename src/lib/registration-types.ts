@@ -24,7 +24,7 @@ export type CatalogSport = {
   name: string;
   isWeightCategory: boolean;
   positions: string[];
-  events: Array<{ id: string; name: string; gender: string; eventDate: string | null; venue: string | null }>;
+  events: Array<{ id: string; name: string; gender: string; eventDate: string | null; venue: string | null; ageLimit: { name: string; maxAge: number | null } | null }>;
   weightCategories: Array<{ id: string; name: string; gender: string; minKg: number | null; maxKg: number | null }>;
 };
 

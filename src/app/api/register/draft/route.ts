@@ -60,7 +60,7 @@ export const PATCH = route(async (req) => {
       data.playingPosition = typeof values.playingPosition === "string" ? values.playingPosition.trim().slice(0, 60) || null : null;
     }
     if (Array.isArray(values.registrations)) {
-      const { valid, errors } = await validateRegistrations(values.registrations, student.gender, { requireWeight: false });
+      const { valid, errors } = await validateRegistrations(values.registrations, { studentId: student.id, gender: student.gender, dob: student.dob }, { requireWeight: false });
       Object.assign(skipped, errors);
       await prisma.$transaction([
         prisma.registration.deleteMany({ where: { studentId: student.id } }),

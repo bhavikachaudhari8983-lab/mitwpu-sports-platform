@@ -41,6 +41,7 @@ export default async function SettingsPage() {
       <GeneralPanel initial={settings} />
       <AgeCategoriesPanel categories={categories} />
       <SportsPanel
+        ageCategories={categories.filter((c) => c.maxAge !== null).map((c) => ({ id: c.id, name: c.name }))}
         sports={sports.map((s) => ({
           ...s,
           weightCategories: [...s.weightCategories].sort((a, b) => (a.gender === b.gender ? (a.maxKg ?? 999) - (b.maxKg ?? 999) : 0)),

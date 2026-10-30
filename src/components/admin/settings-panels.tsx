@@ -104,24 +104,62 @@ export function AgeCategoriesPanel({ categories }: { categories: Array<{ id: str
 }
 
 // ---------- Sports, events, weight categories ----------
+/** Entry limit, minimum squad and age restriction for one event. */
+function EventLimits({ event, ageCategories }: { event: SportRow["events"][number]; ageCategories: AgeOption[] }) {
+  const { run, busy, errors } = useOp();
+  const [v, setV] = useState({ minEntries: event.minEntries?.toString() ?? "", maxEntries: event.maxEntries?.toString() ?? "", ageCategoryId: event.ageCategoryId ?? "" });
+  const id = (k: string) => `${k}-${event.id}`;
+  return (
+    <form
+      className="grid w-full gap-2 sm:grid-cols-[1fr_1fr_1.2fr_auto] sm:items-end"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void run({ op: "event-limits", id: event.id, minEntries: v.minEntries || null, maxEntries: v.maxEntries || null, ageCategoryId: v.ageCategoryId || null }, "Event limits saved", id("lim"));
+      }}
+    >
+      <Field id={id("min")} label="Min. squad" error={errors.minEntries}>
+        <Input {...fieldA11y(id("min"), errors.minEntries)} type="number" min={1} inputMode="numeric" placeholder="—" value={v.minEntries} onChange={(e) => setV({ ...v, minEntries: e.target.value })} />
+      </Field>
+      <Field id={id("max")} label="Entry limit" error={errors.maxEntries}>
+        <Input {...fieldA11y(id("max"), errors.maxEntries)} type="number" min={1} inputMode="numeric" placeholder="No limit" value={v.maxEntries} onChange={(e) => setV({ ...v, maxEntries: e.target.value })} />
+      </Field>
+      <Field id={id("age")} label="Age limit">
+        <Select {...fieldA11y(id("age"))} value={v.ageCategoryId} onChange={(e) => setV({ ...v, ageCategoryId: e.target.value })}>
+          <option value="">Open to all ages</option>
+          {ageCategories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name} only
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <Button type="submit" variant="outline" loading={busy === id("lim")}>
+        Save
+      </Button>
+    </form>
+  );
+}
+
 type SportRow = {
   id: string;
   name: string;
   active: boolean;
   isWeightCategory: boolean;
   isTeam: boolean;
-  events: Array<{ id: string; name: string; gender: string; eventDate: string | null; venue: string | null; active: boolean; _count: { registrations: number } }>;
+  events: Array<{ id: string; name: string; gender: string; eventDate: string | null; venue: string | null; active: boolean; minEntries: number | null; maxEntries: number | null; ageCategoryId: string | null; _count: { registrations: number } }>;
   weightCategories: Array<{ id: string; name: string; gender: string }>;
 };
 
-export function SportsPanel({ sports }: { sports: SportRow[] }) {
+type AgeOption = { id: string; name: string };
+
+export function SportsPanel({ sports, ageCategories }: { sports: SportRow[]; ageCategories: AgeOption[] }) {
   const { run, busy, errors } = useOp();
   const [add, setAdd] = useState({ name: "", isTeam: false, isWeightCategory: false, positions: "" });
   return (
     <Section id="sports" title="Sports, events & weight categories">
       <div className="space-y-3">
         {sports.map((s) => (
-          <SportItem key={s.id} sport={s} />
+          <SportItem key={s.id} sport={s} ageCategories={ageCategories} />
         ))}
       </div>
       <form
@@ -150,7 +188,7 @@ export function SportsPanel({ sports }: { sports: SportRow[] }) {
   );
 }
 
-function SportItem({ sport }: { sport: SportRow }) {
+function SportItem({ sport, ageCategories }: { sport: SportRow; ageCategories: AgeOption[] }) {
   const { run, busy, errors } = useOp();
   const [ev, setEv] = useState({ name: "", gender: "MALE", eventDate: "", venue: "" });
   const [wc, setWc] = useState({ name: "", gender: "MALE", minKg: "", maxKg: "" });
@@ -183,6 +221,7 @@ function SportItem({ sport }: { sport: SportRow }) {
                 <Button variant="ghost" size="sm" loading={busy === `ev-${e.id}`} onClick={() => run({ op: "event-toggle", id: e.id, active: !e.active }, "Event updated", `ev-${e.id}`)}>
                   {e.active ? "Disable" : "Enable"}
                 </Button>
+                <EventLimits event={e} ageCategories={ageCategories} />
               </li>
             ))}
           </ul>

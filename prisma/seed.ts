@@ -21,6 +21,8 @@ const prisma = new PrismaClient();
 
 export const DEMO_STAFF = [
   { email: "admin@sportssphere.example", name: "Asha Admin (demo)", role: "ADMIN", password: "Admin@12345" },
+  // Second admin: DOB corrections need two different admins (maker–checker).
+  { email: "admin2@sportssphere.example", name: "Ravi Admin (demo)", role: "ADMIN", password: "Admin2@12345" },
   { email: "official@sportssphere.example", name: "Omar Official (demo)", role: "OFFICIAL", password: "Official@12345" },
   { email: "medical@sportssphere.example", name: "Dr. Mira Medical (demo)", role: "MEDICAL", password: "Medical@12345" },
   { email: "coach@sportssphere.example", name: "Coach Kiran (demo, Football)", role: "COACH", password: "Coach@12345", sport: "Football" },
@@ -48,6 +50,10 @@ async function main() {
   console.log("Clearing database and uploads…");
   await prisma.$transaction([
     prisma.auditLog.deleteMany(),
+    prisma.reviewLock.deleteMany(),
+    prisma.dobCorrection.deleteMany(),
+    prisma.ageConcern.deleteMany(),
+    prisma.eventChangeRequest.deleteMany(),
     prisma.weighIn.deleteMany(),
     prisma.measurement.deleteMany(),
     prisma.registration.deleteMany(),
@@ -90,7 +96,10 @@ async function main() {
         positions: s.positions ?? null,
       },
     });
-    for (const e of s.events) await prisma.event.create({ data: { sportId: sport.id, name: e.name, gender: e.gender, eventDate: e.date, venue: e.venue } });
+    for (const e of s.events) {
+      const ageCategoryId = e.age ? (await prisma.ageCategory.findUniqueOrThrow({ where: { name: e.age } })).id : null;
+      await prisma.event.create({ data: { sportId: sport.id, name: e.name, gender: e.gender, eventDate: e.date, venue: e.venue, minEntries: e.min ?? null, maxEntries: e.max ?? null, ageCategoryId } });
+    }
     if (s.weight) {
       for (const g of ["MALE", "FEMALE"] as const) {
         for (const wc of weightClasses(s.weight[g], !!s.weight.heavyOpen)) {
@@ -128,7 +137,8 @@ async function main() {
         sportId: "sport" in s ? sportByName(s.sport).id : null,
       },
     });
-    staff[s.role] = u.id;
+    staff[s.role] ??= u.id;
+    staff[s.email] = u.id;
   }
 
   // Colleges
@@ -256,7 +266,7 @@ async function main() {
   const aarav = await seedIndian({ erpPrn: "SS23CS001", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Football", "MALE").id }, { eventId: eventOf("Athletics", "MALE", "100 m").id }], position: "Forward", measurement: { h: 176, w: 68.4 }, submittedDaysAgo: 12 });
   // 2. DOB mismatch (flagged)
   const rohanErp = erp("SS23ME002");
-  await seedIndian({
+  const rohan = await seedIndian({
     erpPrn: "SS23ME002", status: "FLAGGED", submittedDaysAgo: 5,
     statusReason: "Date of birth from DigiLocker (14 May 2001) does not match the university record (14 May 2003). Please visit the sports office with your original documents.",
     regs: [{ eventId: eventOf("Cricket", "MALE").id }], position: "Bowler",
@@ -279,10 +289,10 @@ async function main() {
   // 4. Under-18 (pending, guardian consent uploaded)
   await seedIndian({ erpPrn: "SS26BA004", status: "PENDING", minorConsent: true, submittedDaysAgo: 2, regs: [{ eventId: eventOf("Badminton", "FEMALE", "Singles").id }] });
   // Others for a realistic dashboard
-  await seedIndian({ erpPrn: "SS22CE008", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Football", "MALE").id }], position: "Goalkeeper", measurement: { h: 183, w: 79.1 }, submittedDaysAgo: 15 });
+  const goalie = await seedIndian({ erpPrn: "SS22CE008", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Football", "MALE").id }], position: "Goalkeeper", measurement: { h: 183, w: 79.1 }, submittedDaysAgo: 15 });
   await seedIndian({ erpPrn: "SS23BB009", status: "VERIFIED", regs: [{ eventId: eventOf("Basketball", "FEMALE").id }], position: "Point guard", measurement: { h: 168, w: 58.2 }, submittedDaysAgo: 6 });
   await seedIndian({ erpPrn: "SS24CS010", status: "PENDING", regs: [{ eventId: eventOf("Wrestling", "MALE").id, weightCategoryId: weightCat("Wrestling", "MALE", "−74 kg").id }], submittedDaysAgo: 3, conditions: "Mild asthma — carries inhaler (fictional)" });
-  await seedIndian({ erpPrn: "SS22LW011", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Badminton", "FEMALE", "Singles").id }, { eventId: eventOf("Badminton", "MIXED").id }], measurement: { h: 162, w: 54 }, submittedDaysAgo: 10 });
+  const shuttler = await seedIndian({ erpPrn: "SS22LW011", status: "APPROVED", approved: true, regs: [{ eventId: eventOf("Badminton", "FEMALE", "Singles").id }, { eventId: eventOf("Badminton", "MIXED").id }], measurement: { h: 162, w: 54 }, submittedDaysAgo: 10 });
   await seedIndian({ erpPrn: "SS25AR012", status: "REJECTED", statusReason: "Medical fitness certificate is older than 6 months. Please register again with a current certificate.", regs: [{ eventId: eventOf("Swimming", "MALE", "50 m").id }], submittedDaysAgo: 8 });
   await seedIndian({ erpPrn: "SS23PH013", status: "DRAFT", regs: [], submittedDaysAgo: 1, wizardStep: 3 });
 
@@ -326,13 +336,30 @@ async function main() {
     ],
   });
 
+  // Oversight queue examples
+  // a) DOB correction proposed by one admin, waiting for the second (log in as admin2 to approve).
+  const fix = await prisma.dobCorrection.create({
+    data: { studentId: rohan.id, fromDob: "2001-05-14", toDob: rohanErp.dob, reason: "Original birth certificate and Class 10 marksheet checked at the sports office; DigiLocker record has a known data-entry error (fictional).", requestedById: staff.ADMIN, requestedByName: "Asha Admin (demo)", createdAt: daysAgo(1) },
+  });
+  await prisma.auditLog.create({ data: { actorType: "STAFF", actorId: staff.ADMIN, actorName: "Asha Admin (demo)", actorRole: "ADMIN", action: "DOB_CHANGE_REQUESTED", studentId: rohan.id, entityType: "DobCorrection", entityId: fix.id, summary: `DOB correction proposed 2001-05-14 → ${rohanErp.dob}, awaiting a second admin.`, createdAt: daysAgo(1) } });
+  // b) Age concern raised by the football coach about an approved player.
+  const concern = await prisma.ageConcern.create({
+    data: { studentId: goalie.id, reason: "Same goalkeeper played in the senior district league five seasons ago; looks older than the registered age (fictional).", raisedById: staff.COACH, raisedByName: "Coach Kiran (demo, Football)", raisedByRole: "COACH", createdAt: daysAgo(1) },
+  });
+  await prisma.auditLog.create({ data: { actorType: "STAFF", actorId: staff.COACH, actorName: "Coach Kiran (demo, Football)", actorRole: "COACH", action: "AGE_CONCERN_RAISED", studentId: goalie.id, entityType: "AgeConcern", entityId: concern.id, summary: "Age concern raised by Coach Kiran (coach)", createdAt: daysAgo(1) } });
+  // c) Student asking to swap an event.
+  const swap = await prisma.eventChangeRequest.create({
+    data: { studentId: shuttler.id, fromEventId: eventOf("Badminton", "MIXED").id, toEventId: eventOf("Table Tennis", "FEMALE").id, reason: "My mixed doubles partner withdrew (fictional).", createdAt: daysAgo(0.5) },
+  });
+  await prisma.auditLog.create({ data: { actorType: "STUDENT", actorId: shuttler.id, actorName: shuttler.fullName, actorRole: "STUDENT", action: "EVENT_CHANGE_REQUESTED", studentId: shuttler.id, entityType: "EventChangeRequest", entityId: swap.id, summary: "Asked to move from Mixed doubles to Singles — Women (Table Tennis)", createdAt: daysAgo(0.5) } });
+
   // Duplicate attempt (blocked) — appears in the audit log
   await prisma.auditLog.create({
     data: { actorType: "SYSTEM", actorName: "System", action: "DUPLICATE_BLOCKED", studentId: aarav.id, summary: "Blocked duplicate registration attempt: DigiLocker identity already belongs to an existing profile (Aarav Kulkarni). Attempt came from mobile ******0777.", createdAt: daysAgo(3) },
   });
   // Staff logins
   for (const s of DEMO_STAFF) {
-    await prisma.auditLog.create({ data: { actorType: "STAFF", actorId: staff[s.role], actorName: s.name, actorRole: s.role, action: "LOGIN", summary: "Signed in", createdAt: daysAgo(1) } });
+    await prisma.auditLog.create({ data: { actorType: "STAFF", actorId: staff[s.email], actorName: s.name, actorRole: s.role, action: "LOGIN", summary: "Signed in", createdAt: daysAgo(1) } });
   }
 
   const count = await prisma.student.count();

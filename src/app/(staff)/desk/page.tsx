@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/feedback";
 import { PhotoCompare } from "@/components/admin/photo-compare";
 import { DeskPanel } from "@/components/desk/desk-panel";
+import { AgeConcernButton } from "@/components/staff/age-concern-button";
 
 export const metadata: Metadata = { title: "Verification desk" };
 
@@ -85,6 +86,7 @@ async function StudentDesk({ id, q }: { id: string; q?: string }) {
       registrations: { include: { event: { include: { sport: true } }, weightCategory: true } },
       measurements: { orderBy: { createdAt: "desc" }, take: 1, include: { measuredBy: { select: { name: true } } } },
       weighIns: { orderBy: { createdAt: "desc" }, include: { recordedBy: { select: { name: true } } } },
+      ageConcerns: { where: { status: "OPEN" }, select: { id: true } },
     },
   });
   if (!s || s.status === "DRAFT") return <EmptyState title="Athlete not found" />;
@@ -105,6 +107,10 @@ async function StudentDesk({ id, q }: { id: string; q?: string }) {
         <h2 className="mr-2 text-fg">{s.fullName}</h2>
         <StatusBadge status={status} />
         {ageCategory && <Badge>Age {ageCategory}</Badge>}
+        {s.ageConcerns.length > 0 && <Badge tone="warning">Age under review</Badge>}
+        <span className="ml-auto">
+          <AgeConcernButton studentId={s.id} athleteName={s.fullName ?? undefined} />
+        </span>
       </div>
       {status === "FLAGGED" && <Alert tone="info" title="Flagged — admin review needed before verification">{s.statusReason}</Alert>}
       {status === "REJECTED" && <Alert tone="danger" title="Rejected">{s.statusReason}</Alert>}

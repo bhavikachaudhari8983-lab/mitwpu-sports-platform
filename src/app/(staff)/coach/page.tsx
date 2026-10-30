@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Users } from "lucide-react";
+import { Clock, Users } from "lucide-react";
 import { requireStaffPage } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
@@ -7,6 +7,7 @@ import { ageCategoryFor } from "@/lib/age";
 import { Card, CardBody, PageHeader } from "@/components/ui/card";
 import { Alert, Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/feedback";
+import { AgeConcernButton } from "@/components/staff/age-concern-button";
 
 export const metadata: Metadata = { title: "My players" };
 
@@ -21,7 +22,7 @@ export default async function CoachPage() {
       </div>
     );
   }
-  const [sport, players, settings, cats] = await Promise.all([
+  const [sport, players, settings, cats, awaiting] = await Promise.all([
     prisma.sport.findUnique({ where: { id: me.sportId } }),
     prisma.student.findMany({
       where: { status: "APPROVED", registrations: { some: { event: { sportId: me.sportId } } } },
@@ -35,11 +36,18 @@ export default async function CoachPage() {
     }),
     getSettings(),
     prisma.ageCategory.findMany(),
+    // Count only: coaches don't see unapproved athletes' details.
+    prisma.student.count({ where: { status: { in: ["PENDING", "VERIFIED", "FLAGGED"] }, registrations: { some: { event: { sportId: me.sportId } } } } }),
   ]);
 
   return (
     <div className="space-y-6">
-      <PageHeader title={`My players · ${sport?.name ?? ""}`} description="Approved athletes only. Identity and medical documents are not shown to coaches." />
+      <PageHeader title={`My players · ${sport?.name ?? ""}`} description="Approved athletes only. Identity and medical documents are not shown to coaches." actions={<AgeConcernButton variant="secondary" />} />
+      {awaiting > 0 && (
+        <Alert tone="info" icon={<Clock className="size-5" aria-hidden />} title={`${awaiting} more ${awaiting === 1 ? "athlete is" : "athletes are"} registered for ${sport?.name ?? "your sport"} and awaiting approval`}>
+          They appear here once the sports office approves them. You don&apos;t need to chase the office.
+        </Alert>
+      )}
       {players.length === 0 ? (
         <EmptyState icon={<Users className="size-7" aria-hidden />} title="No approved players yet" description="Players appear here once the sports office approves them." />
       ) : (

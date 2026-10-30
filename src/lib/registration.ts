@@ -173,14 +173,14 @@ export async function getCatalog() {
   const sports = await prisma.sport.findMany({
     where: { active: true },
     orderBy: { name: "asc" },
-    include: { events: { where: { active: true }, orderBy: { name: "asc" } }, weightCategories: { orderBy: [{ gender: "asc" }, { maxKg: "asc" }] } },
+    include: { events: { where: { active: true }, orderBy: { name: "asc" }, include: { ageCategory: true } }, weightCategories: { orderBy: [{ gender: "asc" }, { maxKg: "asc" }] } },
   });
   return sports.map((s) => ({
     id: s.id,
     name: s.name,
     isWeightCategory: s.isWeightCategory,
     positions: s.positions ? s.positions.split(",").map((p) => p.trim()).filter(Boolean) : [],
-    events: s.events.map((e) => ({ id: e.id, name: e.name, gender: e.gender, eventDate: e.eventDate, venue: e.venue })),
+    events: s.events.map((e) => ({ id: e.id, name: e.name, gender: e.gender, eventDate: e.eventDate, venue: e.venue, ageLimit: e.ageCategory ? { name: e.ageCategory.name, maxAge: e.ageCategory.maxAge } : null })),
     // "+X kg" (maxKg null) sorts last
     weightCategories: [...s.weightCategories]
       .sort((a, b) => (a.gender === b.gender ? (a.maxKg ?? 999) - (b.maxKg ?? 999) : a.gender.localeCompare(b.gender)))

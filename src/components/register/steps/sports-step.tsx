@@ -7,6 +7,7 @@ import { Field, FieldError, Input, Select, fieldA11y } from "@/components/ui/fie
 import { Alert } from "@/components/ui/badge";
 import { sportsSchema } from "@/lib/validation/registration";
 import { cn, formatDob } from "@/lib/utils";
+import { ageOn } from "@/lib/age";
 import { useStepValidator, useWizard } from "../wizard-context";
 import { useSection } from "../use-section";
 import { DocumentUpload } from "../document-upload";
@@ -17,18 +18,23 @@ const MAX_EVENTS = 4;
 export function SportsStep() {
   const { draft, setDraft } = useWizard();
   const gender = draft.identity.gender;
+  const age = draft.identity.dob ? ageOn(draft.identity.dob, draft.ageCutoffDate) : null;
   const { values, set, validate, errors } = useSection("sports", {
     registrations: draft.sports.registrations as Reg[],
     playingPosition: draft.sports.playingPosition ?? "",
   });
 
-  // Sports open to this athlete (at least one event matching their verified gender).
+  // Sports open to this athlete (at least one event matching their verified gender and age).
   const catalog = useMemo(
     () =>
       draft.catalog
-        .map((s) => ({ ...s, events: s.events.filter((e) => e.gender === "MIXED" || e.gender === gender), weightCategories: s.weightCategories.filter((w) => w.gender === gender) }))
+        .map((s) => ({
+          ...s,
+          events: s.events.filter((e) => (e.gender === "MIXED" || e.gender === gender) && (e.ageLimit?.maxAge == null || age === null || age < e.ageLimit.maxAge)),
+          weightCategories: s.weightCategories.filter((w) => w.gender === gender),
+        }))
         .filter((s) => s.events.length > 0),
-    [draft.catalog, gender],
+    [draft.catalog, gender, age],
   );
   const sportOfEvent = (id: string) => catalog.find((s) => s.events.some((e) => e.id === id));
 

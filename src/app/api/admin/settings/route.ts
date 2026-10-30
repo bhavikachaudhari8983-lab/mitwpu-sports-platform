@@ -14,13 +14,20 @@ const password = z.string().min(10, "At least 10 characters").max(100).regex(/[A
 const name = z.string().trim().min(2, "Too short").max(80);
 const kg = z.coerce.number().positive().max(250);
 
-const schema = z.discriminatedUnion("op", [
+const schema = z.union([
   z.object({ op: z.literal("general"), ageCutoffDate: isoDate, retentionDays: z.coerce.number().int().min(30, "At least 30 days").max(3650), meetName: name }),
   z.object({ op: z.literal("age-category"), id: z.string(), maxAge: z.coerce.number().int().min(5).max(99).nullable() }),
   z.object({ op: z.literal("sport-add"), name, isWeightCategory: z.boolean(), isTeam: z.boolean(), positions: z.string().trim().max(300).optional() }),
   z.object({ op: z.literal("sport-toggle"), id: z.string(), active: z.boolean() }),
   z.object({ op: z.literal("event-add"), sportId: z.string(), name, gender: z.enum(EVENT_GENDERS), eventDate: isoDate.optional().or(z.literal("")), venue: z.string().trim().max(80).optional() }),
   z.object({ op: z.literal("event-toggle"), id: z.string(), active: z.boolean() }),
+  z.object({
+    op: z.literal("event-limits"),
+    id: z.string(),
+    minEntries: z.coerce.number().int().min(1).max(500).nullable(),
+    maxEntries: z.coerce.number().int().min(1).max(5000).nullable(),
+    ageCategoryId: z.string().nullable(),
+  }).refine((v) => v.minEntries == null || v.maxEntries == null || v.minEntries <= v.maxEntries, { message: "Must be at least the minimum", path: ["maxEntries"] }),
   z.object({ op: z.literal("weight-add"), sportId: z.string(), gender: z.enum(["MALE", "FEMALE"]), name: z.string().trim().min(2).max(20), minKg: kg.nullable().optional(), maxKg: kg.nullable().optional() }),
   z.object({ op: z.literal("weight-delete"), id: z.string() }),
   z.object({ op: z.literal("staff-add"), name, email, role: z.enum(STAFF_ROLES), password, sportId: z.string().optional() }),
@@ -71,6 +78,11 @@ export const POST = route(async (req) => {
     case "event-toggle": {
       const e = await prisma.event.update({ where: { id: input.id }, data: { active: input.active } });
       await log(`Event ${e.name} ${input.active ? "enabled" : "disabled"}`);
+      break;
+    }
+    case "event-limits": {
+      const e = await prisma.event.update({ where: { id: input.id }, data: { minEntries: input.minEntries, maxEntries: input.maxEntries, ageCategoryId: input.ageCategoryId }, include: { ageCategory: true } });
+      await log(`Event ${e.name} limits: min ${input.minEntries ?? "—"}, max ${input.maxEntries ?? "—"}, age ${e.ageCategory?.name ?? "open to all"}`);
       break;
     }
     case "weight-add": {

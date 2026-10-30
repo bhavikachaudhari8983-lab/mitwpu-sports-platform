@@ -125,6 +125,7 @@ export const CHECK_TYPES = [
   "ADMISSIONS_NAME_MATCH",
   "MRZ_CHECK",
   "DUPLICATE",
+  "SAME_PERSON_OTHER_DOB",
 ] as const;
 export type CheckType = (typeof CHECK_TYPES)[number];
 
@@ -135,6 +136,7 @@ export const CHECK_LABEL: Record<CheckType, string> = {
   ADMISSIONS_NAME_MATCH: "Name: passport vs admissions record",
   MRZ_CHECK: "Passport MRZ check digits",
   DUPLICATE: "Duplicate identity check",
+  SAME_PERSON_OTHER_DOB: "Same name & Aadhaar digits on another profile with a different DOB",
 };
 
 export const DOB_SOURCES = ["DIGILOCKER", "PASSPORT", "ADMIN_CORRECTION"] as const;
@@ -155,6 +157,13 @@ export const AUDIT_ACTIONS = [
   "REGISTRATION_SUBMITTED",
   "STATUS_CHANGED",
   "DOB_CHANGED",
+  "DOB_CHANGE_REQUESTED",
+  "DOB_CHANGE_DECLINED",
+  "AGE_CONCERN_RAISED",
+  "AGE_CONCERN_RESOLVED",
+  "EVENT_WITHDRAWN",
+  "EVENT_CHANGE_REQUESTED",
+  "EVENT_CHANGE_DECIDED",
   "MEASUREMENT_RECORDED",
   "WEIGH_IN_RECORDED",
   "PASSPORT_VERIFIED",

@@ -1,17 +1,23 @@
 import { z } from "zod";
 import { route, ok, parseJson, clientIp } from "@/lib/api";
 import { requireStaffApi, staffActor } from "@/lib/rbac";
-import { approve, confirmCollege, editDob, flag, reject, reopen } from "@/lib/workflow";
+import { approve, assertUnchanged, confirmCollege, decideDobChange, flag, reject, reopen, requestDobChange } from "@/lib/workflow";
+import { resolveAgeConcern } from "@/lib/age-concerns";
+import { decideEventChange } from "@/lib/event-changes";
 import { isoDate } from "@/lib/validation/common";
 
 const reason = z.string().trim().min(5, "Give a reason (at least 5 characters)").max(500);
-const schema = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("approve") }),
-  z.object({ action: z.literal("reject"), reason }),
-  z.object({ action: z.literal("flag"), reason }),
-  z.object({ action: z.literal("reopen"), reason }),
-  z.object({ action: z.literal("confirm-college") }),
-  z.object({ action: z.literal("edit-dob"), dob: isoDate.refine((d) => d < new Date().toISOString().slice(0, 10), "Date must be in the past"), reason }),
+const version = z.string().max(40).optional();
+const schema = z.union([
+  z.object({ action: z.literal("approve"), version }),
+  z.object({ action: z.literal("reject"), reason, version }),
+  z.object({ action: z.literal("flag"), reason, version }),
+  z.object({ action: z.literal("reopen"), reason, version }),
+  z.object({ action: z.literal("confirm-college"), version }),
+  z.object({ action: z.literal("edit-dob"), dob: isoDate.refine((d) => d < new Date().toISOString().slice(0, 10), "Date must be in the past"), reason, version }),
+  z.object({ action: z.literal("decide-dob"), correctionId: z.string().min(1), approve: z.boolean(), reason }),
+  z.object({ action: z.literal("resolve-concern"), concernId: z.string().min(1), outcome: z.enum(["UPHELD", "DISMISSED"]), reason }),
+  z.object({ action: z.literal("decide-change"), requestId: z.string().min(1), approve: z.boolean(), reason }),
 ]);
 
 export const POST = route<{ params: Promise<{ id: string }> }>(async (req, { params }) => {
@@ -20,6 +26,7 @@ export const POST = route<{ params: Promise<{ id: string }> }>(async (req, { par
   const input = await parseJson(req, schema);
   const actor = { ...staffActor(staff), type: "STAFF" as const, id: staff.id, name: staff.name, role: staff.role };
   const ip = clientIp(req);
+  if ("version" in input) await assertUnchanged(id, input.version);
   switch (input.action) {
     case "approve":
       return ok({ sportsId: await approve(id, actor, ip) });
@@ -36,7 +43,15 @@ export const POST = route<{ params: Promise<{ id: string }> }>(async (req, { par
       await confirmCollege(id, actor, ip);
       break;
     case "edit-dob":
-      await editDob(id, input.dob, input.reason, actor, ip);
+      await requestDobChange(id, input.dob, input.reason, actor, ip);
+      break;
+    case "decide-dob":
+      return ok(await decideDobChange(input.correctionId, input.approve, input.reason, actor, ip));
+    case "resolve-concern":
+      await resolveAgeConcern(id, input.concernId, input.outcome, input.reason, actor, ip);
+      break;
+    case "decide-change":
+      await decideEventChange(id, input.requestId, input.approve, input.reason, actor, ip);
       break;
   }
   return ok({ ok: true });

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { ChevronRight, Users } from "lucide-react";
-import { StatusBadge } from "@/components/ui/badge";
+import { ChevronRight, Eye, ShieldQuestion, Users } from "lucide-react";
+import { Badge, StatusBadge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/feedback";
 import { isStatus, STUDENT_TYPE_LABEL, type StudentType } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
@@ -15,12 +15,24 @@ type Row = {
   universityName: string | null;
   submittedAt: Date | null;
   registrations: Array<{ event: { sport: { name: string } } }>;
+  ageConcerns?: Array<{ id: string }>;
 };
+
+/** Small markers next to a name: open age concern, another admin reviewing right now. */
+function Markers({ r, reviewer }: { r: Row; reviewer?: string }) {
+  if (!r.ageConcerns?.length && !reviewer) return null;
+  return (
+    <span className="mt-1 flex flex-wrap gap-1">
+      {!!r.ageConcerns?.length && <Badge tone="warning" icon={<ShieldQuestion className="size-3.5" aria-hidden />}>Age concern</Badge>}
+      {reviewer && <Badge tone="info" icon={<Eye className="size-3.5" aria-hidden />}>{reviewer} reviewing</Badge>}
+    </span>
+  );
+}
 
 const sportsOf = (r: Row) => [...new Set(r.registrations.map((x) => x.event.sport.name))].join(", ") || "—";
 
 /** Table on ≥1024px; stacked cards on phones and tablets. */
-export function StudentsTable({ rows, hrefBase = "/admin/students" }: { rows: Row[]; hrefBase?: string }) {
+export function StudentsTable({ rows, hrefBase = "/admin/students", reviewing = {} }: { rows: Row[]; hrefBase?: string; reviewing?: Record<string, string> }) {
   if (!rows.length) return <EmptyState icon={<Users className="size-7" aria-hidden />} title="No registrations match" description="Try clearing a filter or searching for something else." />;
   return (
     <>
@@ -35,6 +47,7 @@ export function StudentsTable({ rows, hrefBase = "/admin/students" }: { rows: Ro
               <p className="mt-1 text-small text-muted">{STUDENT_TYPE_LABEL[r.studentType as StudentType] ?? r.studentType}</p>
               <p className="text-small text-muted">{sportsOf(r)}</p>
               <p className="mt-1 font-mono text-small text-fg">{r.prn ?? r.passportNumber ?? "—"}</p>
+              <Markers r={r} reviewer={reviewing[r.id]} />
             </Link>
           </li>
         ))}
@@ -59,6 +72,7 @@ export function StudentsTable({ rows, hrefBase = "/admin/students" }: { rows: Ro
                   <Link href={`${hrefBase}/${r.id}`} className="hover:underline">
                     {r.fullName ?? "Unverified"}
                   </Link>
+                  <Markers r={r} reviewer={reviewing[r.id]} />
                 </td>
                 <td className="px-4 py-3 font-mono text-small">{r.prn ?? r.passportNumber ?? "—"}</td>
                 <td className="px-4 py-3 text-small">

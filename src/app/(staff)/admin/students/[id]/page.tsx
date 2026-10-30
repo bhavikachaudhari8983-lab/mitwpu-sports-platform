@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CheckCircle2, Lock, XCircle } from "lucide-react";
+import { ArrowLeft, CalendarClock, CheckCircle2, Lock, Repeat, ShieldQuestion, XCircle } from "lucide-react";
 import { requireStaffPage } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { getAgeCategory } from "@/lib/registration";
-import { verificationBlockers } from "@/lib/workflow";
+import { dobImpact, verificationBlockers } from "@/lib/workflow";
 import { CHECK_LABEL, DOC_LABEL, GENDER_LABEL, isDocType, isStatus, STUDENT_TYPE_LABEL, type CheckType, type Gender, type StudentType } from "@/lib/constants";
 import { formatDateTime, formatDob } from "@/lib/utils";
 import { isMinor } from "@/lib/age";
@@ -15,12 +15,14 @@ import { PhotoCompare } from "@/components/admin/photo-compare";
 import { DocumentViewer } from "@/components/admin/document-viewer";
 import { StudentActions } from "@/components/admin/student-actions";
 import { AuditList } from "@/components/admin/audit-list";
+import { ReviewPresence } from "@/components/admin/review-presence";
+import { DecisionButtons } from "@/components/admin/decision-buttons";
 
 export const metadata: Metadata = { title: "Student" };
 
 export default async function StudentDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  await requireStaffPage(["ADMIN"], `/admin/students/${id}`);
+  const me = await requireStaffPage(["ADMIN"], `/admin/students/${id}`);
   const s = await prisma.student.findUnique({
     where: { id },
     include: {
@@ -30,9 +32,16 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
       registrations: { include: { event: { include: { sport: true } }, weightCategory: true } },
       measurements: { orderBy: { createdAt: "desc" }, include: { measuredBy: { select: { name: true } } } },
       weighIns: { orderBy: { createdAt: "desc" }, include: { event: true, recordedBy: { select: { name: true } } } },
+      dobCorrections: { where: { status: "PENDING" } },
+      ageConcerns: { orderBy: { createdAt: "desc" } },
+      changeRequests: { where: { status: "PENDING" }, include: { fromEvent: true, toEvent: true } },
     },
   });
   if (!s) notFound();
+  const dobPending = s.dobCorrections[0] ?? null;
+  const impact = dobPending ? await dobImpact(s.id, dobPending.toDob) : null;
+  const openConcerns = s.ageConcerns.filter((c) => c.status === "OPEN");
+  const closedConcerns = s.ageConcerns.filter((c) => c.status !== "OPEN");
   const audits = await prisma.auditLog.findMany({ where: { studentId: id }, orderBy: { createdAt: "desc" }, take: 100 });
   const { ageCategory } = await getAgeCategory(s.dob);
   const status = isStatus(s.status) ? s.status : "DRAFT";
@@ -66,6 +75,67 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
           </div>
         </div>
       </div>
+
+      <ReviewPresence studentId={s.id} />
+
+      {dobPending && impact && (
+        <Alert tone="danger" icon={<CalendarClock className="size-5" aria-hidden />} title="DOB correction waiting for a second admin">
+          <p>
+            <strong>{formatDob(dobPending.fromDob)}</strong> → <strong>{formatDob(dobPending.toDob)}</strong>, proposed by {dobPending.requestedByName} on {formatDateTime(dobPending.createdAt)}.
+          </p>
+          <p className="mt-1">Reason: {dobPending.reason}</p>
+          <p className="mt-1">
+            Age category: {impact.fromCategory ?? "—"} → <strong>{impact.toCategory ?? "—"}</strong>
+            {impact.ineligible.length > 0 ? (
+              <>
+                . <strong>No longer eligible for {impact.ineligible.map((i) => i.event).join(", ")}</strong> — approving will flag the registration so the student can withdraw or be moved.
+              </>
+            ) : (
+              ". All current events stay eligible."
+            )}
+          </p>
+          <div className="mt-3">
+            <DecisionButtons
+              studentId={s.id}
+              disabledReason={dobPending.requestedById === me.id ? "You proposed this, so a different admin must approve it." : undefined}
+              yes={{ label: "Approve correction", tone: "danger", title: "Apply this DOB correction?", description: "The verified date of birth is replaced and the age category recalculated. Both admins are named in the audit log.", body: { action: "decide-dob", correctionId: dobPending.id, approve: true }, done: "DOB corrected" }}
+              no={{ label: "Decline", tone: "primary", title: "Decline this correction?", description: "The date of birth stays as it is.", body: { action: "decide-dob", correctionId: dobPending.id, approve: false }, done: "Correction declined" }}
+            />
+          </div>
+        </Alert>
+      )}
+
+      {openConcerns.map((c) => (
+        <Alert key={c.id} tone="warning" icon={<ShieldQuestion className="size-5" aria-hidden />} title={`Age concern raised by ${c.raisedByName} (${c.raisedByRole.toLowerCase()})`}>
+          <p>“{c.reason}” — {formatDateTime(c.createdAt)}</p>
+          <p className="mt-1 text-small">
+            Check the DigiLocker photo against the athlete, the Class 10 certificate and, if needed, ask for the original birth certificate or a medical age assessment. The athlete is not told who raised it.
+          </p>
+          <div className="mt-3">
+            <DecisionButtons
+              studentId={s.id}
+              yes={{ label: "Uphold — flag registration", tone: "danger", title: "Uphold this concern?", description: "The registration is flagged and the student is asked to bring original birth documents. If the DOB is wrong, propose a correction or reject.", body: { action: "resolve-concern", concernId: c.id, outcome: "UPHELD" }, done: "Concern upheld" }}
+              no={{ label: "Dismiss", tone: "primary", title: "Dismiss this concern?", description: "Say what you checked, e.g. “Original birth certificate seen, matches DigiLocker”.", body: { action: "resolve-concern", concernId: c.id, outcome: "DISMISSED" }, done: "Concern dismissed" }}
+            />
+          </div>
+        </Alert>
+      ))}
+
+      {s.changeRequests.map((r) => (
+        <Alert key={r.id} tone="info" icon={<Repeat className="size-5" aria-hidden />} title="Event change requested">
+          <p>
+            {r.fromEvent.name} → <strong>{r.toEvent.name}</strong> · {formatDateTime(r.createdAt)}
+          </p>
+          <p className="mt-1">Reason: {r.reason}</p>
+          <div className="mt-3">
+            <DecisionButtons
+              studentId={s.id}
+              yes={{ label: "Approve change", tone: "success", title: "Move the student to the new event?", description: "Eligibility and entry limits are checked again now.", body: { action: "decide-change", requestId: r.id, approve: true }, done: "Event changed" }}
+              no={{ label: "Decline", tone: "primary", title: "Decline this change?", description: "The student stays in their current event and sees your note.", body: { action: "decide-change", requestId: r.id, approve: false }, done: "Change declined" }}
+            />
+          </div>
+        </Alert>
+      ))}
 
       {s.statusReason && (status === "FLAGGED" || status === "REJECTED") && (
         <Alert tone={status === "REJECTED" ? "danger" : "info"} title={`Reason shown to student`}>
@@ -221,6 +291,8 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
                 canConfirmCollege={s.studentType === "OUTSIDE_INDIAN" && !!s.college && !s.college.trusted}
                 collegeName={s.college?.name ?? null}
                 approveBlockers={approveBlockers}
+                version={s.updatedAt.toISOString()}
+                dobPending={!!dobPending}
               />
               {status === "PENDING" && blockers.length > 0 && (
                 <div className="mt-4 rounded-lg bg-surface-2 p-3 text-small">
@@ -240,6 +312,24 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
               <DocumentViewer docs={docs.map((d) => ({ id: d.id, label: label(d), mimeType: d.mimeType, size: d.size, source: d.source, createdAt: d.createdAt.toISOString() }))} />
             </CardBody>
           </Card>
+          {closedConcerns.length > 0 && (
+            <Card>
+              <CardHeader title="Past age concerns" />
+              <CardBody>
+                <ul className="space-y-2 text-small">
+                  {closedConcerns.map((c) => (
+                    <li key={c.id} className="rounded-lg bg-surface-2 p-3">
+                      <Badge tone={c.status === "UPHELD" ? "danger" : "neutral"}>{c.status === "UPHELD" ? "Upheld" : "Dismissed"}</Badge>
+                      <p className="mt-1">“{c.reason}” — {c.raisedByName}</p>
+                      <p className="text-muted">
+                        {c.resolvedByName}: {c.resolution}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
+          )}
           <Card>
             <CardHeader title="Timeline" />
             <CardBody>

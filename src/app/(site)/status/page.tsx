@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { isDemoMode } from "@/lib/env";
 import { getAgeCategory } from "@/lib/registration";
+import { entryCounts, eventIneligibility } from "@/lib/eligibility";
 import { isStatus, STUDENT_TYPE_LABEL, type Status } from "@/lib/constants";
 import { formatDateTime, formatDob, cn } from "@/lib/utils";
 import { Card, CardBody, CardHeader, DefinitionList } from "@/components/ui/card";
@@ -15,6 +16,7 @@ import { StatusLogin } from "@/components/status/status-login";
 import { IdCard } from "@/components/status/id-card";
 import { DeletionRequestButton } from "@/components/status/deletion-request";
 import { SignOutButton } from "@/components/status/sign-out-button";
+import { EventChangeButtons, type ChangeOption } from "@/components/status/event-changes";
 
 export const metadata: Metadata = { title: "My status" };
 export const dynamic = "force-dynamic";
@@ -30,6 +32,7 @@ export default async function StatusPage() {
       college: true,
       deletionRequests: { where: { status: "PENDING" } },
       measurements: { orderBy: { createdAt: "desc" }, take: 1 },
+      changeRequests: { orderBy: { createdAt: "desc" }, take: 5, include: { fromEvent: true, toEvent: true } },
     },
   });
   if (!s) {
@@ -41,7 +44,26 @@ export default async function StatusPage() {
   }
 
   const status: Status = isStatus(s.status) ? s.status : "DRAFT";
-  const { ageCategory } = await getAgeCategory(s.dob);
+  const { ageCategory, cutoff } = await getAgeCategory(s.dob);
+  const canChange = status !== "DRAFT" && status !== "REJECTED";
+  const pendingChange = s.changeRequests.find((r) => r.status === "PENDING");
+  const lastDecided = s.changeRequests.find((r) => r.status !== "PENDING" && r.decidedAt && Date.now() - r.decidedAt.getTime() < 14 * 86400000 && r.decisionNote !== "Withdrawn by the student");
+
+  // Events this athlete could move to: open to their gender and age, not already entered, places left.
+  let options: ChangeOption[] = [];
+  if (canChange) {
+    const events = await prisma.event.findMany({ where: { active: true, sport: { active: true } }, include: { sport: { include: { weightCategories: true } }, ageCategory: true }, orderBy: [{ sport: { name: "asc" } }, { name: "asc" }] });
+    const taken = await entryCounts(events.map((e) => e.id), s.id);
+    options = events
+      .filter((e) => !s.registrations.some((r) => r.eventId === e.id))
+      .filter((e) => !eventIneligibility(e, { gender: s.gender, dob: s.dob, cutoff }))
+      .filter((e) => e.maxEntries == null || (taken.get(e.id) ?? 0) < e.maxEntries)
+      .map((e) => ({
+        id: e.id,
+        label: `${e.sport.name} · ${e.name}`,
+        weights: e.sport.isWeightCategory ? e.sport.weightCategories.filter((w) => w.gender === s.gender).sort((a, b) => (a.maxKg ?? 999) - (b.maxKg ?? 999)).map((w) => ({ id: w.id, name: w.name })) : [],
+      }));
+  }
   const awaitingCollege = s.studentType === "OUTSIDE_INDIAN" && !s.college?.trusted && status === "PENDING";
   const awaitingPassport = s.studentType === "INTERNATIONAL" && !s.passportDeskVerified && (status === "PENDING" || status === "FLAGGED");
 
@@ -146,8 +168,13 @@ export default async function StatusPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Events" />
+          <CardHeader title="Events" description={canChange ? "Withdraw straight away, or ask to change an event. One change request at a time." : undefined} />
           <CardBody>
+            {lastDecided && (
+              <Alert tone={lastDecided.status === "APPROVED" ? "success" : "neutral"} className="mb-3" title={`Change ${lastDecided.fromEvent.name} → ${lastDecided.toEvent.name} ${lastDecided.status === "APPROVED" ? "approved" : "declined"}`}>
+                {lastDecided.decisionNote}
+              </Alert>
+            )}
             {s.registrations.length === 0 ? (
               <p className="text-muted">No events selected yet.</p>
             ) : (
@@ -172,6 +199,8 @@ export default async function StatusPage() {
                       )}
                       {r.weightCategory && <span>Weight class {r.weightCategory.name} (weigh-in on event day)</span>}
                     </p>
+                    {pendingChange?.fromEventId === r.eventId && <p className="mt-1 text-small font-medium text-info-fg">Change to {pendingChange.toEvent.name} requested — waiting for the sports office.</p>}
+                    {canChange && <EventChangeButtons eventId={r.eventId} eventName={r.event.name} options={options} canWithdraw={s.registrations.length > 1} hasPendingRequest={!!pendingChange} />}
                   </li>
                 ))}
               </ul>

@@ -52,7 +52,7 @@ export async function validateSubmission(s: Full): Promise<Record<string, string
 
   if (s.registrations.length === 0) errors["sports.registrations"] = "Choose at least one event";
   else {
-    const { errors: regErrors } = await validateRegistrations(s.registrations, s.gender, { requireWeight: true });
+    const { errors: regErrors } = await validateRegistrations(s.registrations, { studentId: s.id, gender: s.gender, dob: s.dob }, { requireWeight: true });
     for (const msg of Object.values(regErrors)) errors[`sports.${Object.keys(errors).length}`] = msg;
   }
 
@@ -73,6 +73,8 @@ export function flagReasonFrom(checks: VerificationCheck[]): string | null {
   return (
     failed
       .map((c) => {
+        // Never show the student another profile's details.
+        if (c.type === "SAME_PERSON_OTHER_DOB") return "Another registration with your name and Aadhaar digits has a different date of birth";
         const label = CHECK_LABEL[c.type as CheckType] ?? c.type;
         const fmt = (v: string | null) => (c.type.includes("DOB") ? formatDob(v) : v ?? "—");
         return `${label} — record: ${fmt(c.expected)}, verified source: ${fmt(c.actual)}`;
@@ -105,7 +107,28 @@ export async function submitRegistration(studentId: string, actor: Actor, ip: st
     collegeId = college.id;
   }
 
-  const reason = flagReasonFrom(s.checks);
+  // Fake-age signal: the same person (same name + Aadhaar last 4 + gender) already registered with a DIFFERENT DOB,
+  // e.g. through a second DigiLocker account or an earlier year's profile. Flag both for the sports office.
+  const checks = [...s.checks];
+  if (s.aadhaarLast4 && s.fullName && s.dob) {
+    const name = normaliseName(s.fullName);
+    const others = (
+      await prisma.student.findMany({ where: { aadhaarLast4: s.aadhaarLast4, gender: s.gender, status: { not: "DRAFT" }, NOT: { id: s.id } }, select: { id: true, fullName: true, dob: true, sportsId: true, prn: true } })
+    ).filter((o) => o.fullName && normaliseName(o.fullName) === name && o.dob && o.dob !== s.dob);
+    if (others.length) {
+      const o = others[0];
+      checks.push(
+        await prisma.verificationCheck.create({
+          data: { studentId: s.id, type: "SAME_PERSON_OTHER_DOB", passed: false, expected: o.dob, actual: s.dob, details: `Matches profile ${o.sportsId ?? o.prn ?? o.id}. Check original documents before approving either.` },
+        }),
+      );
+      for (const other of others) {
+        await audit({ actor: { type: "SYSTEM" }, action: "VERIFICATION_MISMATCH", studentId: other.id, summary: `Possible fake age: a new registration with the same name and Aadhaar digits has DOB ${s.dob} (this profile: ${other.dob})`, ip });
+      }
+    }
+  }
+
+  const reason = flagReasonFrom(checks);
   const status = reason ? "FLAGGED" : "PENDING";
   await prisma.student.update({
     where: { id: s.id },

@@ -20,6 +20,9 @@ type Props = {
   canConfirmCollege: boolean;
   collegeName: string | null;
   approveBlockers: string[];
+  /** updatedAt as loaded; the server refuses the action if someone changed the record since. */
+  version: string;
+  dobPending: boolean;
 };
 
 const META: Record<Action, { title: string; confirm: string; tone: "primary" | "danger" | "success"; needsReason: boolean; desc: string }> = {
@@ -28,10 +31,10 @@ const META: Record<Action, { title: string; confirm: string; tone: "primary" | "
   flag: { title: "Flag for review?", confirm: "Flag", tone: "primary", needsReason: true, desc: "The reason is shown to the student. Flagged students can't be verified until resolved." },
   reopen: { title: "Move back to pending?", confirm: "Move to pending", tone: "primary", needsReason: true, desc: "Use after resolving a flag. The student then needs desk verification again." },
   "confirm-college": { title: "Confirm college?", confirm: "Confirm college", tone: "success", needsReason: false, desc: "The college is saved as trusted; future students from it don't need confirmation." },
-  "edit-dob": { title: "Change verified date of birth?", confirm: "Change DOB", tone: "danger", needsReason: true, desc: "This overrides a verified value. The old value, new value and your reason are permanently recorded in the audit log." },
+  "edit-dob": { title: "Propose a DOB correction?", confirm: "Send for approval", tone: "danger", needsReason: true, desc: "A verified date of birth only changes after a SECOND admin approves it. Your proposal, the old and new values and your reason are permanently recorded in the audit log." },
 };
 
-export function StudentActions({ studentId, name, status, dob, canConfirmCollege, collegeName, approveBlockers }: Props) {
+export function StudentActions({ studentId, name, status, dob, canConfirmCollege, collegeName, approveBlockers, version, dobPending }: Props) {
   const router = useRouter();
   const toast = useToast();
   const [action, setAction] = useState<Action | null>(null);
@@ -52,16 +55,21 @@ export function StudentActions({ studentId, name, status, dob, canConfirmCollege
     const meta = META[action];
     if (meta.needsReason && reason.trim().length < 5) return setErrors({ reason: "Give a reason (at least 5 characters)" });
     setLoading(true);
-    const body = action === "edit-dob" ? { action, dob: newDob, reason } : meta.needsReason ? { action, reason } : { action };
+    const body = action === "edit-dob" ? { action, dob: newDob, reason, version } : meta.needsReason ? { action, reason, version } : { action, version };
     const r = await api<{ sportsId?: string }>(`/api/admin/students/${studentId}/action`, { body });
     setLoading(false);
     if (!r.ok) {
       setErrors(r.fieldErrors);
       if (!Object.keys(r.fieldErrors).length) toast.error("Action failed", r.error);
+      // Someone else acted first: close and reload so the admin sees the current record.
+      if (r.status === 409 && r.error.includes("changed while you were viewing")) {
+        setAction(null);
+        router.refresh();
+      }
       return;
     }
     setAction(null);
-    toast.success(action === "approve" ? `Approved — Sports ID ${r.data.sportsId}` : "Saved", `${name}`);
+    toast.success(action === "approve" ? `Approved — Sports ID ${r.data.sportsId}` : action === "edit-dob" ? "Sent for second-admin approval" : "Saved", `${name}`);
     router.refresh();
   }
 
@@ -88,8 +96,8 @@ export function StudentActions({ studentId, name, status, dob, canConfirmCollege
             Confirm college
           </Button>
         )}
-        <Button variant="outline" onClick={() => openAction("edit-dob")} disabled={!dob} icon={<CalendarClock className="size-4" aria-hidden />} className="sm:col-span-2">
-          Edit DOB (admin only)
+        <Button variant="outline" onClick={() => openAction("edit-dob")} disabled={!dob || dobPending} icon={<CalendarClock className="size-4" aria-hidden />} className="sm:col-span-2">
+          {dobPending ? "DOB correction pending" : "Propose DOB correction"}
         </Button>
       </div>
       {!canApprove && status !== "APPROVED" && (

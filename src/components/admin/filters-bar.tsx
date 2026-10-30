@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Download, Loader2, Search, X } from "lucide-react";
 import { Input, Select } from "@/components/ui/field";
@@ -11,24 +11,31 @@ export function FiltersBar({ sports, exportHref }: { sports: Array<{ id: string;
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
-  const [pending, start] = useTransition();
+  // URL we asked for vs URL we are on — "Updating…" shows until they match.
+  const [requested, setRequested] = useState<string | null>(null);
+  const current = `${pathname}?${params.toString()}`;
+  const pending = requested !== null && requested !== current;
   const [q, setQ] = useState(params.get("q") ?? "");
   const [college, setCollege] = useState(params.get("college") ?? "");
 
   function update(next: Record<string, string>) {
-    const sp = new URLSearchParams(params.toString());
+    // Read the live URL (not the render-time snapshot) so a late debounced update can't undo "Clear filters".
+    const sp = new URLSearchParams(window.location.search);
     for (const [k, v] of Object.entries(next)) {
       if (v) sp.set(k, v);
       else sp.delete(k);
     }
     sp.delete("page");
-    start(() => router.replace(`${pathname}?${sp.toString()}`, { scroll: false }));
+    const target = `${pathname}?${sp.toString()}`;
+    setRequested(target);
+    router.replace(target, { scroll: false });
   }
 
   // Debounced text search.
   useEffect(() => {
     const t = setTimeout(() => {
-      if ((params.get("q") ?? "") !== q || (params.get("college") ?? "") !== college) update({ q, college });
+      const live = new URLSearchParams(window.location.search);
+      if ((live.get("q") ?? "") !== q || (live.get("college") ?? "") !== college) update({ q, college });
     }, 400);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run on typed values
@@ -91,7 +98,8 @@ export function FiltersBar({ sports, exportHref }: { sports: Array<{ id: string;
             onClick={() => {
               setQ("");
               setCollege("");
-              start(() => router.replace(pathname, { scroll: false }));
+              setRequested(`${pathname}?`);
+              router.replace(pathname, { scroll: false });
             }}
           >
             Clear filters

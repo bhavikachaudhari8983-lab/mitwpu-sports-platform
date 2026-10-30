@@ -75,6 +75,11 @@ export function SportsStep() {
       <Card>
         <CardHeader title="1. Choose your sports" description="Only sports with events open to you are shown." />
         <CardBody>
+          {chosenSports.length === 0 && (
+            <div className="mb-3">
+              <FieldError id="registrations" message={errors.registrations} />
+            </div>
+          )}
           <div className="flex flex-wrap gap-2" role="group" aria-label="Sports">
             {catalog.map((s) => {
               const on = chosenSports.includes(s.id);
@@ -100,7 +105,7 @@ export function SportsStep() {
         <Card>
           <CardHeader title="2. Choose events" description={`Pick up to ${MAX_EVENTS} events in total · ${regs.length}/${MAX_EVENTS} selected`} />
           <CardBody className="space-y-6">
-            <FieldError id="registrations" message={errors.registrations} />
+            {chosenSports.length > 0 && <FieldError id="registrations" message={errors.registrations} />}
             {chosenSports.map((sid) => {
               const sport = catalog.find((s) => s.id === sid);
               if (!sport) return null;

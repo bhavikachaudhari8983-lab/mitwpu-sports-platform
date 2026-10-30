@@ -39,8 +39,7 @@ export function StaffLoginForm({ callbackUrl, demo, initialError }: { callbackUr
     const home = staffHomeFor(session?.user.role ?? "");
     // Only follow same-site relative callback URLs.
     const target = callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : home;
-    router.push(target);
-    router.refresh();
+    router.push(target); // staff pages are dynamic; a refresh() here can cancel the push
   }
 
   return (

@@ -53,8 +53,7 @@ export function ReviewStep({ onGoTo }: StepProps) {
       return;
     }
     toast.success(r.data.status === "FLAGGED" ? "Submitted — flagged for review" : "Registration submitted!", "Track progress on your status page.");
-    router.push("/status");
-    router.refresh();
+    router.push("/status"); // /status is dynamic, so this fetches fresh data — no refresh() needed (it can cancel the push)
   }
 
   const edit = (step: number) => (

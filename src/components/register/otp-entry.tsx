@@ -52,7 +52,7 @@ export function OtpEntry({ challengeId, maskedTarget, demoCode, onResend, onBack
       return;
     }
     if (redirectTo) router.push(redirectTo);
-    router.refresh();
+    else router.refresh(); // re-render the current page with the new session
   }
 
   return (

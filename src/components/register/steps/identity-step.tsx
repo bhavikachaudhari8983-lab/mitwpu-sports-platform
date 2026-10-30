@@ -39,7 +39,7 @@ export function IdentityStep() {
         <Card>
           <CardBody className="space-y-4">
             <div className="flex items-start gap-4">
-              <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary text-primary-fg">
+              <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-tint text-tint-fg">
                 <ShieldCheck className="size-6" aria-hidden />
               </span>
               <div>

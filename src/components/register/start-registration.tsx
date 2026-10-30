@@ -40,7 +40,7 @@ export function StartRegistration({ demo }: { demo: boolean }) {
                 onClick={() => setPath(p.id)}
                 className="group flex w-full items-center gap-4 rounded-xl border border-border bg-surface p-4 text-left shadow-card transition-colors hover:border-primary sm:p-5"
               >
-                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary text-primary-fg">
+                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-tint text-tint-fg">
                   <p.icon className="size-6" aria-hidden />
                 </span>
                 <span className="min-w-0 flex-1">

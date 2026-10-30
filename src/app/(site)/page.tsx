@@ -100,41 +100,41 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="hero-pattern relative overflow-hidden text-white">
+      <section className="hero-pattern relative overflow-hidden">
         <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 sm:gap-10 sm:px-6 sm:py-20 lg:grid-cols-[1fr_auto] lg:py-24">
           <div className="order-2 lg:order-1">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-small font-medium">
-            <Trophy className="size-4 text-highlight" aria-hidden />
+          <p className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-small font-medium shadow-card">
+            <Trophy className="size-4 text-tint-fg" aria-hidden />
             {settings?.meetName ?? APP_NAME}
           </p>
-          <h1 className="mt-5 max-w-3xl text-white">
+          <h1 className="mt-5 max-w-3xl text-hero-fg">
             Register. Get verified. <span className="text-gradient-sphere whitespace-nowrap italic">Play fair.</span>
           </h1>
-          <p className="mt-5 max-w-2xl text-lg text-white/85">
+          <p className="mt-5 max-w-2xl text-lg text-hero-muted">
             One paperless registration for inter-university games — open to host-university students, other universities and international students. Verified age, verified identity, one QR Sports ID.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/register" size="lg">
               Register now <ArrowRight className="size-5" aria-hidden />
             </ButtonLink>
-            <ButtonLink href="/status" size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10">
+            <ButtonLink href="/status" size="lg" variant="outline" className="border-hero-fg bg-transparent text-hero-fg">
               Check status
             </ButtonLink>
           </div>
-          <ul className="mt-10 grid max-w-3xl gap-3 text-small text-white/85 sm:grid-cols-3">
+          <ul className="mt-10 grid max-w-3xl gap-3 text-small text-hero-fg sm:grid-cols-3">
             {[
               { icon: ShieldCheck, t: "DigiLocker & passport verified" },
               { icon: BadgeCheck, t: "Age category set automatically" },
               { icon: QrCode, t: "Signed QR Sports ID" },
             ].map(({ icon: Icon, t }) => (
               <li key={t} className="flex items-center gap-2">
-                <Icon className="size-5 shrink-0 text-highlight" aria-hidden /> {t}
+                <Icon className="size-5 shrink-0 text-tint-fg" aria-hidden /> {t}
               </li>
             ))}
           </ul>
           </div>
           <div className="order-1 flex justify-center lg:order-2">
-            <div className="rounded-full bg-white p-2 shadow-[0_0_0_6px_rgb(255_255_255/0.08),0_20px_60px_-10px_rgb(238_122_43/0.45)]">
+            <div className="rounded-full bg-white p-2 shadow-[0_0_0_6px_rgb(238_122_43/0.08),0_20px_60px_-10px_rgb(238_122_43/0.4)]">
               <LogoMark size={296} priority alt="Sports Sphere — MIT-WPU: Fueling passion, building champions" className="size-28 sm:size-52 lg:size-72" />
             </div>
           </div>
@@ -153,7 +153,7 @@ export default async function HomePage() {
             const Icon = SPORT_ICON[s.name] ?? Trophy;
             return (
               <li key={s.name} className="flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-surface p-3 shadow-card sm:gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-fg sm:size-10">
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-tint text-tint-fg sm:size-10">
                   <Icon className="size-5" aria-hidden />
                 </span>
                 <span className="min-w-0">
@@ -198,7 +198,7 @@ export default async function HomePage() {
             <Card key={d.title}>
               <CardBody className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-fg">
+                  <span className="grid size-11 place-items-center rounded-xl bg-tint text-tint-fg">
                     <d.icon className="size-5" aria-hidden />
                   </span>
                   <h3>{d.title}</h3>
@@ -278,12 +278,12 @@ export default async function HomePage() {
               </li>
             </ul>
           </div>
-          <Card className="self-start border-0 bg-brand-deep text-white">
+          <Card className="self-start border-l-4 border-l-accent bg-tint">
             <CardBody className="space-y-3">
-              <ShieldCheck className="size-8 text-highlight" aria-hidden />
-              <h3 className="text-white">Your data, protected</h3>
-              <p className="text-white/85">We collect only what&apos;s needed to verify athletes, keep documents private, log every access, and delete your data on request — in line with India&apos;s DPDP Act, 2023.</p>
-              <Link href="/privacy" className="inline-flex min-h-11 items-center gap-1 font-semibold text-white underline decoration-highlight decoration-2 underline-offset-4">
+              <ShieldCheck className="size-8 text-tint-fg" aria-hidden />
+              <h3 className="text-fg">Your data, protected</h3>
+              <p className="text-fg">We collect only what&apos;s needed to verify athletes, keep documents private, log every access, and delete your data on request — in line with India&apos;s DPDP Act, 2023.</p>
+              <Link href="/privacy" className="inline-flex min-h-11 items-center gap-1 font-semibold text-fg underline decoration-accent decoration-2 underline-offset-4">
                 Read the privacy notice <ArrowRight className="size-4" aria-hidden />
               </Link>
             </CardBody>

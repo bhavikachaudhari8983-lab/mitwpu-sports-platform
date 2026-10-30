@@ -16,7 +16,7 @@ export default async function StaffLoginPage({ searchParams }: { searchParams: P
   return (
     <div className="mx-auto max-w-md px-4 py-10 sm:py-16">
       <div className="mb-6 flex items-center gap-3">
-        <span className="grid size-12 place-items-center rounded-xl bg-primary text-primary-fg">
+        <span className="grid size-12 place-items-center rounded-xl bg-tint text-tint-fg">
           <ShieldCheck className="size-6" aria-hidden />
         </span>
         <div>

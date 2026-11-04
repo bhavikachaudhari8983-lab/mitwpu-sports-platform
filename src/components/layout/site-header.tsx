@@ -52,7 +52,7 @@ export function SiteHeader() {
           {staffHome ? (
             <Link href={staffHome} className={buttonClass("outline", "sm")}>
               <ShieldCheck className="size-4" aria-hidden />
-              <span className="hidden sm:inline">Staff area</span>
+              <span className="hidden sm:inline">{role === "ADMIN" ? "Dashboard" : "Staff area"}</span>
             </Link>
           ) : (
             <Link href="/staff/login" aria-label="Staff login" className="flex min-h-11 items-center rounded-lg px-2 text-small font-semibold whitespace-nowrap text-primary hover:bg-surface-2 sm:px-3">

@@ -14,13 +14,14 @@ export type StudentFilters = {
   type?: string;
   college?: string;
   gender?: string;
+  school?: string;
   age?: string;
   /** "ready" = verified, every check passed, no open age concern (safe to bulk-approve); "dob" / "concerns" / "changes" = waiting for a decision. */
   view?: string;
   page?: number;
 };
 
-export const FILTER_KEYS = ["q", "status", "sport", "event", "weight", "type", "college", "gender", "age", "view"] as const;
+export const FILTER_KEYS = ["q", "status", "sport", "event", "weight", "type", "college", "gender", "school", "age", "view"] as const;
 
 export function parseFilters(sp: Record<string, string | string[] | undefined>): StudentFilters {
   const one = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string).trim() : undefined) || undefined;
@@ -59,6 +60,7 @@ export async function studentWhere(f: StudentFilters): Promise<Prisma.StudentWhe
   else if (f.weight) and.push({ registrations: { some: { weightCategoryId: f.weight } } });
   if (f.college) and.push({ universityName: { contains: f.college } });
   if (f.gender) and.push({ gender: f.gender });
+  if (f.school) and.push({ schoolId: f.school });
   if (f.age) {
     const [settings, cats] = await Promise.all([getSettings(), prisma.ageCategory.findMany()]);
     and.push({ dob: dobRangeFor(f.age, settings.ageCutoffDate, cats) ?? { equals: "__none__" } });

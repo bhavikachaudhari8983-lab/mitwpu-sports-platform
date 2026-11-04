@@ -76,11 +76,29 @@ DRAFT ──submit──▶ PENDING ──desk verify──▶ VERIFIED ──ad
 * **Outside students** stay PENDING until an admin uses "Confirm college". After that the college is saved as trusted.
 * **QR Sports ID.** The payload is `SRP1:<sportsId>:<HMAC>`. A scan is VALID only if the signature checks out **and** the athlete is APPROVED right now, so flagging someone revokes their QR instantly.
 
+## Running the competition
+
+After registration, the same verified data runs the event itself:
+
+* **Campuses & schools** (Settings). Host-university students get their school from the ERP's school code, so nobody can claim another school to join its squad.
+* **Format builder** per event (Admin → Competition → event): league, knockout or ranked results (times and distances), with periods, minutes, shoot-out, points for a win or draw, and squad size.
+* **Teams** for team sports. Only **approved** athletes registered for that event can be added. A school squad only takes that school's students, and a player can be in one squad per event. Teams have a captain and a roster lock.
+* **Fixtures**: league pairings, or a seeded knockout bracket with byes (wrestling, boxing and judo get one per weight class). Each round is timetabled from the event date.
+* **Live scoring** at `/score` for officials, built for a phone at the ground. Each tap is saved on the device and sent when there's signal. The server ignores duplicates, so a lost connection never loses or double-counts a point.
+* **Results**: standings update automatically, knockout winners move on, and admins confirm the podium (joint bronze allowed). The **medal tally** counts by school or college.
+* **Certificates**: participation for every approved athlete and medal certificates for the podium. They are PDFs with a QR code linking to the public `/verify/<code>` page, which recomputes an HMAC signature and shows *authentic*, *revoked* or *failed signature check*. Every check is logged.
+* **Public results** at `/events`: live scores (auto-refresh), schedule, standings, podium and medal tally. Only names and institutions are shown, never IDs, ages or contact details.
+* **Announcements** to everyone, all athletes, one event's athletes, captains, officials, coaches or medical staff. They appear in the portal, with optional SMS and WhatsApp through `MessagingService` (simulated, like OTP).
+* **Athletes' "My games"** on `/status`: teams, next matches, results, medals and certificate downloads, with share-able verify links.
+
+Demo data includes a football league in progress (one match live), a finished badminton knockout and a finished 100 m with times, with certificates issued.
+
 ## Security & privacy
 
 * Every page **and** every API route checks the role server-side (`src/lib/rbac.ts`). `src/middleware.ts` is an extra first layer. Staff are re-checked against the database on each request, so deactivation takes effect immediately.
 * Uploads go to `./uploads` (or `UPLOAD_DIR`), which is outside `/public`. They are served only by `/api/documents/[id]` after an ownership or role check (`DOC_ACCESS` in `src/lib/constants.ts`), and **every view is audited**. File type is checked by magic bytes, with a 5 MB limit. Images are compressed in the browser first.
 * bcrypt staff passwords, rate-limited login (5 per 15 min), OTP send (3 per 10 min per target) and OTP verify (5 attempts). OTP codes are stored only as HMACs.
+* Certificate PDFs download only for their owner or an admin. Anyone can verify a code, but the verify page shows only what is printed on the certificate.
 * Only the last 4 Aadhaar digits are stored. CSV export excludes medical data and guards against spreadsheet formula injection. The default export also leaves out DOB and masks mobile and email. A **full export** needs a written reason. Every export and entry-sheet print is logged.
 * DPDP Act: privacy notice at `/privacy`, a "Request data deletion" button on `/status`, an admin deletion queue, and a retention purge (Settings). Deletion erases files and the profile, and redacts the name in the audit log.
 

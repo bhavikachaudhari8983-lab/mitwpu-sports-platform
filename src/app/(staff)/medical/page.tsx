@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { Prisma } from "@prisma/client";
 import { HeartPulse, Phone, Search } from "lucide-react";
 import { requireStaffPage } from "@/lib/rbac";
+import { announcementsForStaff } from "@/lib/announcements";
+import { AnnouncementList } from "@/components/competition/announcement-list";
 import { prisma } from "@/lib/prisma";
 import { isMinor } from "@/lib/age";
 import { isStatus } from "@/lib/constants";
@@ -17,6 +19,7 @@ export const metadata: Metadata = { title: "Medical" };
 /** Medical staff see ONLY medical fields: no ID documents, Aadhaar, passport or address. */
 export default async function MedicalPage({ searchParams }: { searchParams: Promise<{ q?: string; filter?: string }> }) {
   await requireStaffPage(["MEDICAL"], "/medical");
+  const notices = await announcementsForStaff("MEDICAL", 3);
   const { q: rawQ, filter } = await searchParams;
   const q = rawQ?.trim();
   const where: Prisma.StudentWhereInput = {
@@ -41,6 +44,11 @@ export default async function MedicalPage({ searchParams }: { searchParams: Prom
   return (
     <div className="space-y-6">
       <PageHeader title="Medical" description="Fitness certificates, declared conditions, blood groups and emergency contacts. Visible to the medical team only." />
+      {notices.length > 0 && (
+        <section aria-label="Announcements" className="mb-6">
+          <AnnouncementList items={notices} />
+        </section>
+      )}
       <form method="get" className="grid gap-3 sm:grid-cols-[2fr_1fr_auto]" role="search">
         <label className="relative">
           <span className="sr-only">Search by name or Sports ID</span>

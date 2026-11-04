@@ -20,7 +20,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
   await requireStaffPage(["ADMIN"], "/admin");
   const sp = await searchParams;
   const filters = parseFilters(sp);
-  const [stats, oversight, { rows, total }, sports, cats, pendingDeletions, untrustedColleges] = await Promise.all([
+  const [stats, oversight, { rows, total }, sports, cats, pendingDeletions, untrustedColleges, schools] = await Promise.all([
     dashboardStats(),
     oversightCounts(),
     listStudents(filters),
@@ -28,6 +28,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
     prisma.ageCategory.findMany({ orderBy: { sortOrder: "asc" }, select: { name: true } }),
     prisma.deletionRequest.count({ where: { status: "PENDING" } }),
     prisma.student.count({ where: { studentType: "OUTSIDE_INDIAN", status: "PENDING", college: { trusted: false } } }),
+    prisma.school.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
   const reviewing = Object.fromEntries(await activeReviews(rows.map((r) => r.id)));
   const params = Object.fromEntries(FILTER_KEYS.map((k) => [k, filters[k]]));
@@ -107,7 +108,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
             </Link>
           </Alert>
         )}
-        <FiltersBar sports={filterSports} ageCategories={cats.map((c) => c.name)} exportQuery={qs} />
+        <FiltersBar sports={filterSports} ageCategories={cats.map((c) => c.name)} schools={schools} exportQuery={qs} />
         <StudentsTable rows={rows} reviewing={reviewing} />
         <Pagination page={filters.page ?? 1} total={total} pageSize={PAGE_SIZE} params={params} />
       </section>

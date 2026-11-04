@@ -17,6 +17,10 @@ import { IdCard } from "@/components/status/id-card";
 import { DeletionRequestButton } from "@/components/status/deletion-request";
 import { SignOutButton } from "@/components/status/sign-out-button";
 import { EventChangeButtons, type ChangeOption } from "@/components/status/event-changes";
+import { MyGames } from "@/components/status/my-games";
+import { AnnouncementList } from "@/components/competition/announcement-list";
+import { myGames } from "@/lib/my-games";
+import { announcementsForStudent } from "@/lib/announcements";
 
 export const metadata: Metadata = { title: "My status" };
 export const dynamic = "force-dynamic";
@@ -45,6 +49,7 @@ export default async function StatusPage() {
 
   const status: Status = isStatus(s.status) ? s.status : "DRAFT";
   const { ageCategory, cutoff } = await getAgeCategory(s.dob);
+  const [games, notices] = status === "APPROVED" ? await Promise.all([myGames(s.id), announcementsForStudent(s.id)]) : [null, []];
   const canChange = status !== "DRAFT" && status !== "REJECTED";
   const pendingChange = s.changeRequests.find((r) => r.status === "PENDING");
   const lastDecided = s.changeRequests.find((r) => r.status !== "PENDING" && r.decidedAt && Date.now() - r.decidedAt.getTime() < 14 * 86400000 && r.decisionNote !== "Withdrawn by the student");
@@ -122,6 +127,17 @@ export default async function StatusPage() {
           An official will compare your live photo, and measure your height and weight. Students never enter these themselves.
         </Alert>
       )}
+
+      {notices.length > 0 && (
+        <Card>
+          <CardHeader title="Announcements" />
+          <CardBody>
+            <AnnouncementList items={notices} />
+          </CardBody>
+        </Card>
+      )}
+
+      {games && <MyGames data={games} />}
 
       {status === "APPROVED" && (
         <Card>

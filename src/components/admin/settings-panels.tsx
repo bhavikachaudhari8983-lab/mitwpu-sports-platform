@@ -103,6 +103,102 @@ export function AgeCategoriesPanel({ categories }: { categories: Array<{ id: str
   );
 }
 
+// ---------- Campuses & schools ----------
+type CampusRow = { id: string; name: string; code: string; active: boolean; schools: Array<{ id: string; name: string; code: string; active: boolean; students: number; teams: number }> };
+
+export function CampusesPanel({ campuses }: { campuses: CampusRow[] }) {
+  const { run, busy, errors } = useOp();
+  const [campus, setCampus] = useState({ name: "", code: "" });
+  const [school, setSchool] = useState({ campusId: campuses[0]?.id ?? "", name: "", code: "" });
+  return (
+    <Section id="campuses" title="Campuses & schools" description="Host-university students are linked to their school automatically from the ERP (by school code), so they can't claim another school to join its squad.">
+      <div className="space-y-3">
+        {campuses.map((c) => (
+          <div key={c.id} className="rounded-xl border border-border p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-heading text-lg font-semibold">{c.name}</span>
+              <Badge>{c.code}</Badge>
+              {!c.active && <Badge tone="warning">Inactive</Badge>}
+              <Button variant="ghost" size="sm" className="ml-auto" loading={busy === `campus-${c.id}`} onClick={() => run({ op: "campus-toggle", id: c.id, active: !c.active }, "Campus updated", `campus-${c.id}`)}>
+                {c.active ? "Set inactive" : "Activate"}
+              </Button>
+            </div>
+            <ul className="mt-2 space-y-1">
+              {c.schools.map((s) => (
+                <li key={s.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-surface-2 px-3 py-2">
+                  <span className="min-w-0 flex-1">
+                    {s.name} <span className="font-mono text-small text-muted">{s.code}</span>
+                    <span className="block text-small text-muted">
+                      {s.students} students · {s.teams} teams
+                    </span>
+                  </span>
+                  {!s.active && <Badge tone="warning">Inactive</Badge>}
+                  <Button variant="ghost" size="sm" loading={busy === `school-${s.id}`} onClick={() => run({ op: "school-toggle", id: s.id, active: !s.active }, "School updated", `school-${s.id}`)}>
+                    {s.active ? "Set inactive" : "Activate"}
+                  </Button>
+                </li>
+              ))}
+              {c.schools.length === 0 && <li className="text-small text-muted">No schools yet.</li>}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <form
+          className="grid gap-3 rounded-xl border border-dashed border-border-strong p-4"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (await run({ op: "campus-add", ...campus }, `${campus.name} added`)) setCampus({ name: "", code: "" });
+          }}
+        >
+          <p className="font-semibold">Add a campus</p>
+          <Field id="campus-name" label="Name" error={errors.name}>
+            <Input {...fieldA11y("campus-name", errors.name)} placeholder="e.g. Bangalore" value={campus.name} onChange={(e) => setCampus({ ...campus, name: e.target.value })} />
+          </Field>
+          <Field id="campus-code" label="Short code" hint="Shown where the full name won't fit" error={errors.code}>
+            <Input {...fieldA11y("campus-code", errors.code, true)} placeholder="BLR" maxLength={6} className="font-mono uppercase" value={campus.code} onChange={(e) => setCampus({ ...campus, code: e.target.value.toUpperCase() })} />
+          </Field>
+          <div>
+            <Button type="submit" variant="outline" loading={busy === "campus-add"} icon={<Plus className="size-4" aria-hidden />}>
+              Add campus
+            </Button>
+          </div>
+        </form>
+        <form
+          className="grid gap-3 rounded-xl border border-dashed border-border-strong p-4"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (await run({ op: "school-add", ...school }, `${school.name} added`)) setSchool({ ...school, name: "", code: "" });
+          }}
+        >
+          <p className="font-semibold">Add a school</p>
+          <Field id="school-campus" label="Campus" error={errors.campusId}>
+            <Select {...fieldA11y("school-campus", errors.campusId)} value={school.campusId} onChange={(e) => setSchool({ ...school, campusId: e.target.value })}>
+              <option value="">Choose…</option>
+              {campuses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field id="school-name" label="Name" error={errors.name}>
+            <Input {...fieldA11y("school-name", errors.name)} placeholder="e.g. School of Design" value={school.name} onChange={(e) => setSchool({ ...school, name: e.target.value })} />
+          </Field>
+          <Field id="school-code" label="ERP school code" hint="Must match the code in the university ERP" error={errors.code}>
+            <Input {...fieldA11y("school-code", errors.code, true)} placeholder="DES" maxLength={6} className="font-mono uppercase" value={school.code} onChange={(e) => setSchool({ ...school, code: e.target.value.toUpperCase() })} />
+          </Field>
+          <div>
+            <Button type="submit" variant="outline" loading={busy === "school-add"} icon={<Plus className="size-4" aria-hidden />}>
+              Add school
+            </Button>
+          </div>
+        </form>
+      </div>
+    </Section>
+  );
+}
+
 // ---------- Sports, events, weight categories ----------
 /** Entry limit, minimum squad and age restriction for one event. */
 function EventLimits({ event, ageCategories }: { event: SportRow["events"][number]; ageCategories: AgeOption[] }) {

@@ -3,13 +3,14 @@ import { requireStaffPage } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { PageHeader } from "@/components/ui/card";
-import { AgeCategoriesPanel, DeletionPanel, GeneralPanel, SportsPanel, StaffPanel } from "@/components/admin/settings-panels";
+import { AgeCategoriesPanel, CampusesPanel, DeletionPanel, GeneralPanel, SportsPanel, StaffPanel } from "@/components/admin/settings-panels";
 
 export const metadata: Metadata = { title: "Settings" };
 
 const SECTIONS = [
   { id: "general", label: "General" },
   { id: "age", label: "Age categories" },
+  { id: "campuses", label: "Campuses & schools" },
   { id: "sports", label: "Sports & events" },
   { id: "staff", label: "Staff" },
   { id: "deletion", label: "Deletion & retention" },
@@ -17,6 +18,7 @@ const SECTIONS = [
 
 export default async function SettingsPage() {
   const me = await requireStaffPage(["ADMIN"], "/admin/settings");
+  const campuses = await prisma.campus.findMany({ orderBy: { name: "asc" }, include: { schools: { orderBy: { name: "asc" }, include: { _count: { select: { students: true, teams: true } } } } } });
   const [settings, categories, sports, staff, deletions] = await Promise.all([
     getSettings(),
     prisma.ageCategory.findMany({ orderBy: { sortOrder: "asc" } }),
@@ -40,6 +42,7 @@ export default async function SettingsPage() {
       </nav>
       <GeneralPanel initial={settings} />
       <AgeCategoriesPanel categories={categories} />
+      <CampusesPanel campuses={campuses.map((c) => ({ id: c.id, name: c.name, code: c.code, active: c.active, schools: c.schools.map((s) => ({ id: s.id, name: s.name, code: s.code, active: s.active, students: s._count.students, teams: s._count.teams })) }))} />
       <SportsPanel
         ageCategories={categories.filter((c) => c.maxAge !== null).map((c) => ({ id: c.id, name: c.name }))}
         sports={sports.map((s) => ({

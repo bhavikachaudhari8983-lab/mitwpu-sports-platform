@@ -61,6 +61,8 @@ model Student {
   universityName String?
   collegeId      String?
   college        College? @relation(fields: [collegeId], references: [id], onDelete: SetNull)
+  schoolId       String? // host-university students only; comes from the ERP, never typed
+  school         School?  @relation(fields: [schoolId], references: [id], onDelete: SetNull)
   collegeOfficeEmail String?
   course         String?
   year           Int?
@@ -107,6 +109,12 @@ model Student {
   ageConcerns      AgeConcern[]
   changeRequests   EventChangeRequest[]
   reviewLock       ReviewLock?
+  teamMembers      TeamMember[]
+  captainOf        Team[]          @relation("captain")
+  homeMatches      Match[]         @relation("homeStudent")
+  awayMatches      Match[]         @relation("awayStudent")
+  placings         Placing[]
+  certificates     Certificate[]
 
   @@index([status])
   @@index([studentType])
@@ -183,6 +191,16 @@ model Event {
   maxEntries Int? // entry limit; new entries are refused once reached
   ageCategoryId String? // null = open to every age
   ageCategory   AgeCategory? @relation(fields: [ageCategoryId], references: [id], onDelete: SetNull)
+  // Competition format: LEAGUE (round robin), KNOCKOUT (bracket) or RACE (ranked marks, e.g. 100 m). null = not set up.
+  format          String?
+  periods         Int?     // e.g. 2 halves
+  periodMinutes   Int?
+  shootout        Boolean  @default(false) // penalties / super over to break a knockout tie
+  pointsWin       Int      @default(3)
+  pointsDraw      Int      @default(1)
+  rosterMin       Int?     // players per team sheet
+  rosterMax       Int?
+  resultsFinal    Boolean  @default(false) // podium confirmed; certificates can be issued
   active    Boolean   @default(true)
   createdAt DateTime  @default(now())
 
@@ -190,6 +208,11 @@ model Event {
   weighIns      WeighIn[]
   changeRequestsFrom EventChangeRequest[] @relation("changeFrom")
   changeRequestsTo   EventChangeRequest[] @relation("changeTo")
+  teams              Team[]
+  matches            Match[]
+  placings           Placing[]
+  certificates       Certificate[]
+  announcements      Announcement[]
 }
 
 model AgeCategory {
@@ -380,4 +403,172 @@ model DeletionRequest {
 model Setting {
   key   String @id
   value String
+}
+
+/// Host university structure: campus → schools. Teams can represent a school inside the university.
+model Campus {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  code      String   @unique // short code shown on tiles, e.g. KTH
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  schools   School[]
+}
+
+model School {
+  id        String    @id @default(cuid())
+  campusId  String
+  campus    Campus    @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  name      String
+  code      String    @unique // matches the ERP's school code, e.g. CSE
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  students  Student[]
+  teams     Team[]
+}
+
+/// A squad entered in one team event. Members must be APPROVED and registered for that event.
+model Team {
+  id        String       @id @default(cuid())
+  eventId   String
+  event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name      String
+  shortName String // scoreboards, max 5 chars
+  // Who it represents: a school of the host university, or a college (outside institution), or the host university itself.
+  schoolId  String?
+  school    School?      @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  collegeName String?
+  captainId String?
+  captain   Student?     @relation("captain", fields: [captainId], references: [id], onDelete: SetNull)
+  lockedAt  DateTime? // roster frozen for the event
+  createdAt DateTime     @default(now())
+  members   TeamMember[]
+  homeMatches Match[]    @relation("homeTeam")
+  awayMatches Match[]    @relation("awayTeam")
+  placings  Placing[]
+
+  @@unique([eventId, name])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  shirt     Int?
+  createdAt DateTime @default(now())
+
+  @@unique([teamId, studentId])
+}
+
+/// One fixture. Sides are teams (team events) or athletes (individual head-to-head events).
+model Match {
+  id            String    @id @default(cuid())
+  eventId       String
+  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  division      String? // weight class for combat sports, e.g. "−74 kg"
+  round         Int // 1-based; knockout: 1 = first round
+  roundLabel    String // "Matchday 2", "Semi-final"
+  slot          Int // position inside the round
+  homeTeamId    String?
+  homeTeam      Team?     @relation("homeTeam", fields: [homeTeamId], references: [id], onDelete: SetNull)
+  awayTeamId    String?
+  awayTeam      Team?     @relation("awayTeam", fields: [awayTeamId], references: [id], onDelete: SetNull)
+  homeStudentId String?
+  homeStudent   Student?  @relation("homeStudent", fields: [homeStudentId], references: [id], onDelete: SetNull)
+  awayStudentId String?
+  awayStudent   Student?  @relation("awayStudent", fields: [awayStudentId], references: [id], onDelete: SetNull)
+  homeScore     Int?
+  awayScore     Int?
+  homeTiebreak  Int? // penalties / super over
+  awayTiebreak  Int?
+  status        String    @default("SCHEDULED") // SCHEDULED | LIVE | COMPLETED | WALKOVER
+  winner        String? // HOME | AWAY | DRAW
+  scheduledAt   DateTime?
+  venue         String?
+  nextMatchId   String? // knockout: the winner moves here
+  nextSide      String? // HOME | AWAY
+  bye           Boolean   @default(false)
+  scoredByName  String?
+  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime  @default(now())
+  scoreEvents   ScoreEvent[]
+
+  @@index([eventId, round])
+}
+
+/// Every live-scoring tap. clientId makes offline replays idempotent.
+model ScoreEvent {
+  id        String   @id @default(cuid())
+  matchId   String
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  clientId  String   @unique
+  side      String // HOME | AWAY
+  delta     Int // +1 point, -1 undo
+  note      String?
+  byId      String
+  byName    String
+  at        DateTime // when it happened on the scorer's device
+  createdAt DateTime @default(now())
+
+  @@index([matchId, at])
+}
+
+/// Final position in an event (podium and beyond). Medals come from positions 1–3.
+model Placing {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  division  String? // weight class, if any
+  position  Int
+  teamId    String?
+  team      Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  studentId String?
+  student   Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  mark      String? // time / distance / score for RACE events, e.g. "11.42 s"
+  createdAt DateTime @default(now())
+
+  @@index([eventId, position])
+}
+
+/// Tamper-evident certificate. The public /verify page re-computes the signature.
+model Certificate {
+  id         String    @id @default(cuid())
+  code       String    @unique // CERT-26-XXXXXX
+  studentId  String
+  student    Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  eventId    String
+  event      Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  kind       String // PARTICIPATION | GOLD | SILVER | BRONZE
+  // Frozen at issue time so later edits to the student or event can't silently change a certificate.
+  recipient  String
+  institution String
+  title      String
+  issuedAt   DateTime  @default(now())
+  issuedById String
+  revokedAt  DateTime?
+  revokeReason String?
+  signature  String
+
+  division   String?
+
+  @@unique([studentId, eventId, kind, division])
+}
+
+/// Notice to a role or to one event's athletes. Delivered in-app, and by SMS/WhatsApp when the mock channels are on.
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  body        String
+  audience    String // EVERYONE | ATHLETES | EVENT | CAPTAINS | OFFICIALS | COACHES | MEDICAL
+  eventId     String?
+  event       Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  channels    String   @default("IN_APP") // comma-separated: IN_APP,SMS,WHATSAPP
+  recipients  Int      @default(0)
+  createdById String
+  createdByName String
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
 }

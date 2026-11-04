@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
 import { requireStaffPage } from "@/lib/rbac";
+import { announcementsForStaff } from "@/lib/announcements";
+import { AnnouncementList } from "@/components/competition/announcement-list";
 import { prisma } from "@/lib/prisma";
 import { getAgeCategory } from "@/lib/registration";
 import { verificationBlockers } from "@/lib/workflow";
@@ -19,7 +21,8 @@ import { AgeConcernButton } from "@/components/staff/age-concern-button";
 export const metadata: Metadata = { title: "Verification desk" };
 
 export default async function DeskPage({ searchParams }: { searchParams: Promise<{ q?: string; id?: string }> }) {
-  await requireStaffPage(["OFFICIAL", "ADMIN"], "/desk");
+  const me = await requireStaffPage(["OFFICIAL", "ADMIN"], "/desk");
+  const notices = me.role === "OFFICIAL" ? await announcementsForStaff("OFFICIAL", 3) : [];
   const { q: rawQ, id } = await searchParams;
   const q = rawQ?.trim();
 
@@ -38,6 +41,11 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   return (
     <div className="space-y-6">
       <PageHeader title="Verification desk" description="Find the athlete, compare photos, measure height and weight, and verify." />
+      {notices.length > 0 && (
+        <section aria-label="Announcements" className="mb-6">
+          <AnnouncementList items={notices} />
+        </section>
+      )}
       <form method="get" className="flex gap-2" role="search">
         <label className="relative min-w-0 flex-1">
           <span className="sr-only">Search by name, PRN, passport number or Sports ID</span>

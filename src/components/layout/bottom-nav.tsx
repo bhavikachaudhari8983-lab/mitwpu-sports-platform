@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, Home, IdCard, ShieldCheck } from "lucide-react";
+import { ClipboardList, Home, IdCard, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/", label: "Home", icon: Home },
   { href: "/register", label: "Register", icon: ClipboardList },
+  { href: "/events", label: "Results", icon: Trophy },
   { href: "/status", label: "Status", icon: IdCard },
-  { href: "/privacy", label: "Privacy", icon: ShieldCheck },
 ];
 
 /** Student bottom navigation — mobile only. */

@@ -29,6 +29,7 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
       documents: { orderBy: { createdAt: "asc" } },
       checks: { orderBy: { createdAt: "asc" } },
       college: true,
+      school: { include: { campus: true } },
       registrations: { include: { event: { include: { sport: true } }, weightCategory: true } },
       measurements: { orderBy: { createdAt: "desc" }, include: { measuredBy: { select: { name: true } } } },
       weighIns: { orderBy: { createdAt: "desc" }, include: { event: true, recordedBy: { select: { name: true } } } },
@@ -219,6 +220,7 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
               <DefinitionList
                 items={[
                   { label: "University / college", value: s.universityName },
+                  ...(s.school ? [{ label: "School (from ERP)", value: `${s.school.name} · ${s.school.campus.name}` }] : []),
                   ...(s.studentType === "OUTSIDE_INDIAN" ? [{ label: "College status", value: s.college?.trusted ? `Confirmed ${formatDateTime(s.college.confirmedAt)}` : "Awaiting confirmation" }, { label: "College office email", value: s.collegeOfficeEmail }] : []),
                   { label: "PRN / enrollment", value: s.prn ? <span className="font-mono">{s.prn}</span> : "—" },
                   { label: "Course", value: s.course ? `${s.course}${s.year ? ` · Year ${s.year}` : ""}` : "—" },

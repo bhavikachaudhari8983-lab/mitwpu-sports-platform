@@ -32,6 +32,10 @@ const schema = z.union([
   z.object({ op: z.literal("weight-delete"), id: z.string() }),
   z.object({ op: z.literal("staff-add"), name, email, role: z.enum(STAFF_ROLES), password, sportId: z.string().optional() }),
   z.object({ op: z.literal("staff-update"), id: z.string(), active: z.boolean().optional(), password: password.optional() }),
+  z.object({ op: z.literal("campus-add"), name, code: z.string().trim().min(2, "2–6 letters").max(6, "2–6 letters").regex(/^[A-Za-z0-9]+$/, "Letters and numbers only") }),
+  z.object({ op: z.literal("campus-toggle"), id: z.string(), active: z.boolean() }),
+  z.object({ op: z.literal("school-add"), campusId: z.string().min(1, "Choose a campus"), name, code: z.string().trim().min(2, "2–6 letters").max(6, "2–6 letters").regex(/^[A-Za-z0-9]+$/, "Letters and numbers only") }),
+  z.object({ op: z.literal("school-toggle"), id: z.string(), active: z.boolean() }),
   z.object({ op: z.literal("deletion-complete"), id: z.string() }),
   z.object({ op: z.literal("deletion-decline"), id: z.string(), reason: z.string().trim().min(5, "Give a reason").max(300) }),
   z.object({ op: z.literal("retention-purge") }),
@@ -98,6 +102,30 @@ export const POST = route(async (req) => {
       if (used) throw new ApiError(409, `${used} athlete(s) are registered in this category; it can't be deleted.`);
       const w = await prisma.weightCategory.delete({ where: { id: input.id } });
       await log(`Weight category deleted: ${w.name}`);
+      break;
+    }
+    case "campus-add": {
+      const code = input.code.toUpperCase();
+      if (await prisma.campus.findFirst({ where: { OR: [{ name: input.name }, { code }] } })) throw new ApiError(409, "A campus with this name or code exists.", { code: "Already used" });
+      await prisma.campus.create({ data: { name: input.name, code } });
+      await log(`Campus added: ${input.name} (${code})`);
+      break;
+    }
+    case "campus-toggle": {
+      const c = await prisma.campus.update({ where: { id: input.id }, data: { active: input.active } });
+      await log(`Campus ${c.name} ${input.active ? "activated" : "set to inactive"}`);
+      break;
+    }
+    case "school-add": {
+      const code = input.code.toUpperCase();
+      if (await prisma.school.findUnique({ where: { code } })) throw new ApiError(409, "A school with this code exists.", { code: "Already used" });
+      const s = await prisma.school.create({ data: { campusId: input.campusId, name: input.name, code }, include: { campus: true } });
+      await log(`School added: ${s.name} (${code}) on ${s.campus.name}`);
+      break;
+    }
+    case "school-toggle": {
+      const s = await prisma.school.update({ where: { id: input.id }, data: { active: input.active } });
+      await log(`School ${s.name} ${input.active ? "activated" : "set to inactive"}`);
       break;
     }
     case "staff-add": {

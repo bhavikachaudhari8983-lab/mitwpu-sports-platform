@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Clock, Users } from "lucide-react";
 import { requireStaffPage } from "@/lib/rbac";
+import { announcementsForStaff } from "@/lib/announcements";
+import { AnnouncementList } from "@/components/competition/announcement-list";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { ageCategoryFor } from "@/lib/age";
@@ -22,6 +24,7 @@ export default async function CoachPage() {
       </div>
     );
   }
+  const notices = await announcementsForStaff("COACH", 3);
   const [sport, players, settings, cats, awaiting] = await Promise.all([
     prisma.sport.findUnique({ where: { id: me.sportId } }),
     prisma.student.findMany({
@@ -43,6 +46,7 @@ export default async function CoachPage() {
   return (
     <div className="space-y-6">
       <PageHeader title={`My players · ${sport?.name ?? ""}`} description="Approved athletes only. Identity and medical documents are not shown to coaches." actions={<AgeConcernButton variant="secondary" />} />
+      {notices.length > 0 && <AnnouncementList items={notices} />}
       {awaiting > 0 && (
         <Alert tone="info" icon={<Clock className="size-5" aria-hidden />} title={`${awaiting} more ${awaiting === 1 ? "athlete is" : "athletes are"} registered for ${sport?.name ?? "your sport"} and awaiting approval`}>
           They appear here once the sports office approves them. You don&apos;t need to chase the office.

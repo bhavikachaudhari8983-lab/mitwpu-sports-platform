@@ -164,6 +164,15 @@ export const AUDIT_ACTIONS = [
   "EVENT_WITHDRAWN",
   "EVENT_CHANGE_REQUESTED",
   "EVENT_CHANGE_DECIDED",
+  "COMPETITION_CHANGED",
+  "TEAM_CHANGED",
+  "FIXTURES_GENERATED",
+  "MATCH_SCORED",
+  "RESULTS_FINALISED",
+  "CERTIFICATE_ISSUED",
+  "CERTIFICATE_REVOKED",
+  "CERTIFICATE_VERIFIED",
+  "ANNOUNCEMENT_SENT",
   "MEASUREMENT_RECORDED",
   "WEIGH_IN_RECORDED",
   "PASSPORT_VERIFIED",
@@ -203,3 +212,31 @@ export function isDocType(v: string): v is DocType {
 export function isStaffRole(v: string): v is StaffRole {
   return (STAFF_ROLES as readonly string[]).includes(v);
 }
+
+export const FORMATS = ["LEAGUE", "KNOCKOUT", "RACE"] as const;
+export type Format = (typeof FORMATS)[number];
+export const FORMAT_LABEL: Record<Format, string> = {
+  LEAGUE: "League (everyone plays everyone)",
+  KNOCKOUT: "Knockout (bracket)",
+  RACE: "Ranked results (times, distances, scores)",
+};
+
+export const MATCH_STATUSES = ["SCHEDULED", "LIVE", "COMPLETED", "WALKOVER"] as const;
+export type MatchStatus = (typeof MATCH_STATUSES)[number];
+
+export const CERT_KINDS = ["PARTICIPATION", "GOLD", "SILVER", "BRONZE"] as const;
+export type CertKind = (typeof CERT_KINDS)[number];
+export const CERT_LABEL: Record<CertKind, string> = { PARTICIPATION: "Certificate of Participation", GOLD: "Gold Medal", SILVER: "Silver Medal", BRONZE: "Bronze Medal" };
+export const MEDAL_FOR_POSITION: Record<number, CertKind> = { 1: "GOLD", 2: "SILVER", 3: "BRONZE" };
+
+export const AUDIENCES = ["EVERYONE", "ATHLETES", "EVENT", "CAPTAINS", "OFFICIALS", "COACHES", "MEDICAL"] as const;
+export type Audience = (typeof AUDIENCES)[number];
+export const AUDIENCE_LABEL: Record<Audience, string> = {
+  EVERYONE: "Everyone (athletes and staff)",
+  ATHLETES: "All approved athletes",
+  EVENT: "Athletes in one event",
+  CAPTAINS: "Team captains",
+  OFFICIALS: "Officials",
+  COACHES: "Coaches",
+  MEDICAL: "Medical staff",
+};

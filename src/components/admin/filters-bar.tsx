@@ -15,9 +15,9 @@ export type FilterSport = {
   weights: Array<{ id: string; name: string; gender: string }>;
 };
 
-const KEYS = ["q", "status", "sport", "event", "weight", "type", "college", "gender", "age", "view"];
+const KEYS = ["q", "status", "sport", "event", "weight", "type", "college", "gender", "school", "age", "view"];
 
-export function FiltersBar({ sports, ageCategories, exportQuery }: { sports: FilterSport[]; ageCategories: string[]; exportQuery: string }) {
+export function FiltersBar({ sports, ageCategories, schools, exportQuery }: { sports: FilterSport[]; ageCategories: string[]; schools: Array<{ id: string; name: string }>; exportQuery: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -154,6 +154,19 @@ export function FiltersBar({ sports, ageCategories, exportQuery }: { sports: Fil
             ))}
           </Select>
         </label>
+        {schools.length > 0 && (
+          <label>
+            <span className="sr-only">School</span>
+            <Select value={params.get("school") ?? ""} onChange={(e) => update({ school: e.target.value })}>
+              <option value="">All schools</option>
+              {schools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+        )}
         <label>
           <span className="sr-only">College</span>
           <Input placeholder="College contains…" value={college} onChange={(e) => setCollege(e.target.value)} />

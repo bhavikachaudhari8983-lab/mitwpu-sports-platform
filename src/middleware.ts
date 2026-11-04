@@ -10,6 +10,8 @@ const RULES: Array<{ prefix: string; roles: Role[] }> = [
   { prefix: "/api/desk", roles: ["ADMIN", "OFFICIAL"] },
   { prefix: "/scan", roles: ["ADMIN", "OFFICIAL"] },
   { prefix: "/api/scan", roles: ["ADMIN", "OFFICIAL"] },
+  { prefix: "/score", roles: ["ADMIN", "OFFICIAL"] },
+  { prefix: "/api/score", roles: ["ADMIN", "OFFICIAL"] },
   { prefix: "/medical", roles: ["MEDICAL"] },
   { prefix: "/api/medical", roles: ["MEDICAL"] },
   { prefix: "/coach", roles: ["COACH"] },
@@ -44,5 +46,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin/:path*", "/desk/:path*", "/scan/:path*", "/medical/:path*", "/coach/:path*", "/api/admin/:path*", "/api/desk/:path*", "/api/scan/:path*", "/api/medical/:path*", "/api/coach/:path*"],
+  matcher: ["/admin/:path*", "/desk/:path*", "/scan/:path*", "/medical/:path*", "/coach/:path*", "/api/admin/:path*", "/api/desk/:path*", "/api/scan/:path*", "/api/medical/:path*", "/api/coach/:path*", "/score/:path*", "/api/score/:path*"],
 };

@@ -16,6 +16,10 @@ import { generateSportsId } from "../src/lib/qr";
 import { DEFAULT_SETTINGS } from "../src/lib/settings";
 import { normaliseName } from "../src/lib/utils";
 import { UNIVERSITY_NAME } from "../src/lib/constants";
+import { schoolCodeFor } from "../src/services/mock/erp";
+import { finaliseResults, generateFixtures, recordResult, applyLiveTaps } from "../src/lib/competition";
+import { issueForEvent } from "../src/lib/certificates";
+import { sendAnnouncement } from "../src/lib/announcements";
 
 const prisma = new PrismaClient();
 
@@ -50,6 +54,13 @@ async function main() {
   console.log("Clearing database and uploads…");
   await prisma.$transaction([
     prisma.auditLog.deleteMany(),
+    prisma.announcement.deleteMany(),
+    prisma.certificate.deleteMany(),
+    prisma.placing.deleteMany(),
+    prisma.scoreEvent.deleteMany(),
+    prisma.match.deleteMany(),
+    prisma.teamMember.deleteMany(),
+    prisma.team.deleteMany(),
     prisma.reviewLock.deleteMany(),
     prisma.dobCorrection.deleteMany(),
     prisma.ageConcern.deleteMany(),
@@ -62,6 +73,8 @@ async function main() {
     prisma.deletionRequest.deleteMany(),
     prisma.student.deleteMany(),
     prisma.college.deleteMany(),
+    prisma.school.deleteMany(),
+    prisma.campus.deleteMany(),
     prisma.staffUser.deleteMany(),
     prisma.weightCategory.deleteMany(),
     prisma.event.deleteMany(),
@@ -74,6 +87,14 @@ async function main() {
 
   // Settings
   for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) await prisma.setting.create({ data: { key, value: String(value) } });
+
+  // Campus → schools. Codes match what the (mock) ERP returns for each course.
+  const campus = await prisma.campus.create({ data: { name: "Main Campus (fictional)", code: "MAIN" } });
+  const SCHOOLS: Array<[string, string]> = [
+    ["ENG", "School of Engineering"], ["CSE", "School of Computer Science"], ["MGT", "School of Management"], ["DES", "School of Design"],
+    ["LAW", "School of Law"], ["LA", "School of Liberal Arts"], ["PHA", "School of Pharmacy"], ["SCI", "School of Science"],
+  ];
+  for (const [code, name] of SCHOOLS) await prisma.school.create({ data: { campusId: campus.id, code, name } });
 
   // Age categories
   await prisma.ageCategory.createMany({
@@ -352,6 +373,90 @@ async function main() {
     data: { studentId: shuttler.id, fromEventId: eventOf("Badminton", "MIXED").id, toEventId: eventOf("Table Tennis", "FEMALE").id, reason: "My mixed doubles partner withdrew (fictional).", createdAt: daysAgo(0.5) },
   });
   await prisma.auditLog.create({ data: { actorType: "STUDENT", actorId: shuttler.id, actorName: shuttler.fullName, actorRole: "STUDENT", action: "EVENT_CHANGE_REQUESTED", studentId: shuttler.id, entityType: "EventChangeRequest", entityId: swap.id, summary: "Asked to move from Mixed doubles to Singles — Women (Table Tennis)", createdAt: daysAgo(0.5) } });
+
+  // Link host-university students to their ERP school.
+  for (const st of await prisma.student.findMany({ where: { isOurUniversity: true, course: { not: null } }, select: { id: true, course: true } })) {
+    const school = await prisma.school.findUnique({ where: { code: schoolCodeFor(st.course ?? "") } });
+    if (school) await prisma.student.update({ where: { id: st.id }, data: { schoolId: school.id } });
+  }
+
+  // ---------- Demo competition ----------
+  console.log("Seeding demo competition…");
+  const FIRST_M = ["Arjun", "Kabir", "Vihaan", "Ishaan", "Reyansh", "Atharv", "Dhruv", "Yash", "Aryan", "Omkar", "Tanmay", "Siddhesh", "Pranav", "Rudra", "Advait", "Neel", "Harsh", "Mihir", "Soham", "Varun", "Karan", "Nikhil", "Manav", "Ritesh", "Shaurya", "Parth", "Sarthak", "Jay", "Aniket", "Rohit", "Vedant", "Kunal"];
+  const FIRST_F = ["Ananya", "Diya", "Isha", "Meera", "Saanvi", "Tara", "Riya", "Kiara", "Navya", "Aditi"];
+  const LAST = ["Joshi", "Kale", "Pawar", "Shinde", "Bhosale", "Gokhale", "Apte", "Nair", "Rao", "Menon", "Chavan", "Mehta", "Sawant", "Kamat", "Desai", "Ghosh"];
+  const schoolsByCode = new Map((await prisma.school.findMany()).map((sc) => [sc.code, sc]));
+  let demoN = 0;
+  const athlete = async (gender: "MALE" | "FEMALE", schoolCode: string, eventIds: string[], position?: string) => {
+    const i = demoN++;
+    const name = `${(gender === "MALE" ? FIRST_M : FIRST_F)[i % (gender === "MALE" ? FIRST_M.length : FIRST_F.length)]} ${LAST[(i * 7) % LAST.length]}`;
+    const dob = `${2003 + (i % 4)}-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 27) + 1).padStart(2, "0")}`;
+    const sc = schoolsByCode.get(schoolCode);
+    const st = await prisma.student.create({
+      data: {
+        status: "APPROVED", studentType: "OUR_INDIAN", isOurUniversity: true, fullName: `${name} (demo)`, dob, dobSource: "DIGILOCKER", dobLocked: true, gender,
+        identityKey: `demo-${i}`, aadhaarLast4: String(1000 + i), mobile: `+9170000${String(40000 + i)}`, mobileVerified: true,
+        universityName: UNIVERSITY_NAME, schoolId: sc?.id ?? null, prn: `SSDEMO${String(i).padStart(3, "0")}`, course: sc?.name ?? null, year: 1 + (i % 4),
+        playingPosition: position ?? null, declarationAccepted: true, privacyAccepted: true, wizardStep: 6,
+        submittedAt: daysAgo(10), verifiedAt: daysAgo(8), approvedAt: daysAgo(7), approvedById: staff.ADMIN, sportsId: generateSportsId(),
+      },
+    });
+    for (const eventId of eventIds) await prisma.registration.create({ data: { studentId: st.id, eventId } });
+    return st;
+  };
+  const admin = { type: "STAFF" as const, id: staff.ADMIN, name: "Asha Admin (demo)", role: "ADMIN" as const };
+  const official = { type: "STAFF" as const, id: staff.OFFICIAL, name: "Omar Official (demo)", role: "OFFICIAL" as const };
+
+  // a) Football men: 4 school squads, league, half played, one match live.
+  const football = eventOf("Football", "MALE");
+  await prisma.event.update({ where: { id: football.id }, data: { format: "LEAGUE", periods: 2, periodMinutes: 20, rosterMin: 7, rosterMax: 14 } });
+  const POS = ["Goalkeeper", "Defender", "Defender", "Midfielder", "Midfielder", "Forward", "Forward"];
+  const squads: Array<[string, string, string]> = [["CSE", "Computer Science FC", "CSE"], ["ENG", "Engineering United", "ENG"], ["MGT", "Management XI", "MGT"], ["LAW", "Law Strikers", "LAW"]];
+  for (const [code, teamName, short] of squads) {
+    const team = await prisma.team.create({ data: { eventId: football.id, name: teamName, shortName: short, schoolId: schoolsByCode.get(code)?.id ?? null } });
+    const players = [];
+    for (let k = 0; k < 7; k++) players.push(await athlete("MALE", code, [football.id], POS[k]));
+    for (const pl of players) await prisma.teamMember.create({ data: { teamId: team.id, studentId: pl.id } });
+    await prisma.team.update({ where: { id: team.id }, data: { captainId: players[3].id, lockedAt: daysAgo(2) } });
+  }
+  await generateFixtures(football.id, admin, null);
+  const fm = await prisma.match.findMany({ where: { eventId: football.id }, orderBy: [{ round: "asc" }, { slot: "asc" }] });
+  const scores: Array<[number, number]> = [[2, 1], [0, 0], [3, 2], [1, 1]];
+  for (let k = 0; k < 4; k++) await recordResult(fm[k].id, { homeScore: scores[k][0], awayScore: scores[k][1] }, official, null);
+  await applyLiveTaps(fm[4].id, [{ clientId: "seed-tap-1", side: "HOME", delta: 1, at: new Date(Date.now() - 600000).toISOString() }, { clientId: "seed-tap-2", side: "AWAY", delta: 1, at: new Date(Date.now() - 300000).toISOString() }, { clientId: "seed-tap-3", side: "HOME", delta: 1, at: new Date().toISOString() }], official);
+
+  // b) Badminton women's singles: knockout, finished, certificates issued.
+  const badminton = eventOf("Badminton", "FEMALE", "Singles");
+  await prisma.event.update({ where: { id: badminton.id }, data: { format: "KNOCKOUT", shootout: false } });
+  for (const code of ["DES", "PHA", "SCI", "LA"]) await athlete("FEMALE", code, [badminton.id]);
+  await generateFixtures(badminton.id, admin, null);
+  for (const m of await prisma.match.findMany({ where: { eventId: badminton.id, bye: false }, orderBy: { round: "asc" } })) {
+    const fresh = await prisma.match.findUniqueOrThrow({ where: { id: m.id } });
+    if ((fresh.homeTeamId || fresh.homeStudentId) && (fresh.awayTeamId || fresh.awayStudentId)) await recordResult(m.id, { homeScore: 2, awayScore: 1 }, official, null);
+  }
+  // Later rounds only get both players after earlier results; play whatever is now ready.
+  for (let pass = 0; pass < 3; pass++) {
+    for (const m of await prisma.match.findMany({ where: { eventId: badminton.id, bye: false, status: "SCHEDULED" }, orderBy: { round: "asc" } })) {
+      if ((m.homeStudentId) && (m.awayStudentId)) await recordResult(m.id, { homeScore: 2, awayScore: 0 }, official, null);
+    }
+  }
+  const { suggestPlacings } = await import("../src/lib/competition");
+  await finaliseResults(badminton.id, (await suggestPlacings(badminton.id)).placings, admin, null);
+  await issueForEvent(badminton.id, admin, null);
+
+  // c) Athletics 100 m men: ranked results with times, finalised, certificates issued.
+  const sprint = eventOf("Athletics", "MALE", "100 m");
+  await prisma.event.update({ where: { id: sprint.id }, data: { format: "RACE" } });
+  const runners = [aarav];
+  for (const code of ["ENG", "MGT", "SCI", "LAW", "DES"]) runners.push(await athlete("MALE", code, [sprint.id]));
+  const times = ["11.08 s", "11.21 s", "11.35 s", "11.52 s", "11.60 s", "11.94 s"];
+  await finaliseResults(sprint.id, runners.map((r, k) => ({ division: null, position: k + 1, teamId: null, studentId: r.id, mark: times[k] })), admin, null);
+  await issueForEvent(sprint.id, admin, null);
+
+  // d) Announcements
+  await sendAnnouncement({ title: "Opening ceremony on 3 Dec, 8:30 am", body: "All approved athletes: report to the Main Ground by 8:15 am with your QR Sports ID.", audience: "ATHLETES", eventId: null, channels: ["SMS"] }, admin, null);
+  await sendAnnouncement({ title: "Football: matchday 3 kicks off at 11 am", body: "Captains, submit your starting seven to the desk 30 minutes before kick-off.", audience: "EVENT", eventId: football.id, channels: ["WHATSAPP"] }, admin, null);
+  await sendAnnouncement({ title: "Officials briefing", body: "Scoring app walkthrough at 8 am in the Seminar Hall. Bring a charged phone.", audience: "OFFICIALS", eventId: null, channels: [] }, admin, null);
 
   // Duplicate attempt (blocked) — appears in the audit log
   await prisma.auditLog.create({

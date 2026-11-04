@@ -23,6 +23,8 @@ export type ErpStudent = {
   email: string;
   course: string;
   year: number;
+  /** School/faculty code from the ERP, e.g. "CSE". Decides which school squads the student can join. */
+  schoolCode: string | null;
 };
 
 export interface ErpService {
@@ -57,6 +59,13 @@ export interface OtpDeliveryService {
 
 // ---------- Passport MRZ verification ----------
 export type MrzInput = { passportNumber: string; nationality: string; dob: string; expiry: string; mrzLine2: string };
+
+// ---------- Bulk messaging (announcements) ----------
+export type MessageChannel = "SMS" | "WHATSAPP";
+export interface MessagingService {
+  /** Sends one short text to many mobile numbers. Returns how many were accepted by the provider. */
+  broadcast(input: { channel: MessageChannel; to: string[]; text: string }): Promise<{ accepted: number }>;
+}
 
 export interface PassportVerificationService {
   verifyMrz(input: MrzInput): Promise<{ valid: boolean; problems: string[] }>;

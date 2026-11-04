@@ -81,6 +81,7 @@ export const authOptions: NextAuthOptions = {
           if (!student) {
             const erp = await erpService.findStudentByPrn(meta.prn);
             if (!erp) throw new Error("Not a registered student of this university.");
+            const school = erp.schoolCode ? await prisma.school.findUnique({ where: { code: erp.schoolCode }, select: { id: true } }) : null;
             student = await prisma.student.create({
               data: {
                 studentType: "OUR_INDIAN",
@@ -93,6 +94,7 @@ export const authOptions: NextAuthOptions = {
                 universityName: UNIVERSITY_NAME,
                 course: erp.course,
                 year: erp.year,
+                schoolId: school?.id ?? null,
               },
             });
             await audit({ actor: { type: "STUDENT", id: student.id, name: erp.name }, action: "REGISTRATION_STARTED", studentId: student.id, summary: `Registration started (our university, PRN ${erp.prn})`, ip });

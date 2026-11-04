@@ -12,6 +12,7 @@ import { buttonClass } from "@/components/ui/button";
 const links = [
   { href: "/", label: "Home" },
   { href: "/register", label: "Register" },
+  { href: "/events", label: "Results" },
   { href: "/status", label: "My status" },
   { href: "/privacy", label: "Privacy" },
 ];
@@ -37,6 +38,8 @@ export function SiteHeader() {
                 className={cn(
                   "flex min-h-11 items-center rounded-lg px-3 font-medium text-muted hover:bg-surface-2 hover:text-fg",
                   active && "bg-surface-2 text-fg shadow-[inset_0_-3px_0_var(--accent)]",
+                  // Tablet width can't fit five links; Privacy stays in the footer there.
+                  l.href === "/privacy" && "md:hidden lg:flex",
                 )}
               >
                 {l.label}

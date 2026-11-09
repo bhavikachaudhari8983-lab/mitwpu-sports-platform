@@ -13,7 +13,9 @@
     "db:seed": "prisma db seed",
     "db:reset": "npm run db:provider && prisma db push --force-reset && prisma db seed",
     "setup": "npm run db:push && npm run db:seed",
-    "postinstall": "node scripts/prisma-provider.mjs && prisma generate"
+    "postinstall": "node scripts/prisma-provider.mjs && prisma generate",
+    "test:e2e": "node tests/e2e/run.mjs",
+    "test:e2e:db": "DATABASE_URL=file:./e2e.db UPLOAD_DIR=./uploads-e2e prisma db push --skip-generate && DATABASE_URL=file:./e2e.db UPLOAD_DIR=./uploads-e2e prisma db seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -42,6 +44,7 @@
     "eslint-config-next": "^15.5.28",
     "postcss": "^8.5.32",
     "prisma": "^6.19.3",
+    "puppeteer-core": "^24.43.1",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
     "typescript": "5.9"

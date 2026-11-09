@@ -55,15 +55,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div
         aria-live="polite"
         aria-atomic="false"
-        className="pointer-events-none fixed inset-x-0 bottom-20 z-[60] flex flex-col items-center gap-2 px-4 sm:bottom-6 sm:items-end sm:pr-6"
+        // Top of the screen (below the phone header), away from the bottom Save / Verify buttons.
+        className="pointer-events-none fixed inset-x-0 top-20 z-[60] flex flex-col items-center gap-2 px-4 sm:top-4 sm:items-end sm:pr-6"
       >
         {toasts.map((t) => (
           <div
             key={t.id}
             role={t.tone === "error" ? "alert" : "status"}
-            className={cn(
-              "animate-toast-in pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border border-border bg-surface p-4 shadow-lg",
-            )}
+            // Clicks pass through the message to whatever is underneath; only the dismiss button catches them.
+            className={cn("animate-toast-in pointer-events-none flex w-full max-w-sm items-start gap-3 rounded-xl border border-border bg-surface p-4 shadow-lg")}
           >
             {icons[t.tone]}
             <div className="min-w-0 flex-1">
@@ -73,7 +73,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => dismiss(t.id)}
-              className="-m-2 grid size-11 place-items-center rounded-lg text-muted hover:bg-surface-2"
+              className="pointer-events-auto -m-2 grid size-11 place-items-center rounded-lg text-muted hover:bg-surface-2"
               aria-label="Dismiss notification"
             >
               <X className="size-4" aria-hidden />

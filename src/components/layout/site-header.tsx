@@ -8,6 +8,7 @@ import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
 import { buttonClass } from "@/components/ui/button";
+import { staffHomeFor } from "@/lib/staff-home";
 
 const links = [
   { href: "/", label: "Home" },
@@ -66,17 +67,3 @@ export function SiteHeader() {
   );
 }
 
-export function staffHomeFor(role: string): string {
-  switch (role) {
-    case "ADMIN":
-      return "/admin";
-    case "OFFICIAL":
-      return "/desk";
-    case "MEDICAL":
-      return "/medical";
-    case "COACH":
-      return "/coach";
-    default:
-      return "/status";
-  }
-}

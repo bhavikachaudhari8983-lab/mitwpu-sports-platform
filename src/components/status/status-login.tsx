@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { OtpEntry } from "@/components/register/otp-entry";
 
 type Sent = { challengeId: string; maskedTarget: string; demoCode?: string };
 
-export function StatusLogin({ demo }: { demo: boolean }) {
+export function StatusLogin({ demo, notice }: { demo: boolean; notice?: ReactNode }) {
   const [channel, setChannel] = useState<"SMS" | "EMAIL">("SMS");
   const [value, setValue] = useState("");
   const [sent, setSent] = useState<Sent | null>(null);
@@ -32,6 +32,7 @@ export function StatusLogin({ demo }: { demo: boolean }) {
 
   return (
     <div className="mx-auto max-w-lg px-4 py-10 sm:py-16">
+      {notice}
       <h1 className="text-fg">Check your status</h1>
       <p className="mt-2 text-muted">Sign in with the mobile number or email you verified during registration.</p>
       <Card className="mt-6">

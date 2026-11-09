@@ -113,7 +113,7 @@ function WizardShell() {
 
       {/* Sticky Back / Next */}
       {!isReview && (
-        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur">
+        <div data-fixed-bar className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
             <Button variant="outline" onClick={() => go(step - 1)} disabled={step === 0 || busy} icon={<ArrowLeft className="size-4" aria-hidden />}>
               Back

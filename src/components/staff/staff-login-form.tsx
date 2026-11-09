@@ -7,10 +7,11 @@ import { Eye, EyeOff, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, fieldA11y } from "@/components/ui/field";
 import { Alert } from "@/components/ui/badge";
-import { staffHomeFor } from "@/components/layout/site-header";
+import { staffLandingFor } from "@/lib/staff-home";
 
 const DEMO = [
   { role: "Admin", email: "admin@sportssphere.example", password: "Admin@12345" },
+  { role: "Second admin", email: "admin2@sportssphere.example", password: "Admin2@12345" },
   { role: "Official", email: "official@sportssphere.example", password: "Official@12345" },
   { role: "Medical", email: "medical@sportssphere.example", password: "Medical@12345" },
   { role: "Coach", email: "coach@sportssphere.example", password: "Coach@12345" },
@@ -36,10 +37,8 @@ export function StaffLoginForm({ callbackUrl, demo, initialError }: { callbackUr
       return;
     }
     const session = await getSession();
-    const home = staffHomeFor(session?.user.role ?? "");
-    // Only follow same-site relative callback URLs.
-    const target = callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : home;
-    router.push(target); // staff pages are dynamic; a refresh() here can cancel the push
+    // Back to the page they wanted if their role may open it; otherwise their own home page.
+    router.push(staffLandingFor(session?.user.role ?? "", callbackUrl)); // staff pages are dynamic; a refresh() here can cancel the push
   }
 
   return (

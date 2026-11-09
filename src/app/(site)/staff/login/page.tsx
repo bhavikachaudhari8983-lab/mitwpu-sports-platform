@@ -3,18 +3,20 @@ import { redirect } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { StaffLoginForm } from "@/components/staff/staff-login-form";
-import { staffHomeFor } from "@/components/layout/site-header";
+import { staffLandingFor } from "@/lib/staff-home";
 import { getSessionUser } from "@/lib/rbac";
 import { isDemoMode } from "@/lib/env";
+import { SessionNotice } from "@/components/status/session-notice";
 
 export const metadata: Metadata = { title: "Staff login" };
 
 export default async function StaffLoginPage({ searchParams }: { searchParams: Promise<{ callbackUrl?: string; error?: string }> }) {
   const { callbackUrl, error } = await searchParams;
   const user = await getSessionUser();
-  if (user && user.role !== "STUDENT") redirect(staffHomeFor(user.role));
+  if (user && user.role !== "STUDENT") redirect(staffLandingFor(user.role, callbackUrl));
   return (
     <div className="mx-auto max-w-md px-4 py-10 sm:py-16">
+      <SessionNotice user={user} wants="STAFF" />
       <div className="mb-6 flex items-center gap-3">
         <span className="grid size-12 place-items-center rounded-xl bg-tint text-tint-fg">
           <ShieldCheck className="size-6" aria-hidden />

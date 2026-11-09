@@ -13,6 +13,7 @@ import { Alert, Badge, StatusBadge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/feedback";
 import { StatusLogin } from "@/components/status/status-login";
+import { SessionNotice } from "@/components/status/session-notice";
 import { IdCard } from "@/components/status/id-card";
 import { DeletionRequestButton } from "@/components/status/deletion-request";
 import { SignOutButton } from "@/components/status/sign-out-button";
@@ -27,7 +28,7 @@ export const dynamic = "force-dynamic";
 
 export default async function StatusPage() {
   const user = await getSessionUser();
-  if (!user || user.role !== "STUDENT") return <StatusLogin demo={isDemoMode()} />;
+  if (!user || user.role !== "STUDENT") return <StatusLogin demo={isDemoMode()} notice={<SessionNotice user={user} wants="STUDENT" />} />;
 
   const s = await prisma.student.findUnique({
     where: { id: user.id },

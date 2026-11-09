@@ -269,3 +269,8 @@
 .animate-toast-in {
   animation: toast-in 180ms ease-out;
 }
+
+/* A fixed bottom bar (registration Back / Save) must never cover the end of the footer. */
+body:has([data-fixed-bar]) footer {
+  padding-bottom: 5.5rem;
+}

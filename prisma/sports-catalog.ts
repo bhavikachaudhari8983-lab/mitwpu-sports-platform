@@ -14,7 +14,7 @@ const MW = (base: string, date: string, venue: string, limits: Pick<EventDef, "m
 
 export const SPORTS: SportDef[] = [
   { name: "Cricket", isTeam: true, positions: "Batter,Bowler,All-rounder,Wicket-keeper", events: MW("T20", "2026-12-03", "Main Cricket Ground", { min: 11, max: 16 }) },
-  { name: "Football", isTeam: true, positions: "Goalkeeper,Defender,Midfielder,Forward", events: [...MW("11-a-side", "2026-12-04", "Turf Field A", { min: 11, max: 20 })] },
+  { name: "Football", isTeam: true, positions: "Goalkeeper,Defender,Midfielder,Forward", events: [...MW("11-a-side", "2026-12-04", "Turf Field A", { min: 11, max: 40 })] },
   { name: "Basketball", isTeam: true, positions: "Point guard,Shooting guard,Small forward,Power forward,Center", events: MW("5x5", "2026-12-05", "Indoor Court 1", { min: 5, max: 12 }) },
   { name: "Volleyball", isTeam: true, positions: "Setter,Libero,Outside hitter,Middle blocker,Opposite", events: MW("Indoor", "2026-12-05", "Indoor Court 2", { min: 6, max: 12 }) },
   {

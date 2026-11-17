@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/ui/feedback";
 import { PhotoCompare } from "@/components/admin/photo-compare";
 import { DeskPanel } from "@/components/desk/desk-panel";
 import { AgeConcernButton } from "@/components/staff/age-concern-button";
+import { textMatch } from "@/lib/text-match";
 
 export const metadata: Metadata = { title: "Verification desk" };
 
@@ -30,7 +31,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     ? await prisma.student.findMany({
         where: {
           status: { not: "DRAFT" },
-          OR: [{ fullName: { contains: q } }, { prn: { contains: q.toUpperCase() } }, { passportNumber: { contains: q.toUpperCase() } }, { sportsId: { contains: q.toUpperCase() } }],
+          OR: [{ fullName: textMatch(q) }, { prn: { contains: q.toUpperCase() } }, { passportNumber: { contains: q.toUpperCase() } }, { sportsId: { contains: q.toUpperCase() } }],
         },
         orderBy: { fullName: "asc" },
         take: 20,

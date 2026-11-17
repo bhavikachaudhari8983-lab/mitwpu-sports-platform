@@ -7,7 +7,7 @@ import { AnnouncementList } from "@/components/competition/announcement-list";
 import { prisma } from "@/lib/prisma";
 import { getAgeCategory } from "@/lib/registration";
 import { verificationBlockers } from "@/lib/workflow";
-import { CHECK_LABEL, GENDER_LABEL, isStatus, STUDENT_TYPE_LABEL, type CheckType, type Gender, type StudentType } from "@/lib/constants";
+import { CHECK_LABEL, GENDER_LABEL, ID_DOC_LABEL, isStatus, STUDENT_TYPE_LABEL, type CheckType, type Gender, type IdDocType, type StudentType } from "@/lib/constants";
 import { formatDob } from "@/lib/utils";
 import { Card, CardBody, CardHeader, DefinitionList, PageHeader } from "@/components/ui/card";
 import { Alert, Badge, StatusBadge } from "@/components/ui/badge";
@@ -167,6 +167,11 @@ async function StudentDesk({ id, q }: { id: string; q?: string }) {
           isInternational={s.studentType === "INTERNATIONAL"}
           passportVerified={s.passportDeskVerified}
           passportLabel={s.passportNumber ? `${s.nationality} · ${s.passportNumber} · expires ${formatDob(s.passportExpiry)}` : null}
+          idCheck={
+            s.dobSource === "MANUAL"
+              ? { verified: s.identityDocDeskVerified, idLabel: s.identityDocType ? ID_DOC_LABEL[s.identityDocType as IdDocType] ?? "Government ID" : "Government ID", name: s.fullName ?? "—", dob: formatDob(s.dob), aadhaarLast4: s.aadhaarLast4 ?? "????" }
+              : null
+          }
           blockers={verificationBlockers({ ...s, measurements: s.measurements })}
           latest={latest ? { heightCm: latest.heightCm, weightKg: latest.weightKg, at: latest.createdAt.toISOString(), by: latest.measuredBy.name } : null}
           weighEvents={s.registrations

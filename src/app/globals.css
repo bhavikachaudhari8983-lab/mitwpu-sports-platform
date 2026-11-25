@@ -293,6 +293,61 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
+  /* Speed streaks: slanted bars in the logo's ring colours, sweeping in from the right (see PageHero) */
+  .streaks {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.9rem;
+    padding-right: 0;
+    transform: skewX(-24deg);
+    transform-origin: bottom right;
+    opacity: 0.9;
+  }
+  .streaks > span {
+    display: block;
+    height: 0.6rem;
+    border-radius: 9999px 0 0 9999px;
+    animation: streak-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .streaks > span:nth-child(1) { width: 55%; background: #ea4248; animation-delay: 0ms; }
+  .streaks > span:nth-child(2) { width: 80%; background: #ee7a2b; animation-delay: 80ms; }
+  .streaks > span:nth-child(3) { width: 100%; background: #f6c642; animation-delay: 160ms; }
+  .streaks > span:nth-child(4) { width: 70%; background: #7cb342; animation-delay: 240ms; }
+  .streaks > span:nth-child(5) { width: 45%; background: #4e7eb4; animation-delay: 320ms; }
+  @media (max-width: 640px) {
+    .streaks { opacity: 0.35; }
+  }
+  /* Huge outlined italic word behind a page title, like a jersey print */
+  .hero-mark {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(4.5rem, 15vw, 11rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgb(255 255 255 / 0.09);
+  }
+  /* Sport-coloured slanted tab, e.g. in front of a sport name */
+  .sport-tab {
+    display: inline-block;
+    width: 0.5rem;
+    height: 1.4rem;
+    transform: skewX(-18deg);
+    border-radius: 2px;
+    background: var(--c, var(--accent));
+  }
+  /* Card that lifts and shows a speed stripe on hover */
+  .lift {
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  }
+  .lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -12px rgb(14 20 48 / 0.35);
+  }
   /* Navy stage surface for scoreboards and live areas */
   .stage {
     background-color: var(--stage);
@@ -340,6 +395,16 @@
   to {
     transform: scale(2.6);
     opacity: 0;
+  }
+}
+@keyframes streak-in {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 @keyframes score-flash {

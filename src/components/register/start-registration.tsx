@@ -12,44 +12,55 @@ import { cn } from "@/lib/utils";
 import { OtpEntry } from "./otp-entry";
 import { DemoPanel, useDemoHints } from "./demo-panel";
 import { OrDivider, UniversitySsoButton, type SsoInfo } from "./university-sso-button";
+import { PageHero } from "@/components/layout/page-hero";
 
 type Path = "A" | "B" | "C";
 type Sent = { challengeId: string; maskedTarget: string; demoCode?: string };
 
-const PATHS: Array<{ id: Path; title: string; desc: string; icon: typeof GraduationCap; needs: string }> = [
-  { id: "A", title: "Host university student (Indian)", desc: "I study at the university hosting the games.", icon: GraduationCap, needs: "PRN, DigiLocker, live selfie" },
-  { id: "B", title: "Other university (Indian)", desc: "I study at another college or university in India.", icon: Building2, needs: "Mobile, DigiLocker, college ID + bonafide letter" },
-  { id: "C", title: "International / OCI / NRI", desc: "I hold a foreign passport or have no Aadhaar.", icon: Globe2, needs: "Passport, visa, FRRO permit" },
+const PATHS: Array<{ id: Path; title: string; desc: string; icon: typeof GraduationCap; needs: string; colour: string }> = [
+  { id: "A", title: "Host university student (Indian)", desc: "I study at the university hosting the games.", icon: GraduationCap, needs: "PRN, DigiLocker, live selfie", colour: "#ee7a2b" },
+  { id: "B", title: "Other university (Indian)", desc: "I study at another college or university in India.", icon: Building2, needs: "Mobile, DigiLocker, college ID + bonafide letter", colour: "#7cb342" },
+  { id: "C", title: "International / OCI / NRI", desc: "I hold a foreign passport or have no Aadhaar.", icon: Globe2, needs: "Passport, visa, FRRO permit", colour: "#4e7eb4" },
 ];
 
 export function StartRegistration({ demo, sso }: { demo: boolean; sso?: SsoInfo | null }) {
   const [path, setPath] = useState<Path | null>(null);
 
   return (
+    <>
+    <PageHero
+      eyebrow="Fueling passion · Building champions"
+      title={<>Get in <span className="text-volt">the game</span></>}
+      lead="Register for sports in about 10 minutes. Your progress saves automatically, so you can come back any time."
+      mark="Play"
+      width="max-w-3xl"
+    />
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-      <h1 className="text-fg">Register for sports</h1>
-      <p className="mt-2 text-muted">Takes about 10 minutes. Your progress is saved automatically — you can come back any time.</p>
-
       {!path ? (
-        <fieldset className="mt-8">
-          <legend className="mb-4 font-heading text-2xl font-semibold">Who are you?</legend>
+        <fieldset>
+          <legend className="display mb-5 text-3xl text-fg">Who are you?</legend>
           <div className="grid gap-4">
-            {PATHS.map((p) => (
+            {PATHS.map((p, i) => (
               <button
                 key={p.id}
                 type="button"
                 onClick={() => setPath(p.id)}
-                className="group flex w-full items-center gap-4 rounded-xl border border-border bg-surface p-4 text-left shadow-card transition-colors hover:border-primary sm:p-5"
+                style={{ "--c": p.colour } as React.CSSProperties}
+                className="lift group relative flex w-full items-center gap-4 overflow-hidden rounded-lg border border-border bg-surface p-4 pl-6 text-left shadow-card hover:border-[var(--c)] sm:p-5 sm:pl-7"
               >
-                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-tint text-tint-fg">
-                  <p.icon className="size-6" aria-hidden />
+                <span aria-hidden className="absolute inset-y-0 left-0 w-2 bg-[var(--c)]" />
+                <span aria-hidden className="display hidden w-12 shrink-0 text-4xl text-[var(--c)] sm:block">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="grid size-12 shrink-0 -skew-x-6 place-items-center rounded-md bg-tint text-tint-fg">
+                  <p.icon className="size-6 skew-x-6" aria-hidden />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-heading text-xl font-semibold text-fg">{p.title}</span>
+                  <span className="block font-heading text-xl font-extrabold italic text-fg">{p.title}</span>
                   <span className="block text-muted">{p.desc}</span>
                   <span className="mt-1 block text-small text-muted">You&apos;ll need: {p.needs}</span>
                 </span>
-                <ChevronRight className="size-5 shrink-0 text-muted group-hover:text-fg" aria-hidden />
+                <ChevronRight className="size-6 shrink-0 text-muted transition-transform group-hover:translate-x-1 group-hover:text-fg" aria-hidden />
               </button>
             ))}
           </div>
@@ -61,7 +72,8 @@ export function StartRegistration({ demo, sso }: { demo: boolean; sso?: SsoInfo 
           </p>
         </fieldset>
       ) : (
-        <Card className="mt-8">
+        <Card className="overflow-hidden">
+          <div className="track-stripe h-1.5" aria-hidden />
           <CardBody className="space-y-6">
             <button type="button" onClick={() => setPath(null)} className="-ml-2 inline-flex min-h-11 items-center gap-1 rounded-lg px-2 font-medium text-muted hover:text-fg">
               <ArrowLeft className="size-4" aria-hidden /> Choose a different option
@@ -73,6 +85,7 @@ export function StartRegistration({ demo, sso }: { demo: boolean; sso?: SsoInfo 
         </Card>
       )}
     </div>
+    </>
   );
 }
 

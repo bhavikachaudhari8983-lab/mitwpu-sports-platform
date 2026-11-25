@@ -10,6 +10,7 @@ import { api } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 import { OtpEntry } from "@/components/register/otp-entry";
 import { Alert } from "@/components/ui/badge";
+import { PageHero } from "@/components/layout/page-hero";
 import { OrDivider, UniversitySsoButton, type SsoInfo } from "@/components/register/university-sso-button";
 
 type Sent = { challengeId: string; maskedTarget: string; demoCode?: string };
@@ -39,10 +40,10 @@ export function StatusLogin({ demo, notice, sso, ssoError }: { demo: boolean; no
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-10 sm:py-16">
+    <>
+    <PageHero eyebrow="My account" title={<>Check your <span className="text-volt">status</span></>} lead="Sign in with your PRN (host-university students), or the mobile number or email you verified during registration." mark="Go" width="max-w-lg" />
+    <div className="mx-auto max-w-lg px-4 py-10 sm:py-12">
       {notice}
-      <h1 className="text-fg">Check your status</h1>
-      <p className="mt-2 text-muted">Sign in with your PRN (host-university students), or the mobile number or email you verified during registration.</p>
       {ssoError && (
         <Alert tone="danger" title="Sign-in didn't work" className="mt-4">
           {ssoError}
@@ -114,5 +115,6 @@ export function StatusLogin({ demo, notice, sso, ssoError }: { demo: boolean; no
         </Link>
       </p>
     </div>
+    </>
   );
 }

@@ -25,6 +25,7 @@ import { announcementsForStudent } from "@/lib/announcements";
 import { registrationWindowProblem } from "@/lib/tournaments";
 import { registrationReference } from "@/lib/notifications";
 import { NotificationList } from "@/components/status/notification-list";
+import { PageHero } from "@/components/layout/page-hero";
 import { SSO_ERRORS, ssoPrompt, universitySso } from "@/lib/university-sso";
 
 export const metadata: Metadata = { title: "My account" };
@@ -99,20 +100,25 @@ export default async function StatusPage({ searchParams }: { searchParams: Promi
   ];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 pb-24 sm:px-6 sm:py-12">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-muted">Registration status</p>
-          <h1 className="text-fg">{s.fullName ?? "Your registration"}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <StatusBadge status={status} />
-            {ageCategory && <Badge tone="neutral">Age category {ageCategory}</Badge>}
-            <Badge tone="neutral">{STUDENT_TYPE_LABEL[s.studentType as keyof typeof STUDENT_TYPE_LABEL] ?? s.studentType}</Badge>
-            {s.submittedAt && <span className="text-small text-muted">Reference <span className="font-mono font-semibold text-fg">{registrationReference(s.id)}</span></span>}
-          </div>
+    <>
+    <PageHero
+      eyebrow={<span className="text-sm tracking-wide normal-case">Registration status</span>}
+      title={s.fullName ?? "Your registration"}
+      caps={false}
+      mark="Athlete"
+      width="max-w-4xl"
+    >
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge status={status} />
+          {ageCategory && <Badge tone="neutral">Age category {ageCategory}</Badge>}
+          <Badge tone="neutral">{STUDENT_TYPE_LABEL[s.studentType as keyof typeof STUDENT_TYPE_LABEL] ?? s.studentType}</Badge>
+          {s.submittedAt && <span className="text-small text-stage-muted">Reference <span className="font-mono font-semibold text-stage-fg">{registrationReference(s.id)}</span></span>}
         </div>
-        <SignOutButton />
+        <SignOutButton onStage />
       </div>
+    </PageHero>
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 pb-24 sm:px-6 sm:py-12">
 
       {status === "DRAFT" && (
         <Alert tone="warning" icon={<ClipboardList className="size-5" aria-hidden />} title="Your registration isn't submitted yet">
@@ -292,5 +298,6 @@ export default async function StatusPage({ searchParams }: { searchParams: Promi
         </CardBody>
       </Card>
     </div>
+    </>
   );
 }

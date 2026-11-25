@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import QRCode from "qrcode";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { embedBrandFonts } from "./pdf-fonts";
 import { prisma } from "./prisma";
 import { qrPayload } from "./qr";
 import { readStoredFile } from "./storage";
@@ -52,25 +53,27 @@ export async function renderIdCardPdf(card: IdCardData): Promise<Uint8Array> {
   doc.setTitle(`Sports ID ${card.sportsId}`);
   doc.setAuthor(APP_NAME);
   const page = doc.addPage([W, H]);
-  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
-  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const lato = await embedBrandFonts(doc);
+  const bold = lato.bold;
+  const font = lato.regular;
   const mono = await doc.embedFont(StandardFonts.CourierBold);
-  const navy = rgb(0.055, 0.078, 0.188); // logo ink #0E1430
-  const cream = rgb(1, 0.973, 0.941); // #FFF8F0
-  const orange = rgb(0.933, 0.478, 0.169); // logo orange #EE7A2B
+  // MIT-WPU Brand Book 2026, palette 1
+  const navy = rgb(0.043, 0.165, 0.341); // deep navy text #0B2A57
+  const brandNavy = rgb(0.067, 0.275, 0.561); // Navy Blue #11468F
+  const orange = rgb(1, 0.647, 0); // Orange #FFA500
 
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(1, 1, 1) });
-  page.drawRectangle({ x: 0, y: H - 40, width: W, height: 40, color: cream });
+  page.drawRectangle({ x: 0, y: H - 40, width: W, height: 40, color: brandNavy });
   page.drawRectangle({ x: 0, y: H - 44, width: W, height: 4, color: orange });
-  const logoBytes = await readFile(join(process.cwd(), "public/brand/sports-sphere-logo.png")).catch(() => null);
+  const logoBytes = await readFile(join(process.cwd(), "public/brand/mitwpu-logo-compact-white.png")).catch(() => null);
   if (logoBytes) {
     const logo = await doc.embedPng(logoBytes);
-    page.drawCircle({ x: 26, y: H - 20, size: 16, color: rgb(1, 1, 1) });
-    page.drawImage(logo, { x: 11, y: H - 35, width: 30, height: 30 });
+    const lw = 34, lh = (lw * logo.height) / logo.width;
+    page.drawImage(logo, { x: 10, y: H - 20 - lh / 2, width: lw, height: lh });
   }
-  page.drawText("SPORTS", { x: 48, y: H - 18, size: 10, font: bold, color: navy });
-  page.drawText("SPHERE", { x: 48 + bold.widthOfTextAtSize("SPORTS ", 10), y: H - 18, size: 10, font: bold, color: rgb(0.894, 0.341, 0.165) });
-  page.drawText(`SPORTS ID · ${card.meetName}`.slice(0, 56), { x: 48, y: H - 31, size: 7, font, color: rgb(0.28, 0.33, 0.41) });
+  page.drawRectangle({ x: 50, y: H - 33, width: 0.6, height: 26, color: rgb(0.75, 0.82, 0.92) });
+  page.drawText("Department of Sports", { x: 57, y: H - 18, size: 10, font: lato.black, color: rgb(1, 1, 1) });
+  page.drawText(`SPORTS ID · ${card.meetName}`.slice(0, 52), { x: 57, y: H - 31, size: 7, font, color: rgb(0.83, 0.88, 0.95) });
 
   // Photo
   const px = 12, py = 40, pw = 78, ph = 100;

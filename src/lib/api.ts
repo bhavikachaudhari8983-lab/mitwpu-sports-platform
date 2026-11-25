@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError, type ZodType } from "zod";
 import { ServiceError } from "@/services/types";
+import { StorageError } from "./storage";
 
 export class ApiError extends Error {
   constructor(
@@ -48,6 +49,7 @@ export function route<C = unknown>(fn: Handler<C>): Handler<C> {
       if (e instanceof ApiError) return NextResponse.json({ error: e.message, fieldErrors: e.fieldErrors }, { status: e.status });
       if (e instanceof ZodError) return NextResponse.json({ error: "Validation failed", fieldErrors: zodFieldErrors(e) }, { status: 400 });
       if (e instanceof ServiceError) return NextResponse.json({ error: e.message, code: e.code }, { status: 422 });
+      if (e instanceof StorageError) return NextResponse.json({ error: "We couldn't save your file just now. Please check your connection and try again in a minute." }, { status: 503 });
       console.error("[api] unhandled error", e);
       return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
     }

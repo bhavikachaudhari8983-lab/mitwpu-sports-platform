@@ -14,7 +14,7 @@ for (const name of pick.length ? pick : Object.keys(SUITES)) {
   try {
     all.push([name, await SUITES[name](browser)]);
   } catch (e) {
-    all.push([name, [{ ok: false, label: "suite crashed", note: String(e?.message ?? e).split("\n")[0] }]]);
+    all.push([name, [{ ok: false, label: "suite crashed", note: String(e?.stack ?? e).split("\n").slice(0, 6).join(" | ") }]]);
   }
 }
 await browser.close();

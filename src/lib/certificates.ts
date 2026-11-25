@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import QRCode from "qrcode";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { embedBrandFonts } from "./pdf-fonts";
 import type { Certificate } from "@prisma/client";
 import { prisma } from "./prisma";
 import { audit, type Actor } from "./audit";
@@ -49,7 +50,7 @@ async function newCode(): Promise<string> {
  * and a medal certificate for every podium athlete (each member of a podium team). Existing ones are kept.
  */
 export async function issueForEvent(eventId: string, actor: Actor & { type: "STAFF" }, ip: string | null) {
-  const ev = await prisma.event.findUnique({ where: { id: eventId }, include: { sport: true } });
+  const ev = await prisma.event.findUnique({ where: { id: eventId }, include: { sport: true, tournament: true } });
   if (!ev) throw new ApiError(404, "Event not found");
   if (!ev.resultsFinal) throw new ApiError(409, "Finalise the results first, so medal certificates are correct.");
   const settings = await getSettings();
@@ -74,7 +75,7 @@ export async function issueForEvent(eventId: string, actor: Actor & { type: "STA
       code: await newCode(),
       recipient: w.s.fullName ?? "—",
       institution: institutionOf(w.s),
-      title: `${ev.sport.name} · ${ev.name}${w.division ? ` · ${w.division}` : ""} — ${settings.meetName}`,
+      title: `${ev.sport.name} · ${ev.name}${w.division ? ` · ${w.division}` : ""} — ${ev.tournament?.name ?? settings.meetName}`,
       kind: w.kind,
       division: w.division,
       issuedAt: new Date(Math.floor(Date.now() / 1000) * 1000),
@@ -116,7 +117,7 @@ export async function verifyCertificate(code: string, ip: string | null): Promis
 }
 
 const KIND_COLOUR: Record<CertKind, [number, number, number]> = {
-  PARTICIPATION: [0.933, 0.478, 0.169],
+  PARTICIPATION: [0.067, 0.275, 0.561], // MIT-WPU Navy Blue #11468F
   GOLD: [0.78, 0.6, 0.1],
   SILVER: [0.55, 0.58, 0.62],
   BRONZE: [0.66, 0.4, 0.2],
@@ -129,10 +130,11 @@ export async function renderCertificatePdf(c: Certificate): Promise<Uint8Array> 
   doc.setTitle(`${CERT_LABEL[c.kind as CertKind] ?? c.kind} — ${c.recipient}`);
   doc.setAuthor(APP_NAME);
   const page = doc.addPage([W, H]);
-  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
-  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const lato = await embedBrandFonts(doc);
+  const bold = lato.bold;
+  const font = lato.regular;
   const mono = await doc.embedFont(StandardFonts.Courier);
-  const navy = rgb(0.055, 0.078, 0.188);
+  const navy = rgb(0.043, 0.165, 0.341); // #0B2A57, deep MIT-WPU navy
   const muted = rgb(0.35, 0.39, 0.47);
   const [r, g, b] = KIND_COLOUR[c.kind as CertKind] ?? KIND_COLOUR.PARTICIPATION;
   const accent = rgb(r, g, b);
@@ -145,13 +147,16 @@ export async function renderCertificatePdf(c: Certificate): Promise<Uint8Array> 
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(1, 0.985, 0.965) });
   page.drawRectangle({ x: 24, y: 24, width: W - 48, height: H - 48, borderColor: accent, borderWidth: 3 });
   page.drawRectangle({ x: 34, y: 34, width: W - 68, height: H - 68, borderColor: navy, borderWidth: 0.6 });
-  const logoBytes = await readFile(join(process.cwd(), "public/brand/sports-sphere-logo.png")).catch(() => null);
+  // MIT-WPU master logo (Brand Book 2026: the master version for official, outward-facing documents).
+  const logoBytes = await readFile(join(process.cwd(), "public/brand/mitwpu-logo-master.png")).catch(() => null);
   if (logoBytes) {
     const logo = await doc.embedPng(logoBytes);
-    page.drawImage(logo, { x: W / 2 - 34, y: H - 132, width: 68, height: 68 });
+    const lw = 250, lh = (lw * logo.height) / logo.width;
+    page.drawImage(logo, { x: (W - lw) / 2, y: H - 62 - lh, width: lw, height: lh });
   }
-  centre("SPORTS SPHERE", H - 152, 14, bold);
-  centre(CERT_LABEL[c.kind as CertKind] ?? c.kind, H - 205, 34, bold, accent);
+  centre("DEPARTMENT OF SPORTS", H - 152, 13, lato.black, rgb(0.067, 0.275, 0.561));
+  page.drawRectangle({ x: W / 2 - 40, y: H - 162, width: 80, height: 2.5, color: rgb(1, 0.647, 0) });
+  centre(CERT_LABEL[c.kind as CertKind] ?? c.kind, H - 205, 34, lato.black, accent);
   centre("This certifies that", H - 245, 13, font, muted);
   centre(c.recipient, H - 290, 30, bold);
   centre(c.institution, H - 318, 13, font, muted);

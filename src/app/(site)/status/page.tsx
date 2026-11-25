@@ -22,13 +22,29 @@ import { MyGames } from "@/components/status/my-games";
 import { AnnouncementList } from "@/components/competition/announcement-list";
 import { myGames } from "@/lib/my-games";
 import { announcementsForStudent } from "@/lib/announcements";
+import { registrationWindowProblem } from "@/lib/tournaments";
+import { registrationReference } from "@/lib/notifications";
+import { NotificationList } from "@/components/status/notification-list";
+import { PageHero } from "@/components/layout/page-hero";
+import { SSO_ERRORS, ssoPrompt, universitySso } from "@/lib/university-sso";
 
-export const metadata: Metadata = { title: "My status" };
+export const metadata: Metadata = { title: "My account" };
 export const dynamic = "force-dynamic";
 
-export default async function StatusPage() {
+export default async function StatusPage({ searchParams }: { searchParams: Promise<{ sso?: string }> }) {
   const user = await getSessionUser();
-  if (!user || user.role !== "STUDENT") return <StatusLogin demo={isDemoMode()} notice={<SessionNotice user={user} wants="STUDENT" />} />;
+  if (!user || user.role !== "STUDENT") {
+    const sso = universitySso();
+    const { sso: ssoCode } = await searchParams;
+    return (
+      <StatusLogin
+        demo={isDemoMode()}
+        notice={<SessionNotice user={user} wants="STUDENT" />}
+        sso={sso ? { ...ssoPrompt(sso), universities: sso.universities.map((u) => u.name) } : null}
+        ssoError={ssoCode ? SSO_ERRORS[ssoCode] ?? SSO_ERRORS.failed : null}
+      />
+    );
+  }
 
   const s = await prisma.student.findUnique({
     where: { id: user.id },
@@ -36,6 +52,7 @@ export default async function StatusPage() {
       registrations: { include: { event: { include: { sport: true } }, weightCategory: true } },
       college: true,
       deletionRequests: { where: { status: "PENDING" } },
+      notifications: { orderBy: { createdAt: "desc" }, take: 20 },
       measurements: { orderBy: { createdAt: "desc" }, take: 1 },
       changeRequests: { orderBy: { createdAt: "desc" }, take: 5, include: { fromEvent: true, toEvent: true } },
     },
@@ -58,11 +75,12 @@ export default async function StatusPage() {
   // Events this athlete could move to: open to their gender and age, not already entered, places left.
   let options: ChangeOption[] = [];
   if (canChange) {
-    const events = await prisma.event.findMany({ where: { active: true, sport: { active: true } }, include: { sport: { include: { weightCategories: true } }, ageCategory: true }, orderBy: [{ sport: { name: "asc" } }, { name: "asc" }] });
+    const events = await prisma.event.findMany({ where: { active: true, sport: { active: true } }, include: { sport: { include: { weightCategories: true } }, ageCategory: true, tournament: true }, orderBy: [{ sport: { name: "asc" } }, { name: "asc" }] });
     const taken = await entryCounts(events.map((e) => e.id), s.id);
     options = events
       .filter((e) => !s.registrations.some((r) => r.eventId === e.id))
       .filter((e) => !eventIneligibility(e, { gender: s.gender, dob: s.dob, cutoff }))
+      .filter((e) => !registrationWindowProblem(e.tournament)) // only events still open for registration
       .filter((e) => e.maxEntries == null || (taken.get(e.id) ?? 0) < e.maxEntries)
       .map((e) => ({
         id: e.id,
@@ -72,6 +90,7 @@ export default async function StatusPage() {
   }
   const awaitingCollege = s.studentType === "OUTSIDE_INDIAN" && !s.college?.trusted && status === "PENDING";
   const awaitingPassport = s.studentType === "INTERNATIONAL" && !s.passportDeskVerified && (status === "PENDING" || status === "FLAGGED");
+  const awaitingIdCheck = s.dobSource === "MANUAL" && !s.identityDocDeskVerified && (status === "PENDING" || status === "FLAGGED");
 
   const steps: Array<{ label: string; at: Date | null; done: boolean; note?: string }> = [
     { label: "Registration started", at: s.createdAt, done: true },
@@ -81,19 +100,25 @@ export default async function StatusPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 pb-24 sm:px-6 sm:py-12">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-muted">Registration status</p>
-          <h1 className="text-fg">{s.fullName ?? "Your registration"}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <StatusBadge status={status} />
-            {ageCategory && <Badge tone="neutral">Age category {ageCategory}</Badge>}
-            <Badge tone="neutral">{STUDENT_TYPE_LABEL[s.studentType as keyof typeof STUDENT_TYPE_LABEL] ?? s.studentType}</Badge>
-          </div>
+    <>
+    <PageHero
+      eyebrow={<span className="text-sm tracking-wide normal-case">Registration status</span>}
+      title={s.fullName ?? "Your registration"}
+      caps={false}
+      mark="Athlete"
+      width="max-w-4xl"
+    >
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge status={status} />
+          {ageCategory && <Badge tone="neutral">Age category {ageCategory}</Badge>}
+          <Badge tone="neutral">{STUDENT_TYPE_LABEL[s.studentType as keyof typeof STUDENT_TYPE_LABEL] ?? s.studentType}</Badge>
+          {s.submittedAt && <span className="text-small text-stage-muted">Reference <span className="font-mono font-semibold text-stage-fg">{registrationReference(s.id)}</span></span>}
         </div>
-        <SignOutButton />
+        <SignOutButton onStage />
       </div>
+    </PageHero>
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 pb-24 sm:px-6 sm:py-12">
 
       {status === "DRAFT" && (
         <Alert tone="warning" icon={<ClipboardList className="size-5" aria-hidden />} title="Your registration isn't submitted yet">
@@ -123,10 +148,26 @@ export default async function StatusPage() {
           An official must check your passport chip/MRZ at the verification desk before you can be verified.
         </Alert>
       )}
+      {awaitingIdCheck && (
+        <Alert tone="warning" icon={<AlertTriangle className="size-5" aria-hidden />} title="Bring your original Government ID">
+          You entered your details with a Government ID. An official must check the original at the verification desk before you can be verified.
+        </Alert>
+      )}
       {(status === "PENDING" || status === "FLAGGED") && (
         <Alert tone="neutral" icon={<Ruler className="size-5" aria-hidden />} title="Next: visit the verification desk">
           An official will compare your live photo, and measure your height and weight. Students never enter these themselves.
         </Alert>
+      )}
+
+      {s.notifications.length > 0 && (
+        <Card>
+          <CardHeader title="Your messages" description="Updates about your registration from the sports office." />
+          <CardBody>
+            <NotificationList
+              items={s.notifications.map((n) => ({ id: n.id, title: n.title, body: n.body, createdAt: n.createdAt.toISOString(), unread: !n.readAt, emailed: n.emailStatus === "SENT" }))}
+            />
+          </CardBody>
+        </Card>
       )}
 
       {notices.length > 0 && (
@@ -257,5 +298,6 @@ export default async function StatusPage() {
         </CardBody>
       </Card>
     </div>
+    </>
   );
 }

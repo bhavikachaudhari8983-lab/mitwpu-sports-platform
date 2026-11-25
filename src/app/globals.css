@@ -2,40 +2,45 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* MIT-WPU Department of Sports. Palette: MIT-WPU Brand Book 2026, primary palette 1 (never mixed with palette 2's
+   Deep Red): Navy Blue #11468F · Orange #FFA500 · Peach #FFE5B4, plus cool neutrals and status colours.
+   "Match-day clarity" (docs/DESIGN-DIRECTION.md): white for reading and forms, navy "stage" for anything live or
+   competitive, orange for what's happening now. */
 :root {
-  /* Sports Sphere palette, sampled from the official logo:
-     navy "SPORTS" #0E1430 · orange "SPHERE" #EE7A2B→#E4572A · ring red/orange/yellow/green · water blue */
-  /* Light & warm: white/cream surfaces like the logo; navy ink only for text and small solid elements */
-  --primary: #0e1430; /* logo "SPORTS" ink — links, selected states, secondary buttons (18:1) */
-  --primary-hover: #262c4a;
+  --primary: #11468f; /* MIT-WPU Navy Blue: links, selected states, secondary buttons (9.6:1 on white) */
+  --primary-hover: #0c3570;
   --primary-fg: #ffffff;
-  --tint: #fff1e6; /* soft orange surface for icon tiles & active nav */
-  --tint-fg: #c2410c; /* dark orange for icons/text on tint (4.8:1) */
-  --hero-bg: #fff8f0;
-  --hero-fg: #0e1430;
+  --tint: #ffe5b4; /* MIT-WPU Peach: soft surface for icon tiles & highlights */
+  --tint-fg: #7a4500; /* text/icons on peach (6.6:1) */
+  --hero-bg: #fff6e6;
+  --hero-fg: #0b2a57;
   --hero-muted: #334155;
-  --sphere-from: #e4572a; /* "SPHERE" gradient — large text only (≥3.6:1 on cream) */
-  --sphere-to: #ee7a2b;
 
-  /* Logo orange: primary actions & highlights. Text on it is logo navy (6.4:1, AA). */
-  --accent: #ee7a2b;
-  --accent-hover: #e0651c;
-  --accent-fg: #0e1430;
+  /* MIT-WPU Orange: primary actions & highlights. Text on it is deep navy (7.9:1). */
+  --accent: #ffa500;
+  --accent-hover: #f09500;
+  --accent-fg: #0b2a57;
 
-  --wordmark-1: #0e1430; /* "SPORTS" */
-  --wordmark-2: #e4572a; /* "SPHERE" (large bold text, 3.7:1) */
-
-  --secondary: #2e7d32; /* ring green, darkened for text (5.1:1) */
+  --secondary: #2e7d32; /* status green for "approved"-type actions (5.1:1) */
   --secondary-fg: #ffffff;
 
-  --bg: #f8fafc;
+  /* Stage: navy surfaces for headers, scoreboards, live areas and finals */
+  --stage: #11468f;
+  --stage-2: #0c3570;
+  --stage-fg: #ffffff;
+  --stage-muted: #d4e0f2; /* 6.9:1 on stage */
+  /* "Live / now / your turn": MIT-WPU Orange. A fill with navy text, or text on navy (4.7:1). Never text on white. */
+  --volt: #ffa500;
+  --volt-fg: #0b2a57;
+
+  --bg: #f6f8fc; /* paper */
   --surface: #ffffff;
-  --surface-2: #f1f5f9;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --fg: #0f172a;
-  --muted: #64748b;
-  --ring: #0e1430;
+  --surface-2: #edf2f9;
+  --border: #dfe6f0;
+  --border-strong: #c3cede;
+  --fg: #0b2a57; /* deep shade of MIT-WPU navy for body text (13:1) */
+  --muted: #55627a; /* 6:1 on white */
+  --ring: #11468f;
 
   --success: #16a34a;
   --success-fg: #166534;
@@ -46,46 +51,48 @@
   --danger: #dc2626;
   --danger-fg: #991b1b;
   --danger-bg: #fee2e2;
-  --info: #7c3aed;
-  --info-fg: #5b21b6;
-  --info-bg: #ede9fe;
+  --info: #11468f;
+  --info-fg: #11468f;
+  --info-bg: #e3ecf8;
   --neutral-fg: #334155;
-  --neutral-bg: #e2e8f0;
+  --neutral-bg: #e7ebf2;
 
-  --chart-1: #e8590c; /* logo-family orange, validated: lightness band, chroma, ≥3:1 vs surface */
+  --chart-1: #c46f00; /* darkened MIT-WPU orange, ≥3:1 against white */
   --chart-track: #e2e8f0;
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08);
+  --shadow-card: 0 1px 0 rgb(11 42 87 / 0.04), 0 1px 2px rgb(11 42 87 / 0.07);
   color-scheme: light;
 }
 
 /* ---------- Design tokens (dark) ---------- */
 .dark {
-  --primary: #e2e8f0;
+  --primary: #b9cff0;
   --primary-hover: #ffffff;
-  --primary-fg: #111214;
-  --tint: rgb(238 122 43 / 0.16);
-  --tint-fg: #f5a33a;
-  --hero-bg: #1b1c20;
+  --primary-fg: #0b1626;
+  --tint: rgb(255 165 0 / 0.16);
+  --tint-fg: #ffc861;
+  --hero-bg: #141a24;
   --hero-fg: #f1f5f9;
   --hero-muted: #cbd5e1;
-  --sphere-from: #f6c642;
-  --sphere-to: #ee7a2b;
-  --accent: #ee7a2b;
-  --accent-hover: #f5a33a;
-  --accent-fg: #0e1430;
-  --wordmark-1: #ffffff;
-  --wordmark-2: #f5a33a;
+  --accent: #ffa500;
+  --accent-hover: #ffb733;
+  --accent-fg: #0b2a57;
   --secondary: #7cc47f;
   --secondary-fg: #111214;
+  --stage: #0c2f61;
+  --stage-2: #0a2550;
+  --stage-fg: #ffffff;
+  --stage-muted: #c9d7ee;
+  --volt: #ffa500;
+  --volt-fg: #0b2a57;
 
-  --bg: #111214;
-  --surface: #1b1c20;
-  --surface-2: #25272c;
-  --border: #303238;
-  --border-strong: #43464e;
+  --bg: #0f1420;
+  --surface: #161d2b;
+  --surface-2: #1f2838;
+  --border: #2a3446;
+  --border-strong: #3c4860;
   --fg: #e2e8f0;
-  --muted: #a1a1aa;
-  --ring: #f5a33a;
+  --muted: #a3adbf;
+  --ring: #ffc861;
 
   --success-fg: #86efac;
   --success-bg: rgb(22 163 74 / 0.18);
@@ -93,13 +100,14 @@
   --warning-bg: rgb(217 119 6 / 0.2);
   --danger-fg: #fca5a5;
   --danger-bg: rgb(220 38 38 / 0.2);
-  --info-fg: #c4b5fd;
-  --info-bg: rgb(124 58 237 / 0.22);
+  --info: #8fb3ea;
+  --info-fg: #a9c5f0;
+  --info-bg: rgb(17 70 143 / 0.35);
   --neutral-fg: #cbd5e1;
-  --neutral-bg: #303238;
+  --neutral-bg: #2a3446;
 
-  --chart-1: #e8590c; /* validated against #111a2e too */
-  --chart-track: #303238;
+  --chart-1: #ffa500;
+  --chart-track: #2a3446;
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
   color-scheme: dark;
 }
@@ -115,8 +123,12 @@
   --color-tint-fg: var(--tint-fg);
   --color-hero-fg: var(--hero-fg);
   --color-hero-muted: var(--hero-muted);
-  --color-wordmark-1: var(--wordmark-1);
-  --color-wordmark-2: var(--wordmark-2);
+  --color-stage: var(--stage);
+  --color-stage-2: var(--stage-2);
+  --color-stage-fg: var(--stage-fg);
+  --color-stage-muted: var(--stage-muted);
+  --color-volt: var(--volt);
+  --color-volt-fg: var(--volt-fg);
   --color-secondary: var(--secondary);
   --color-secondary-fg: var(--secondary-fg);
   --color-bg: var(--bg);
@@ -144,11 +156,20 @@
   --color-neutral-fg: var(--neutral-fg);
   --color-neutral-bg: var(--neutral-bg);
 
-  --font-heading: var(--font-montserrat), system-ui, sans-serif;
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-lato), system-ui, sans-serif;
+  --font-sans: var(--font-lato), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
   --shadow-card: var(--shadow-card);
+}
+
+/* Sharper corners across the whole app (cards, buttons, fields). Pills (rounded-full) are unchanged. */
+@theme {
+  --radius-md: 0.3125rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+  --radius-3xl: 0.75rem;
 }
 
 /* ---------- Base ---------- */
@@ -171,14 +192,17 @@
   h4 {
     font-family: var(--font-heading);
     font-weight: 700;
+    text-wrap: balance;
     line-height: 1.15;
     letter-spacing: -0.02em;
   }
   h1 {
     font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
   }
   h2 {
     font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+    font-weight: 900;
   }
   h3 {
     font-size: 1.25rem;
@@ -216,32 +240,125 @@
     background-image:
       repeating-linear-gradient(
         -35deg,
-        rgb(238 122 43 / 0.05) 0 18px,
+        rgb(17 70 143 / 0.05) 0 18px,
         transparent 18px 44px
       ),
-      radial-gradient(ellipse 120% 70% at 110% 120%, transparent 54%, rgb(234 66 72 / 0.55) 54.3%, transparent 54.9%,
-        transparent 58%, rgb(238 122 43 / 0.55) 58.3%, transparent 58.8%,
-        transparent 62%, rgb(246 198 66 / 0.6) 62.3%, transparent 62.8%,
-        transparent 66%, rgb(124 179 66 / 0.5) 66.3%, transparent 66.8%);
+      radial-gradient(ellipse 120% 70% at 110% 120%, transparent 54%, rgb(17 70 143 / 0.5) 54.3%, transparent 54.9%,
+        transparent 58%, rgb(255 165 0 / 0.6) 58.3%, transparent 58.8%,
+        transparent 62%, rgb(255 229 180 / 0.9) 62.3%, transparent 62.8%,
+        transparent 66%, rgb(17 70 143 / 0.3) 66.3%, transparent 66.8%);
   }
   .track-stripe {
     background-image: repeating-linear-gradient(-45deg, var(--accent) 0 8px, transparent 8px 16px);
   }
-  /* Multicolour rule under the header, as on mitwpu.edu.in */
+  /* Orange rule under headers and bands (MIT-WPU palette 1) */
   .brand-stripe {
     height: 4px;
-    /* the logo's ring: red → orange → yellow → green → water blue */
-    background: linear-gradient(90deg, #ea4248 0%, #ee7a2b 25%, #f6c642 50%, #7cb342 72%, #4e7eb4 100%);
+    background: linear-gradient(90deg, #ffa500 0%, #ffa500 55%, #ffe5b4 100%);
   }
-  /* "SPHERE"-style orange gradient text — large text only */
+  /* Orange highlight text: large text on navy only */
   .text-gradient-sphere {
-    background: linear-gradient(90deg, var(--sphere-from), var(--sphere-to));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--volt);
   }
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+  /* Big brand headings: heavy italic capitals, like the logo ("FIXTURES ARE READY") */
+  .display {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+  }
+  /* Small caps label above a heading */
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  /* Speed streaks: slanted bars in MIT-WPU orange, peach and white, sweeping in from the right (see PageHero) */
+  .streaks {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.9rem;
+    padding-right: 0;
+    transform: skewX(-24deg);
+    transform-origin: bottom right;
+    opacity: 0.9;
+  }
+  .streaks > span {
+    display: block;
+    height: 0.6rem;
+    border-radius: 9999px 0 0 9999px;
+    animation: streak-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .streaks > span:nth-child(1) { width: 55%; background: #ffa500; animation-delay: 0ms; }
+  .streaks > span:nth-child(2) { width: 80%; background: #ffe5b4; animation-delay: 80ms; }
+  .streaks > span:nth-child(3) { width: 100%; background: #ffa500; animation-delay: 160ms; }
+  .streaks > span:nth-child(4) { width: 70%; background: rgb(255 255 255 / 0.85); animation-delay: 240ms; }
+  .streaks > span:nth-child(5) { width: 45%; background: #ffe5b4; animation-delay: 320ms; }
+  @media (max-width: 640px) {
+    .streaks { opacity: 0.35; }
+  }
+  /* Huge outlined italic word behind a page title, like a jersey print */
+  .hero-mark {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(4.5rem, 15vw, 11rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgb(255 255 255 / 0.09);
+  }
+  /* Sport-coloured slanted tab, e.g. in front of a sport name */
+  .sport-tab {
+    display: inline-block;
+    width: 0.5rem;
+    height: 1.4rem;
+    transform: skewX(-18deg);
+    border-radius: 2px;
+    background: var(--c, var(--accent));
+  }
+  /* Card that lifts and shows a speed stripe on hover */
+  .lift {
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  }
+  .lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -12px rgb(11 42 87 / 0.35);
+  }
+  /* Navy stage surface for scoreboards and live areas */
+  .stage {
+    background-color: var(--stage);
+    color: var(--stage-fg);
+  }
+  /* Pulsing "live" dot (stays still when the user prefers reduced motion) */
+  .live-dot {
+    position: relative;
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--volt);
+  }
+  .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: live-pulse 1.6s ease-out infinite;
+  }
+  /* A score that just changed flashes once */
+  .score-flash {
+    animation: score-flash 900ms ease-out;
   }
 }
 
@@ -253,6 +370,36 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@keyframes live-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+@keyframes streak-in {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes score-flash {
+  0% {
+    background-color: var(--volt);
+    color: var(--volt-fg);
+  }
+  100% {
+    background-color: transparent;
   }
 }
 

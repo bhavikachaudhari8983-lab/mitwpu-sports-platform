@@ -223,7 +223,7 @@ export async function adminSuite(browser) {
   });
   await t.step("Settings: add staff user, reset a password", a, async () => {
     await a.type("#st-name", "Test Official");
-    await a.type("#st-email", `test.official.${Date.now()}@sportssphere.example`);
+    await a.type("#st-email", `test.official.${Date.now()}@mitwpu.example`);
     await a.select("#st-role", "OFFICIAL");
     await a.type("#st-password", "Official@99999");
     await click(a, "button", "Create account");

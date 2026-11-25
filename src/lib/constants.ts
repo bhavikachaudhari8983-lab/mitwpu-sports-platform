@@ -1,11 +1,15 @@
 // Shared enumerations. Stored as strings in the DB so the schema stays portable (SQLite ⇄ PostgreSQL).
 
-export const APP_NAME = "Sports Sphere";
-/** Prefix printed on Sports IDs, e.g. SS-26-4F7K2Q */
-export const ID_PREFIX = "SS";
-/** The university hosting the games. Stored on host-university students' records; set NEXT_PUBLIC_UNIVERSITY_NAME to brand it. */
-export const UNIVERSITY_NAME = process.env.NEXT_PUBLIC_UNIVERSITY_NAME ?? "Host University";
-export const CONTACT_EMAIL = "sports.office@sportssphere.example";
+/** The platform belongs to the MIT-WPU Department of Sports (Sports Sphere is only a student club). */
+export const APP_NAME = "MIT-WPU Department of Sports";
+export const UNIVERSITY_SHORT = "MIT-WPU";
+export const DEPARTMENT_NAME = "Department of Sports";
+/** Prefix printed on Sports IDs, e.g. WPU-26-4F7K2Q */
+export const ID_PREFIX = "WPU";
+/** The university hosting the games. Stored on MIT-WPU students' records; NEXT_PUBLIC_UNIVERSITY_NAME overrides it. */
+export const UNIVERSITY_NAME = process.env.NEXT_PUBLIC_UNIVERSITY_NAME ?? "MIT World Peace University";
+/** Demo placeholder until the department confirms its official address. */
+export const CONTACT_EMAIL = "sports.office@mitwpu.example";
 export const CONTACT_PHONE = "+91 20 5550 0100";
 
 export const STATUSES = ["DRAFT", "PENDING", "VERIFIED", "APPROVED", "FLAGGED", "REJECTED"] as const;
@@ -24,20 +28,32 @@ export const STUDENT_TYPES = ["OUR_INDIAN", "OUTSIDE_INDIAN", "INTERNATIONAL"] a
 export type StudentType = (typeof STUDENT_TYPES)[number];
 
 export const STUDENT_TYPE_LABEL: Record<StudentType, string> = {
-  OUR_INDIAN: "Host university student (Indian)",
+  OUR_INDIAN: "MIT-WPU student (Indian)",
   OUTSIDE_INDIAN: "Other university (Indian)",
   INTERNATIONAL: "International / OCI / NRI",
 };
 
-export const ROLES = ["STUDENT", "OFFICIAL", "ADMIN", "MEDICAL", "COACH"] as const;
+export const ROLES = ["STUDENT", "OFFICIAL", "ADMIN", "SUPER_ADMIN", "MEDICAL", "COACH"] as const;
 export type Role = (typeof ROLES)[number];
-export const STAFF_ROLES = ["OFFICIAL", "ADMIN", "MEDICAL", "COACH"] as const;
+export const STAFF_ROLES = ["OFFICIAL", "ADMIN", "SUPER_ADMIN", "MEDICAL", "COACH"] as const;
 export type StaffRole = (typeof STAFF_ROLES)[number];
+
+/**
+ * True if `role` may do something allowed for `allowed`. A Super Admin can do everything an Admin can (and,
+ * separately, manage admin accounts). Use this everywhere instead of `allowed.includes(role)`.
+ */
+export function roleSatisfies(role: string | null | undefined, allowed: readonly string[]): boolean {
+  if (!role) return false;
+  return allowed.includes(role) || (role === "SUPER_ADMIN" && allowed.includes("ADMIN"));
+}
+/** Roles only a Super Admin may create, change or deactivate. */
+export const ADMIN_ROLES: readonly StaffRole[] = ["ADMIN", "SUPER_ADMIN"];
 
 export const ROLE_LABEL: Record<Role, string> = {
   STUDENT: "Student",
   OFFICIAL: "Official",
   ADMIN: "Admin",
+  SUPER_ADMIN: "Super admin",
   MEDICAL: "Medical",
   COACH: "Coach",
 };
@@ -55,6 +71,7 @@ export const DOC_TYPES = [
   "MEDICAL_CERT",
   "GUARDIAN_CONSENT",
   "ACHIEVEMENT",
+  "ID_PROOF",
 ] as const;
 export type DocType = (typeof DOC_TYPES)[number];
 
@@ -71,6 +88,7 @@ export const DOC_LABEL: Record<DocType, string> = {
   MEDICAL_CERT: "Medical fitness certificate",
   GUARDIAN_CONSENT: "Parent/guardian consent",
   ACHIEVEMENT: "Achievement certificate",
+  ID_PROOF: "Government photo ID",
 };
 
 /** Documents a student may upload themselves (others come from verified sources). */
@@ -85,6 +103,7 @@ export const STUDENT_UPLOADABLE: readonly DocType[] = [
   "MEDICAL_CERT",
   "GUARDIAN_CONSENT",
   "ACHIEVEMENT",
+  "ID_PROOF",
 ];
 
 /** Which staff roles may view which document types. Students may always view their own. */
@@ -101,9 +120,10 @@ export const DOC_ACCESS: Record<DocType, readonly StaffRole[]> = {
   MEDICAL_CERT: ["ADMIN", "MEDICAL"],
   GUARDIAN_CONSENT: ["ADMIN", "MEDICAL"],
   ACHIEVEMENT: ["ADMIN", "OFFICIAL", "COACH"],
+  ID_PROOF: ["ADMIN", "OFFICIAL"],
 };
 
-export const DOC_SOURCES = ["UPLOAD", "CAMERA", "DIGILOCKER", "ERP", "PASSPORT", "SEED"] as const;
+export const DOC_SOURCES = ["UPLOAD", "CAMERA", "DIGILOCKER", "AADHAAR_OFFLINE", "ERP", "PASSPORT", "SEED"] as const;
 export type DocSource = (typeof DOC_SOURCES)[number];
 
 export const UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
@@ -139,8 +159,27 @@ export const CHECK_LABEL: Record<CheckType, string> = {
   SAME_PERSON_OTHER_DOB: "Same name & Aadhaar digits on another profile with a different DOB",
 };
 
-export const DOB_SOURCES = ["DIGILOCKER", "PASSPORT", "ADMIN_CORRECTION"] as const;
+export const DOB_SOURCES = ["DIGILOCKER", "AADHAAR_OFFLINE", "MANUAL", "PASSPORT", "ADMIN_CORRECTION"] as const;
 export type DobSource = (typeof DOB_SOURCES)[number];
+/** How the date of birth was verified, in plain words (student, desk and admin screens). */
+export const DOB_SOURCE_LABEL: Record<DobSource, string> = {
+  DIGILOCKER: "DigiLocker",
+  AADHAAR_OFFLINE: "Aadhaar Offline e-KYC",
+  MANUAL: "Government ID, checked at the desk",
+  PASSPORT: "Passport (MRZ check)",
+  ADMIN_CORRECTION: "Admin correction",
+};
+
+/** Government photo IDs accepted on the manual identity route. */
+export const ID_DOC_TYPES = ["AADHAAR_CARD", "PASSPORT", "PAN", "DRIVING_LICENCE", "VOTER_ID"] as const;
+export type IdDocType = (typeof ID_DOC_TYPES)[number];
+export const ID_DOC_LABEL: Record<IdDocType, string> = {
+  AADHAAR_CARD: "Aadhaar card",
+  PASSPORT: "Indian passport",
+  PAN: "PAN card",
+  DRIVING_LICENCE: "Driving licence",
+  VOTER_ID: "Voter ID",
+};
 
 export const AUDIT_ACTIONS = [
   "LOGIN",
@@ -176,6 +215,10 @@ export const AUDIT_ACTIONS = [
   "MEASUREMENT_RECORDED",
   "WEIGH_IN_RECORDED",
   "PASSPORT_VERIFIED",
+  "IDENTITY_SUBMITTED",
+  "TOURNAMENT_CHANGED",
+  "NOTIFICATION_SENT",
+  "ID_DOCUMENT_VERIFIED",
   "COLLEGE_CONFIRMED",
   "QR_ISSUED",
   "QR_SCANNED",

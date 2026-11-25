@@ -22,7 +22,7 @@ export function MedalTable({ rows }: { rows: TallyRow[] }) {
             <tr key={r.institution} className={i === 0 && r.gold > 0 ? "border-b border-border bg-volt/15 last:border-0" : "border-b border-border last:border-0"}>
               <td className="py-2 pr-2">
                 {i < 3 && r.total > 0 ? (
-                  <span className="grid size-6 place-items-center rounded-full font-mono text-xs font-bold text-[#0e1430] tabular" style={{ background: ["#E8C547", "#C5CCD4", "#D49A6A"][i] }}>
+                  <span className="grid size-6 place-items-center rounded-full font-mono text-xs font-bold text-[#0b2a57] tabular" style={{ background: ["#E8C547", "#C5CCD4", "#D49A6A"][i] }}>
                     {i + 1}
                   </span>
                 ) : (

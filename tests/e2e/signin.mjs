@@ -76,7 +76,7 @@ export async function signinSuite(browser) {
   await t.step("Student: email sign-in works", s, async () => {
     await go(s, "/status");
     await click(s, "[role=radio]", "Email");
-    await s.type("#login-email", "aarav.kulkarni@students.sportssphere.example");
+    await s.type("#login-email", "aarav.kulkarni@students.mitwpu.example");
     await click(s, "button", "Send code");
     await s.waitForFunction(() => !!document.querySelector("#otp") || !!document.querySelector("#login-email-error"));
     if (await s.$("#login-email-error")) throw new Error(await s.$eval("#login-email-error", (e) => e.textContent));
@@ -92,7 +92,7 @@ export async function signinSuite(browser) {
     await waitText(a, "Enter your email and password");
   });
   await t.step("Staff: wrong password is rejected", a, async () => {
-    await a.type("#email", "official@sportssphere.example");
+    await a.type("#email", "official@mitwpu.example");
     await a.type("#password", "wrong-password");
     await click(a, "form button[type=submit]", "Sign in");
     await waitText(a, "incorrect");
@@ -105,7 +105,7 @@ export async function signinSuite(browser) {
   await t.step("Staff: 5 wrong passwords lock sign-in for that account", a, async () => {
     for (let i = 0; i < 6; i++) {
       await go(a, "/staff/login");
-      await a.type("#email", "nobody@sportssphere.example");
+      await a.type("#email", "nobody@mitwpu.example");
       await a.type("#password", `bad-${i}`);
       await click(a, "form button[type=submit]", "Sign in");
       await a.waitForSelector('[role="alert"], .text-danger-fg, [class*="danger"]');
@@ -123,12 +123,12 @@ export async function signinSuite(browser) {
   await t.step("Staff: demo 'tap to fill' buttons fill the form", a, async () => {
     await go(a, "/staff/login");
     await click(a, "button", "Coach");
-    if ((await a.$eval("#email", (e) => e.value)) !== "coach@sportssphere.example") throw new Error("not filled");
+    if ((await a.$eval("#email", (e) => e.value)) !== "coach@mitwpu.example") throw new Error("not filled");
   });
   await t.step("Staff: protected link → sign in → back to that page", a, async () => {
     await go(a, "/admin/competition");
     await waitPath(a, "/staff/login");
-    await a.type("#email", "admin@sportssphere.example");
+    await a.type("#email", "admin@mitwpu.example");
     await a.type("#password", "Admin@12345");
     await click(a, "form button[type=submit]", "Sign in");
     await waitPath(a, "/admin/competition");
@@ -148,7 +148,7 @@ export async function signinSuite(browser) {
   const o = await newPage(browser);
   await t.step("Staff: official opening an admin link lands somewhere useful", o, async () => {
     await go(o, "/staff/login?callbackUrl=%2Fadmin");
-    await o.type("#email", "official@sportssphere.example");
+    await o.type("#email", "official@mitwpu.example");
     await o.type("#password", "Official@12345");
     await click(o, "form button[type=submit]", "Sign in");
     await o.waitForFunction(() => location.pathname !== "/staff/login");
@@ -182,7 +182,7 @@ export async function signinSuite(browser) {
     await ad.waitForSelector("#staff");
     const toggle = async (expect) => {
       await front(ad);
-      const btn = await ad.evaluateHandle(() => [...document.querySelectorAll("#staff li")].find((li) => li.innerText.includes("medical@sportssphere.example"))?.querySelectorAll("button")[1]);
+      const btn = await ad.evaluateHandle(() => [...document.querySelectorAll("#staff li")].find((li) => li.innerText.includes("medical@mitwpu.example"))?.querySelectorAll("button")[1]);
       const label = await btn.evaluate((b) => b?.innerText.trim() ?? "");
       if (label !== expect) throw new Error(`expected “${expect}”, got “${label}”`);
       await btn.click();
@@ -191,13 +191,13 @@ export async function signinSuite(browser) {
     await toggle("Deactivate");
     const m = await newPage(browser);
     await go(m, "/staff/login");
-    await m.type("#email", "medical@sportssphere.example");
+    await m.type("#email", "medical@mitwpu.example");
     await m.type("#password", "Medical@12345");
     await click(m, "form button[type=submit]", "Sign in");
     await waitText(m, "incorrect");
     await toggle("Reactivate");
     await go(m, "/staff/login");
-    await m.type("#email", "medical@sportssphere.example");
+    await m.type("#email", "medical@mitwpu.example");
     await m.type("#password", "Medical@12345");
     await click(m, "form button[type=submit]", "Sign in");
     await waitPath(m, "/medical");

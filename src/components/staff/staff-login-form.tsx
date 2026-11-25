@@ -10,11 +10,11 @@ import { Alert } from "@/components/ui/badge";
 import { staffLandingFor } from "@/lib/staff-home";
 
 const DEMO = [
-  { role: "Super admin", email: "admin@sportssphere.example", password: "Admin@12345" },
-  { role: "Admin", email: "admin2@sportssphere.example", password: "Admin2@12345" },
-  { role: "Official", email: "official@sportssphere.example", password: "Official@12345" },
-  { role: "Medical", email: "medical@sportssphere.example", password: "Medical@12345" },
-  { role: "Coach", email: "coach@sportssphere.example", password: "Coach@12345" },
+  { role: "Super admin", email: "admin@mitwpu.example", password: "Admin@12345" },
+  { role: "Admin", email: "admin2@mitwpu.example", password: "Admin2@12345" },
+  { role: "Official", email: "official@mitwpu.example", password: "Official@12345" },
+  { role: "Medical", email: "medical@mitwpu.example", password: "Medical@12345" },
+  { role: "Coach", email: "coach@mitwpu.example", password: "Coach@12345" },
 ];
 
 export function StaffLoginForm({ callbackUrl, demo, initialError }: { callbackUrl?: string; demo: boolean; initialError?: string }) {

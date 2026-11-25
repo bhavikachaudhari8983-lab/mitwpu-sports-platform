@@ -1,6 +1,6 @@
-# Sports Sphere — Sports Registration Portal
+# MIT-WPU Department of Sports — Registration & Tournament Platform
 
-Sports Sphere is a paperless sports registration portal for inter-university games in India. The host university is configurable with `NEXT_PUBLIC_UNIVERSITY_NAME` (default "Host University"). Students from the university, from other universities, and international students register online. Their identity and age come from verified sources, never from what they type. Officials measure height and weight at a desk, and approved athletes get a signed QR Sports ID that is checked live at venues.
+The MIT-WPU Department of Sports platform: paperless sports registration, verification, fixtures, live scores and results for MIT World Peace University and visiting universities. (Sports Sphere is the university's student sports club; it is credited on the events it runs but is not the platform's brand.) The host university name can be overridden with `NEXT_PUBLIC_UNIVERSITY_NAME` (default "MIT World Peace University"). Students from the university, from other universities, and international students register online. Their identity and age come from verified sources, never from what they type. Officials measure height and weight at a desk, and approved athletes get a signed QR Sports ID that is checked live at venues.
 
 > **Demo system.** Every person, number and document in the seed data is fictional. DigiLocker, OTP delivery, the university ERP, passport MRZ verification and the international admissions office are **mocked** (see [Replacing the mocks](#replacing-the-mocks-with-real-services)).
 
@@ -34,11 +34,11 @@ npm run dev            # http://localhost:3000
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | admin@sportssphere.example | Admin@12345 |
-| Second admin (approves DOB corrections) | admin2@sportssphere.example | Admin2@12345 |
-| Official | official@sportssphere.example | Official@12345 |
-| Medical | medical@sportssphere.example | Medical@12345 |
-| Coach (Football) | coach@sportssphere.example | Coach@12345 |
+| Admin | admin@mitwpu.example | Admin@12345 |
+| Second admin (approves DOB corrections) | admin2@mitwpu.example | Admin2@12345 |
+| Official | official@mitwpu.example | Official@12345 |
+| Medical | medical@mitwpu.example | Medical@12345 |
+| Coach (Football) | coach@mitwpu.example | Coach@12345 |
 
 **Students** sign in with an OTP on `/status`. In demo mode the OTP is shown on screen in a box labelled "Demo OTP".
 
@@ -49,7 +49,7 @@ npm run dev            # http://localhost:3000
 | Name mismatch (flagged) | Sneha (Patil in the ERP / Jadhav on DigiLocker), `7000010003` |
 | Under 18, pending | Kavya Iyer, `7000010004` |
 | Outside student awaiting college confirmation | Nikhil Sawant, `7000020001` |
-| International, waiting for desk passport check | Sujan Thapa Magar, email `sujan.thapa@intl.sportssphere.example` |
+| International, waiting for desk passport check | Sujan Thapa Magar, email `sujan.thapa@intl.mitwpu.example` |
 | Duplicate attempt | Register as an outside student and use DigiLocker Aadhaar `0000 1000 0001` (already Aarav's) |
 | Fresh DOB mismatch for a walkthrough | PRN `SS24EE005` (Vikram) |
 
@@ -168,6 +168,6 @@ Also remove `src/services/mock/demo-hints.ts` and `/api/demo/hints` (they are al
 * Auto-check mismatches are shown immediately, but the status changes to FLAGGED **on submit**. That way the student can still complete the form.
 * Approve requires VERIFIED. Verify requires a measurement, a confirmed college (outside students) and the desk passport tick (international students). A flagged registration must be resolved by an admin before desk verification.
 * Admins see everything except declared medical conditions (medical staff only). Coaches see only approved players in their own sport, and no ID or medical documents.
-* **Branding ("Light & warm").** The colours come from the official Sports Sphere logo (`public/brand/sports-sphere-logo.png`, also used as the favicon and on the ID card). Surfaces are white/cream, like the logo. The logo's navy ink `#0E1430` is used only for text and small solid elements (selected chips, secondary buttons). Primary buttons are logo orange `#EE7A2B` with navy text (6.4:1). Icon tiles and the active nav item use a soft orange tint (`#FFF1E6` / `#C2410C`). The "SPHERE" orange gradient is used for large headline text. The logo's ring colours (red, orange, yellow, green, water blue) appear in the header stripe and hero arcs. Charts use orange `#E8590C`. Dark mode is neutral charcoal (no blue tint). Sports IDs look like `SS-26-XXXXXX`. All tokens are in `src/app/globals.css`. **Replace the logo PNG with a high-resolution version (≥600 px or SVG) for a crisp hero.**
+* **Branding (MIT-WPU Brand Book 2026).** Name: "MIT-WPU Department of Sports". Logos in `public/brand/` were cut from the Brand Book at high resolution: `mitwpu-logo-compact(.png|-white.png)` for the header, favicon and ID card, `mitwpu-logo-master(.png|-white.png)` for certificates. Colours are primary palette 1 only (never mixed with palette 2's Deep Red): Navy Blue `#11468F` for headers, scoreboards, links and the navy "stage"; Orange `#FFA500` for primary buttons (deep navy `#0B2A57` text, 7.9:1) and "live / now" highlights; Peach `#FFE5B4` for soft tiles. Body text is deep navy `#0B2A57`. Typeface: Lato. Logo clear space = height of the "M" (kept by the header gap); minimum digital size 60 px. Sports IDs look like `WPU-26-XXXXXX`. All tokens are in `src/app/globals.css`.
 * **Fonts** (Google Fonts via `next/font`): **Lato** 400/700/900 (+ italic for the logo-style wordmark) for headings, body and form text. Lato is the digital typeface in the MIT-WPU Brand Book 2026 (p.12), and the official website uses it too. **JetBrains Mono** is kept for IDs, PRNs and measurements. The PDF ID card and certificates embed the same Lato files from `assets/fonts/` (SIL Open Font Licence, `OFL.txt`) through `src/lib/pdf-fonts.ts`, and fall back to Helvetica if the files are missing.
 * Each student may enter at most 4 events. The age cutoff defaults to 1 Dec 2026 and retention to 365 days (both editable).

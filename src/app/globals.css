@@ -2,50 +2,45 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* MIT-WPU Department of Sports. Palette: MIT-WPU Brand Book 2026, primary palette 1 (never mixed with palette 2's
+   Deep Red): Navy Blue #11468F · Orange #FFA500 · Peach #FFE5B4, plus cool neutrals and status colours.
+   "Match-day clarity" (docs/DESIGN-DIRECTION.md): white for reading and forms, navy "stage" for anything live or
+   competitive, orange for what's happening now. */
 :root {
-  /* Sports Sphere palette, sampled from the official logo:
-     navy "SPORTS" #0E1430 · orange "SPHERE" #EE7A2B→#E4572A · ring red/orange/yellow/green · water blue */
-  /* "Match-day clarity" (docs/DESIGN-DIRECTION.md): white paper for reading and forms, navy "stage" for anything
-     live or competitive, sun yellow for what's happening now. Every colour comes from the logo, plus cool neutrals. */
-  --primary: #0e1430; /* logo "SPORTS" ink — links, selected states, secondary buttons (18:1) */
-  --primary-hover: #262c4a;
+  --primary: #11468f; /* MIT-WPU Navy Blue: links, selected states, secondary buttons (9.6:1 on white) */
+  --primary-hover: #0c3570;
   --primary-fg: #ffffff;
-  --tint: #fff1e6; /* soft orange surface for icon tiles & active nav */
-  --tint-fg: #c2410c; /* dark orange for icons/text on tint (4.8:1) */
-  --hero-bg: #fff8f0;
-  --hero-fg: #0e1430;
+  --tint: #ffe5b4; /* MIT-WPU Peach: soft surface for icon tiles & highlights */
+  --tint-fg: #7a4500; /* text/icons on peach (6.6:1) */
+  --hero-bg: #fff6e6;
+  --hero-fg: #0b2a57;
   --hero-muted: #334155;
-  --sphere-from: #e4572a; /* "SPHERE" gradient — large text only (≥3.6:1 on cream) */
-  --sphere-to: #ee7a2b;
 
-  /* Logo orange: primary actions & highlights. Text on it is logo navy (6.4:1, AA). */
-  --accent: #ee7a2b;
-  --accent-hover: #e0651c;
-  --accent-fg: #0e1430;
+  /* MIT-WPU Orange: primary actions & highlights. Text on it is deep navy (7.9:1). */
+  --accent: #ffa500;
+  --accent-hover: #f09500;
+  --accent-fg: #0b2a57;
 
-  --wordmark-1: #0e1430; /* "SPORTS" */
-  --wordmark-2: #e4572a; /* "SPHERE" (large bold text, 3.7:1) */
-
-  --secondary: #2e7d32; /* ring green, darkened for text (5.1:1) */
+  --secondary: #2e7d32; /* status green for "approved"-type actions (5.1:1) */
   --secondary-fg: #ffffff;
 
-  /* Stage: navy surfaces for scoreboards, live areas and finals */
-  --stage: #0e1430;
-  --stage-2: #1e2a5a;
+  /* Stage: navy surfaces for headers, scoreboards, live areas and finals */
+  --stage: #11468f;
+  --stage-2: #0c3570;
   --stage-fg: #ffffff;
-  --stage-muted: #b7c0d8; /* 9:1 on stage */
-  /* Sun yellow (logo ring): "live / now / your turn". A fill with navy text, or text on navy. NEVER text on white. */
-  --volt: #f6c642;
-  --volt-fg: #0e1430; /* 11:1 on volt */
+  --stage-muted: #d4e0f2; /* 6.9:1 on stage */
+  /* "Live / now / your turn": MIT-WPU Orange. A fill with navy text, or text on navy (4.7:1). Never text on white. */
+  --volt: #ffa500;
+  --volt-fg: #0b2a57;
 
-  --bg: #f7f8fb; /* paper */
+  --bg: #f6f8fc; /* paper */
   --surface: #ffffff;
-  --surface-2: #eef1f6;
-  --border: #e3e7ef;
-  --border-strong: #c9d0dc;
-  --fg: #0e1430; /* logo navy ink (17:1) */
-  --muted: #5b6478; /* 6:1 on white */
-  --ring: #0e1430;
+  --surface-2: #edf2f9;
+  --border: #dfe6f0;
+  --border-strong: #c3cede;
+  --fg: #0b2a57; /* deep shade of MIT-WPU navy for body text (13:1) */
+  --muted: #55627a; /* 6:1 on white */
+  --ring: #11468f;
 
   --success: #16a34a;
   --success-fg: #166534;
@@ -56,52 +51,48 @@
   --danger: #dc2626;
   --danger-fg: #991b1b;
   --danger-bg: #fee2e2;
-  --info: #2f6fd6; /* logo water blue */
-  --info-fg: #1d4e9e;
-  --info-bg: #e6efff;
+  --info: #11468f;
+  --info-fg: #11468f;
+  --info-bg: #e3ecf8;
   --neutral-fg: #334155;
-  --neutral-bg: #e7eaf1;
+  --neutral-bg: #e7ebf2;
 
-  --chart-1: #e8590c; /* logo-family orange, validated: lightness band, chroma, ≥3:1 vs surface */
+  --chart-1: #c46f00; /* darkened MIT-WPU orange, ≥3:1 against white */
   --chart-track: #e2e8f0;
-  --shadow-card: 0 1px 0 rgb(14 20 48 / 0.04), 0 1px 2px rgb(14 20 48 / 0.06);
+  --shadow-card: 0 1px 0 rgb(11 42 87 / 0.04), 0 1px 2px rgb(11 42 87 / 0.07);
   color-scheme: light;
 }
 
 /* ---------- Design tokens (dark) ---------- */
 .dark {
-  --primary: #e2e8f0;
+  --primary: #b9cff0;
   --primary-hover: #ffffff;
-  --primary-fg: #111214;
-  --tint: rgb(238 122 43 / 0.16);
-  --tint-fg: #f5a33a;
-  --hero-bg: #1b1c20;
+  --primary-fg: #0b1626;
+  --tint: rgb(255 165 0 / 0.16);
+  --tint-fg: #ffc861;
+  --hero-bg: #141a24;
   --hero-fg: #f1f5f9;
   --hero-muted: #cbd5e1;
-  --sphere-from: #f6c642;
-  --sphere-to: #ee7a2b;
-  --accent: #ee7a2b;
-  --accent-hover: #f5a33a;
-  --accent-fg: #0e1430;
-  --wordmark-1: #ffffff;
-  --wordmark-2: #f5a33a;
+  --accent: #ffa500;
+  --accent-hover: #ffb733;
+  --accent-fg: #0b2a57;
   --secondary: #7cc47f;
   --secondary-fg: #111214;
-  --stage: #0b1024;
-  --stage-2: #1a2246;
+  --stage: #0c2f61;
+  --stage-2: #0a2550;
   --stage-fg: #ffffff;
-  --stage-muted: #b7c0d8;
-  --volt: #f6c642;
-  --volt-fg: #0e1430;
+  --stage-muted: #c9d7ee;
+  --volt: #ffa500;
+  --volt-fg: #0b2a57;
 
-  --bg: #111214;
-  --surface: #1b1c20;
-  --surface-2: #25272c;
-  --border: #303238;
-  --border-strong: #43464e;
+  --bg: #0f1420;
+  --surface: #161d2b;
+  --surface-2: #1f2838;
+  --border: #2a3446;
+  --border-strong: #3c4860;
   --fg: #e2e8f0;
-  --muted: #a1a1aa;
-  --ring: #f5a33a;
+  --muted: #a3adbf;
+  --ring: #ffc861;
 
   --success-fg: #86efac;
   --success-bg: rgb(22 163 74 / 0.18);
@@ -109,13 +100,14 @@
   --warning-bg: rgb(217 119 6 / 0.2);
   --danger-fg: #fca5a5;
   --danger-bg: rgb(220 38 38 / 0.2);
-  --info-fg: #9cc0ff;
-  --info-bg: rgb(47 111 214 / 0.24);
+  --info: #8fb3ea;
+  --info-fg: #a9c5f0;
+  --info-bg: rgb(17 70 143 / 0.35);
   --neutral-fg: #cbd5e1;
-  --neutral-bg: #303238;
+  --neutral-bg: #2a3446;
 
-  --chart-1: #e8590c; /* validated against #111a2e too */
-  --chart-track: #303238;
+  --chart-1: #ffa500;
+  --chart-track: #2a3446;
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
   color-scheme: dark;
 }
@@ -131,8 +123,6 @@
   --color-tint-fg: var(--tint-fg);
   --color-hero-fg: var(--hero-fg);
   --color-hero-muted: var(--hero-muted);
-  --color-wordmark-1: var(--wordmark-1);
-  --color-wordmark-2: var(--wordmark-2);
   --color-stage: var(--stage);
   --color-stage-2: var(--stage-2);
   --color-stage-fg: var(--stage-fg);
@@ -250,29 +240,25 @@
     background-image:
       repeating-linear-gradient(
         -35deg,
-        rgb(238 122 43 / 0.05) 0 18px,
+        rgb(17 70 143 / 0.05) 0 18px,
         transparent 18px 44px
       ),
-      radial-gradient(ellipse 120% 70% at 110% 120%, transparent 54%, rgb(234 66 72 / 0.55) 54.3%, transparent 54.9%,
-        transparent 58%, rgb(238 122 43 / 0.55) 58.3%, transparent 58.8%,
-        transparent 62%, rgb(246 198 66 / 0.6) 62.3%, transparent 62.8%,
-        transparent 66%, rgb(124 179 66 / 0.5) 66.3%, transparent 66.8%);
+      radial-gradient(ellipse 120% 70% at 110% 120%, transparent 54%, rgb(17 70 143 / 0.5) 54.3%, transparent 54.9%,
+        transparent 58%, rgb(255 165 0 / 0.6) 58.3%, transparent 58.8%,
+        transparent 62%, rgb(255 229 180 / 0.9) 62.3%, transparent 62.8%,
+        transparent 66%, rgb(17 70 143 / 0.3) 66.3%, transparent 66.8%);
   }
   .track-stripe {
     background-image: repeating-linear-gradient(-45deg, var(--accent) 0 8px, transparent 8px 16px);
   }
-  /* Multicolour rule under the header, as on mitwpu.edu.in */
+  /* Orange rule under headers and bands (MIT-WPU palette 1) */
   .brand-stripe {
     height: 4px;
-    /* the logo's ring: red → orange → yellow → green → water blue */
-    background: linear-gradient(90deg, #ea4248 0%, #ee7a2b 25%, #f6c642 50%, #7cb342 72%, #4e7eb4 100%);
+    background: linear-gradient(90deg, #ffa500 0%, #ffa500 55%, #ffe5b4 100%);
   }
-  /* "SPHERE"-style orange gradient text — large text only */
+  /* Orange highlight text: large text on navy only */
   .text-gradient-sphere {
-    background: linear-gradient(90deg, var(--sphere-from), var(--sphere-to));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--volt);
   }
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
@@ -293,7 +279,7 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  /* Speed streaks: slanted bars in the logo's ring colours, sweeping in from the right (see PageHero) */
+  /* Speed streaks: slanted bars in MIT-WPU orange, peach and white, sweeping in from the right (see PageHero) */
   .streaks {
     display: flex;
     flex-direction: column;
@@ -311,11 +297,11 @@
     border-radius: 9999px 0 0 9999px;
     animation: streak-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
-  .streaks > span:nth-child(1) { width: 55%; background: #ea4248; animation-delay: 0ms; }
-  .streaks > span:nth-child(2) { width: 80%; background: #ee7a2b; animation-delay: 80ms; }
-  .streaks > span:nth-child(3) { width: 100%; background: #f6c642; animation-delay: 160ms; }
-  .streaks > span:nth-child(4) { width: 70%; background: #7cb342; animation-delay: 240ms; }
-  .streaks > span:nth-child(5) { width: 45%; background: #4e7eb4; animation-delay: 320ms; }
+  .streaks > span:nth-child(1) { width: 55%; background: #ffa500; animation-delay: 0ms; }
+  .streaks > span:nth-child(2) { width: 80%; background: #ffe5b4; animation-delay: 80ms; }
+  .streaks > span:nth-child(3) { width: 100%; background: #ffa500; animation-delay: 160ms; }
+  .streaks > span:nth-child(4) { width: 70%; background: rgb(255 255 255 / 0.85); animation-delay: 240ms; }
+  .streaks > span:nth-child(5) { width: 45%; background: #ffe5b4; animation-delay: 320ms; }
   @media (max-width: 640px) {
     .streaks { opacity: 0.35; }
   }
@@ -346,7 +332,7 @@
   }
   .lift:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 24px -12px rgb(14 20 48 / 0.35);
+    box-shadow: 0 10px 24px -12px rgb(11 42 87 / 0.35);
   }
   /* Navy stage surface for scoreboards and live areas */
   .stage {

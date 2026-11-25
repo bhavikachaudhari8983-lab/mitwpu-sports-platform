@@ -19,15 +19,15 @@ export function registrationReference(studentId: string): string {
 function emailHtml(name: string, m: Message): string {
   const link = m.link ? `${baseUrl()}${m.link}` : `${baseUrl()}/status`;
   const paras = m.body.split("\n").filter(Boolean).map((p) => `<p style="margin:0 0 12px">${esc(p)}</p>`).join("");
-  return `<!doctype html><html><body style="margin:0;background:#f8fafc;font-family:Lato,Arial,sans-serif;color:#0e1430">
+  return `<!doctype html><html><body style="margin:0;background:#f8fafc;font-family:Lato,Arial,sans-serif;color:#0b2a57">
 <div style="max-width:560px;margin:0 auto;padding:24px">
-<p style="margin:0 0 16px;font-weight:900;font-style:italic;font-size:18px">SPORTS <span style="color:#e4572a">SPHERE</span></p>
-<div style="background:#fff;border-radius:12px;padding:24px;border-top:4px solid #ee7a2b">
+<p style="margin:0 0 16px;font-weight:900;font-size:18px;color:#11468f">MIT-WPU <span style="font-weight:700;color:#0b2a57">Department of Sports</span></p>
+<div style="background:#fff;border-radius:12px;padding:24px;border-top:4px solid #ffa500">
 <h1 style="margin:0 0 12px;font-size:20px">${esc(m.title)}</h1>
 <p style="margin:0 0 12px">Hi ${esc(name)},</p>${paras}
-<p style="margin:20px 0 0"><a href="${esc(link)}" style="background:#ee7a2b;color:#0e1430;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px;display:inline-block">Open My account</a></p>
+<p style="margin:20px 0 0"><a href="${esc(link)}" style="background:#ffa500;color:#0b2a57;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px;display:inline-block">Open My account</a></p>
 </div>
-<p style="margin:16px 0 0;font-size:12px;color:#64748b">You're receiving this because you registered on ${esc(APP_NAME)}. Sign in at ${esc(baseUrl())}/status.</p>
+<p style="margin:16px 0 0;font-size:12px;color:#64748b">You're receiving this because you registered with the ${esc(APP_NAME)}. Sign in at ${esc(baseUrl())}/status.</p>
 </div></body></html>`;
 }
 

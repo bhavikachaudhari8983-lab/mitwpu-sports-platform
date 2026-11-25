@@ -41,7 +41,7 @@ export function StatusLogin({ demo, notice, sso, ssoError }: { demo: boolean; no
 
   return (
     <>
-    <PageHero eyebrow="My account" title={<>Check your <span className="text-volt">status</span></>} lead="Sign in with your PRN (host-university students), or the mobile number or email you verified during registration." mark="Go" width="max-w-lg" />
+    <PageHero eyebrow="My account" title={<>Check your <span className="text-volt">status</span></>} lead="Sign in with your PRN (MIT-WPU students), or the mobile number or email you verified during registration." mark="Go" width="max-w-lg" />
     <div className="mx-auto max-w-lg px-4 py-10 sm:py-12">
       {notice}
       {ssoError && (

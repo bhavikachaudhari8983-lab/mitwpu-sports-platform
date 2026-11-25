@@ -1,11 +1,15 @@
 // Shared enumerations. Stored as strings in the DB so the schema stays portable (SQLite ⇄ PostgreSQL).
 
-export const APP_NAME = "Sports Sphere";
-/** Prefix printed on Sports IDs, e.g. SS-26-4F7K2Q */
-export const ID_PREFIX = "SS";
-/** The university hosting the games. Stored on host-university students' records; set NEXT_PUBLIC_UNIVERSITY_NAME to brand it. */
-export const UNIVERSITY_NAME = process.env.NEXT_PUBLIC_UNIVERSITY_NAME ?? "Host University";
-export const CONTACT_EMAIL = "sports.office@sportssphere.example";
+/** The platform belongs to the MIT-WPU Department of Sports (Sports Sphere is only a student club). */
+export const APP_NAME = "MIT-WPU Department of Sports";
+export const UNIVERSITY_SHORT = "MIT-WPU";
+export const DEPARTMENT_NAME = "Department of Sports";
+/** Prefix printed on Sports IDs, e.g. WPU-26-4F7K2Q */
+export const ID_PREFIX = "WPU";
+/** The university hosting the games. Stored on MIT-WPU students' records; NEXT_PUBLIC_UNIVERSITY_NAME overrides it. */
+export const UNIVERSITY_NAME = process.env.NEXT_PUBLIC_UNIVERSITY_NAME ?? "MIT World Peace University";
+/** Demo placeholder until the department confirms its official address. */
+export const CONTACT_EMAIL = "sports.office@mitwpu.example";
 export const CONTACT_PHONE = "+91 20 5550 0100";
 
 export const STATUSES = ["DRAFT", "PENDING", "VERIFIED", "APPROVED", "FLAGGED", "REJECTED"] as const;
@@ -24,7 +28,7 @@ export const STUDENT_TYPES = ["OUR_INDIAN", "OUTSIDE_INDIAN", "INTERNATIONAL"] a
 export type StudentType = (typeof STUDENT_TYPES)[number];
 
 export const STUDENT_TYPE_LABEL: Record<StudentType, string> = {
-  OUR_INDIAN: "Host university student (Indian)",
+  OUR_INDIAN: "MIT-WPU student (Indian)",
   OUTSIDE_INDIAN: "Other university (Indian)",
   INTERNATIONAL: "International / OCI / NRI",
 };

@@ -48,30 +48,21 @@ export function IdCard() {
       await document.fonts.ready;
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "#FFF8F0";
+      // Header band: MIT-WPU navy with the white logo, then an orange rule (Brand Book palette 1).
+      ctx.fillStyle = "#11468F";
       ctx.fillRect(0, 0, W, 120);
-      ctx.fillStyle = "#EE7A2B";
+      ctx.fillStyle = "#FFA500";
       ctx.fillRect(0, 120, W, 12);
+      const logo = await loadImg("/brand/mitwpu-logo-compact-white.png").catch(() => null);
+      if (logo) ctx.drawImage(logo, 28, 12, 100, 100 * (logo.height / logo.width));
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.fillRect(146, 22, 2, 76);
       ctx.fillStyle = "#ffffff";
-      ctx.font = `700 30px ${F}`;
-      const logo = await loadImg("/brand/sports-sphere-logo.png").catch(() => null);
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(76, 60, 46, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
-      ctx.clip();
-      if (logo) ctx.drawImage(logo, 30, 14, 92, 92);
-      ctx.restore();
-      ctx.fillStyle = "#0E1430";
-      ctx.font = `italic 800 30px ${F}`;
-      ctx.fillText("SPORTS", 140, 58);
-      ctx.fillStyle = "#E4572A";
-      ctx.fillText("SPHERE", 140 + ctx.measureText("SPORTS ").width, 58);
-      ctx.font = `400 22px ${F}`;
-      ctx.fillStyle = "#475569";
-      ctx.font = `400 22px ${F}`;
-      ctx.fillText(`SPORTS ID · ${card.meetName}`, 140, 96);
+      ctx.font = `900 32px ${F}`;
+      ctx.fillText("Department of Sports", 168, 58);
+      ctx.fillStyle = "#D4E0F2";
+      ctx.font = `400 21px ${F}`;
+      ctx.fillText(`SPORTS ID · ${card.meetName}`.slice(0, 64), 168, 94);
       {
         // A photo that fails to load shouldn't stop the whole card: draw an empty photo box instead.
         const photo = card.photoDocId ? await loadImg(`/api/documents/${card.photoDocId}`).catch(() => null) : null;
@@ -89,7 +80,7 @@ export function IdCard() {
         }
         ctx.restore();
       }
-      ctx.fillStyle = "#0E1430";
+      ctx.fillStyle = "#0B2A57";
       ctx.font = `700 40px ${F}`;
       ctx.fillText(card.name, 300, 200);
       ctx.fillStyle = "#475569";
@@ -107,7 +98,7 @@ export function IdCard() {
       ctx.fillStyle = "#0F172A";
       ctx.font = `500 24px ${F}`;
       card.sports.slice(0, 4).forEach((sp, i) => ctx.fillText(sp, 300, 370 + i * 32));
-      ctx.fillStyle = "#0E1430";
+      ctx.fillStyle = "#0B2A57";
       ctx.font = `600 34px ${M}`;
       ctx.fillText(card.sportsId, 36, 560);
       ctx.fillStyle = "#64748B";
@@ -132,19 +123,18 @@ export function IdCard() {
   return (
     <div className="space-y-4">
       <figure aria-label={`Sports ID card for ${card.name}`} className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-white text-[#0f172a] shadow-card">
-        <div className="bg-[#fff8f0] px-4 py-3 text-[#0e1430]">
+        <div className="bg-[#11468f] px-4 py-3 text-white">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element -- static brand asset */}
-            <img src="/brand/sports-sphere-logo.png" alt="" className="size-11 shrink-0 rounded-full bg-white ring-1 ring-slate-200" />
+            <img src="/brand/mitwpu-logo-compact-white.png" alt="MIT-WPU" className="h-12 w-auto shrink-0" />
+            <span aria-hidden className="h-10 w-px bg-white/40" />
             <div className="min-w-0">
-              <p className="font-heading text-lg leading-tight font-extrabold uppercase italic">
-                Sports <span className="text-[#e4572a]">Sphere</span>
-              </p>
-              <p className="text-small text-[#475569]">Sports ID · {card.meetName}</p>
+              <p className="font-heading text-lg leading-tight font-black">Department of Sports</p>
+              <p className="text-small text-[#d4e0f2]">Sports ID · {card.meetName}</p>
             </div>
           </div>
         </div>
-        <div className="h-1.5 bg-[#ee7a2b]" />
+        <div className="h-1.5 bg-[#ffa500]" />
         <div className="grid grid-cols-[88px_1fr] gap-3 p-4 sm:grid-cols-[104px_1fr_auto]">
           {card.photoDocId ? (
             // eslint-disable-next-line @next/next/no-img-element -- authorised private route
@@ -153,7 +143,7 @@ export function IdCard() {
             <div className="aspect-[3/4] w-full rounded-lg bg-slate-200" />
           )}
           <div className="min-w-0">
-            <p className="font-heading text-xl leading-tight font-bold text-[#0e1430]">{card.name}</p>
+            <p className="font-heading text-xl leading-tight font-bold text-[#0b2a57]">{card.name}</p>
             <p className="text-small text-[#475569]">{card.university}</p>
             <p className="mt-2 text-small font-semibold text-[#475569]">AGE CATEGORY</p>
             <p className="font-mono text-xl font-semibold text-[#166534]">{card.ageCategory}</p>
@@ -168,7 +158,7 @@ export function IdCard() {
           <img src={card.qrDataUrl} alt={`QR code for Sports ID ${card.sportsId}`} className="col-span-2 mx-auto size-40 sm:col-span-1 sm:size-32 sm:self-end" />
         </div>
         <figcaption className="flex flex-wrap items-center justify-between gap-x-3 border-t border-slate-200 px-4 py-2">
-          <span className="font-mono font-semibold whitespace-nowrap text-[#0e1430] tabular">{card.sportsId}</span>
+          <span className="font-mono font-semibold whitespace-nowrap text-[#0b2a57] tabular">{card.sportsId}</span>
           <span className="text-small text-[#475569]">Valid until {card.validUntil}</span>
         </figcaption>
       </figure>

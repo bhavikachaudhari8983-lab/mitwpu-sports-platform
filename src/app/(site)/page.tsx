@@ -69,7 +69,7 @@ const STEPS = [
 const DOCS = [
   {
     icon: GraduationCap,
-    title: "Host university students (Indian)",
+    title: "MIT-WPU students (Indian)",
     fetched: ["Name, DOB, gender, photo — DigiLocker", "Class 10 certificate — DigiLocker", "Course & year — university ERP"],
     upload: ["Passport-size photo", "Live selfie (camera)", "Medical fitness certificate", "Guardian consent (if under 18)"],
   },
@@ -82,7 +82,7 @@ const DOCS = [
   {
     icon: Globe2,
     title: "International, OCI & NRI",
-    fetched: ["Passport checked via MRZ", "DOB matched with admissions (host-university students)"],
+    fetched: ["Passport checked via MRZ", "DOB matched with admissions (MIT-WPU students)"],
     upload: ["Passport photo page", "Student visa", "FRRO residence permit", "Passport-size photo & live selfie", "Medical fitness certificate"],
   },
 ];
@@ -158,7 +158,7 @@ export default async function HomePage() {
         <div aria-hidden className="brand-stripe absolute inset-x-0 top-0" />
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-20 lg:grid-cols-[1.15fr_0.85fr]">
           <div className={home.live[0] ? "order-1" : "order-2 lg:order-1"}>
-            <p className="eyebrow text-volt">MIT-WPU · Sports Sphere</p>
+            <p className="eyebrow text-volt">MIT World Peace University · Department of Sports</p>
             <h1 className="display mt-4 text-[clamp(2.6rem,8vw,5.25rem)] text-stage-fg">
               Your game.
               <br />
@@ -197,7 +197,7 @@ export default async function HomePage() {
               <FeaturedLive m={home.live[0]} />
             ) : (
               <div className="rounded-full bg-white p-2 shadow-[0_0_0_8px_rgb(246_198_66/0.15),0_30px_80px_-20px_rgb(0_0_0/0.6)]">
-                <LogoMark size={296} priority alt="Sports Sphere, MIT-WPU: fueling passion, building champions" className="size-32 sm:size-56 lg:size-72" />
+                <LogoMark size={296} priority tone="white" alt="MIT-WPU, MIT World Peace University" className="h-auto w-32 sm:w-56 lg:w-72" />
               </div>
             )}
           </div>

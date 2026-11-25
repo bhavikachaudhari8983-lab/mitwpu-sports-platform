@@ -18,9 +18,9 @@ type Path = "A" | "B" | "C";
 type Sent = { challengeId: string; maskedTarget: string; demoCode?: string };
 
 const PATHS: Array<{ id: Path; title: string; desc: string; icon: typeof GraduationCap; needs: string; colour: string }> = [
-  { id: "A", title: "Host university student (Indian)", desc: "I study at the university hosting the games.", icon: GraduationCap, needs: "PRN, DigiLocker, live selfie", colour: "#ee7a2b" },
-  { id: "B", title: "Other university (Indian)", desc: "I study at another college or university in India.", icon: Building2, needs: "Mobile, DigiLocker, college ID + bonafide letter", colour: "#7cb342" },
-  { id: "C", title: "International / OCI / NRI", desc: "I hold a foreign passport or have no Aadhaar.", icon: Globe2, needs: "Passport, visa, FRRO permit", colour: "#4e7eb4" },
+  { id: "A", title: "MIT-WPU student (Indian)", desc: "I study at MIT World Peace University.", icon: GraduationCap, needs: "PRN, DigiLocker, live selfie", colour: "#ffa500" },
+  { id: "B", title: "Other university (Indian)", desc: "I study at another college or university in India.", icon: Building2, needs: "Mobile, DigiLocker, college ID + bonafide letter", colour: "#11468f" },
+  { id: "C", title: "International / OCI / NRI", desc: "I hold a foreign passport or have no Aadhaar.", icon: Globe2, needs: "Passport, visa, FRRO permit", colour: "#c46f00" },
 ];
 
 export function StartRegistration({ demo, sso }: { demo: boolean; sso?: SsoInfo | null }) {
@@ -29,7 +29,7 @@ export function StartRegistration({ demo, sso }: { demo: boolean; sso?: SsoInfo 
   return (
     <>
     <PageHero
-      eyebrow="Fueling passion · Building champions"
+      eyebrow="MIT-WPU · Department of Sports"
       title={<>Get in <span className="text-volt">the game</span></>}
       lead="Register for sports in about 10 minutes. Your progress saves automatically, so you can come back any time."
       mark="Play"

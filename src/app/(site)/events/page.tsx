@@ -126,5 +126,5 @@ export default async function EventsPage() {
   );
 }
 
-/** The logo's ring colours, used to tell sports apart. */
-const RING = ["#ee7a2b", "#4e7eb4", "#7cb342", "#ea4248", "#e0a800"];
+/** MIT-WPU orange and navy shades, used to tell sports apart. */
+const RING = ["#ffa500", "#11468f", "#c46f00", "#4f7cc4"];

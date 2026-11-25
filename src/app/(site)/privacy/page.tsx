@@ -25,13 +25,13 @@ export default async function PrivacyPage() {
     <PageHero eyebrow="Last updated 30 Oct 2026 · Demo document" title={<>Privacy <span className="text-volt">notice</span></>} mark="Fair play" width="max-w-3xl" />
     <article className="mx-auto max-w-3xl px-4 py-10 pb-24 sm:px-6 sm:py-14">
       <p className="text-lg text-muted">
-        How the {APP_NAME} organising university (“we”) handles your personal data in this registration portal, under the Digital Personal Data Protection Act, 2023 (DPDP Act). This is a sample notice and is not legal advice.
+        How MIT World Peace University, through its {APP_NAME} (“we”), handles your personal data in this registration portal, under the Digital Personal Data Protection Act, 2023 (DPDP Act). This is a sample notice and is not legal advice.
       </p>
 
       <div className="mt-10 space-y-10 [&_h2]:text-[1.5rem] [&_h2]:sm:text-[1.75rem] [&_p]:mt-3 [&_ul]:mt-3">
         <section>
           <h2>1. Who is responsible</h2>
-          <p>The university organising {APP_NAME} is the Data Fiduciary. Questions and complaints go to the Grievance Officer, Sports Office: <a className="font-semibold underline underline-offset-4" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. We reply within 7 working days.</p>
+          <p>MIT World Peace University, Pune is the Data Fiduciary. Questions and complaints go to the Grievance Officer, Sports Office: <a className="font-semibold underline underline-offset-4" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. We reply within 7 working days.</p>
         </section>
 
         <section>

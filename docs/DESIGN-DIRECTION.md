@@ -1,5 +1,7 @@
 # Sports Sphere platform: design direction and experience plan
 
+> **Update, 25 Nov 2026: rebrand.** The client confirmed Sports Sphere is only a student club. The platform now belongs to the **MIT-WPU Department of Sports**: MIT-WPU logo, and MIT-WPU Brand Book 2026 palette 1 (Navy Blue #11468F, Orange #FFA500, Peach #FFE5B4). Wherever this document says "logo colours" (navy #0E1430, flame orange, sun yellow, ring colours), read the MIT-WPU palette instead: navy stage = #11468F, "volt"/live = #FFA500. The layout and interaction ideas still apply. See README → Branding.
+
 Status: **proposal, for approval before the visual redesign starts.** Date: 17 Nov 2026.
 Scope: the tournament platform in this folder (registration → verification → fixtures → live scoring → results). The separate official marketing website keeps its own design.
 

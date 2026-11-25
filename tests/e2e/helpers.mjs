@@ -6,16 +6,16 @@ import puppeteer from "puppeteer-core";
 export const BASE = process.env.BASE ?? "http://localhost:3000";
 export const ARTIFACTS = join(import.meta.dirname, ".artifacts");
 mkdirSync(ARTIFACTS, { recursive: true });
-export const UPLOAD_FILE = join(import.meta.dirname, "../../public/brand/sports-sphere-logo.png");
+export const UPLOAD_FILE = join(import.meta.dirname, "../../public/brand/mitwpu-logo-compact.png");
 
 const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
 export const STAFF = {
-  admin: ["admin@sportssphere.example", "Admin@12345"],
-  admin2: ["admin2@sportssphere.example", "Admin2@12345"],
-  official: ["official@sportssphere.example", "Official@12345"],
-  medical: ["medical@sportssphere.example", "Medical@12345"],
-  coach: ["coach@sportssphere.example", "Coach@12345"],
+  admin: ["admin@mitwpu.example", "Admin@12345"],
+  admin2: ["admin2@mitwpu.example", "Admin2@12345"],
+  official: ["official@mitwpu.example", "Official@12345"],
+  medical: ["medical@mitwpu.example", "Medical@12345"],
+  coach: ["coach@mitwpu.example", "Coach@12345"],
 };
 
 export async function launch() {
@@ -99,6 +99,7 @@ export function suite(name) {
   const results = [];
   return {
     async step(label, page, fn) {
+      if (process.env.E2E_TRACE) console.log("  … " + label);
       try {
         await front(page);
         const note = await fn();

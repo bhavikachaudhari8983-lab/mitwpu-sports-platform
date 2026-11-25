@@ -22,9 +22,9 @@ export async function studentSuite(browser) {
   const t = suite("student");
   const p = await newPage(browser, 390);
 
-  await t.step("Register: choose 'Host university student'", p, async () => {
+  await t.step("Register: choose 'MIT-WPU student'", p, async () => {
     await go(p, "/register");
-    await click(p, "button", "Host university student (Indian)");
+    await click(p, "button", "MIT-WPU student (Indian)");
     await p.waitForSelector("#prn");
   });
   await t.step("Register: unknown PRN is rejected", p, async () => {

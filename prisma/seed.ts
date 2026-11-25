@@ -24,12 +24,12 @@ import { sendAnnouncement } from "../src/lib/announcements";
 const prisma = new PrismaClient();
 
 export const DEMO_STAFF = [
-  { email: "admin@sportssphere.example", name: "Asha Admin (demo)", role: "SUPER_ADMIN", password: "Admin@12345" },
+  { email: "admin@mitwpu.example", name: "Asha Admin (demo)", role: "SUPER_ADMIN", password: "Admin@12345" },
   // Second admin: DOB corrections need two different admins (maker–checker).
-  { email: "admin2@sportssphere.example", name: "Ravi Admin (demo)", role: "ADMIN", password: "Admin2@12345" },
-  { email: "official@sportssphere.example", name: "Omar Official (demo)", role: "OFFICIAL", password: "Official@12345" },
-  { email: "medical@sportssphere.example", name: "Dr. Mira Medical (demo)", role: "MEDICAL", password: "Medical@12345" },
-  { email: "coach@sportssphere.example", name: "Coach Kiran (demo, Football)", role: "COACH", password: "Coach@12345", sport: "Football" },
+  { email: "admin2@mitwpu.example", name: "Ravi Admin (demo)", role: "ADMIN", password: "Admin2@12345" },
+  { email: "official@mitwpu.example", name: "Omar Official (demo)", role: "OFFICIAL", password: "Official@12345" },
+  { email: "medical@mitwpu.example", name: "Dr. Mira Medical (demo)", role: "MEDICAL", password: "Medical@12345" },
+  { email: "coach@mitwpu.example", name: "Coach Kiran (demo, Football)", role: "COACH", password: "Coach@12345", sport: "Football" },
 ] as const;
 
 async function clearUploads() {
@@ -156,7 +156,7 @@ async function main() {
   const day = 86_400_000;
   const current = await prisma.tournament.create({
     data: {
-      name: DEFAULT_SETTINGS.meetName, slug: "sports-sphere-inter-university-games-2026", season: "2026-27",
+      name: DEFAULT_SETTINGS.meetName, slug: "mitwpu-inter-university-games-2026", season: "2026-27",
       startDate: "2026-12-01", endDate: "2026-12-10",
       registrationOpensAt: new Date(Date.now() - 30 * day), registrationClosesAt: new Date(Date.now() + 60 * day), status: "ACTIVE",
     },
@@ -180,7 +180,7 @@ async function main() {
     staff[s.role] ??= u.id;
     staff[s.email] = u.id;
   }
-  staff.ADMIN = staff["admin@sportssphere.example"]; // seeded admin actions are by Asha (the super admin)
+  staff.ADMIN = staff["admin@mitwpu.example"]; // seeded admin actions are by Asha (the super admin)
 
   // Colleges
   const trustedCollege = await prisma.college.create({

@@ -1,4 +1,4 @@
-# Sports Sphere: platform assessment and roadmap
+# MIT-WPU Sports platform: assessment and roadmap
 
 Status: **for review. No code in this document has been written yet.**
 Date: 17 Nov 2026.

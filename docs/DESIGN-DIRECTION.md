@@ -1,11 +1,11 @@
-# Sports Sphere platform: design direction and experience plan
+# MIT-WPU Sports platform: design direction and experience plan
 
 > **Update, 25 Nov 2026: rebrand.** The client confirmed Sports Sphere is only a student club. The platform now belongs to the **MIT-WPU Department of Sports**: MIT-WPU logo, and MIT-WPU Brand Book 2026 palette 1 (Navy Blue #11468F, Orange #FFA500, Peach #FFE5B4). Wherever this document says "logo colours" (navy #0E1430, flame orange, sun yellow, ring colours), read the MIT-WPU palette instead: navy stage = #11468F, "volt"/live = #FFA500. The layout and interaction ideas still apply. See README → Branding.
 
 Status: **proposal, for approval before the visual redesign starts.** Date: 17 Nov 2026.
 Scope: the tournament platform in this folder (registration → verification → fixtures → live scoring → results). The separate official marketing website keeps its own design.
 
-**Brand decision (from the owner).** This is MIT-WPU's own Sports Sphere platform, open to students from every university. The design brief asked for a neutral standalone product; that part is overridden. The Sports Sphere name and logo stay, and MIT-WPU appears as the host university.
+**Brand decision (from the owner).** (Superseded by the update above.) This is MIT-WPU's own sports platform, open to students from every university. The design brief asked for a neutral standalone product; that part is overridden. The Sports Sphere name and logo stay, and MIT-WPU appears as the host university.
 
 Related documents: [PLATFORM-ASSESSMENT-AND-ROADMAP.md](PLATFORM-ASSESSMENT-AND-ROADMAP.md) (features and phases) and [TOURNAMENT-SYSTEM-DESIGN.md](TOURNAMENT-SYSTEM-DESIGN.md) (fixtures, scoring, real-time).
 
@@ -139,11 +139,11 @@ Existing URLs keep working. `/status` and `/events` redirect to their new homes 
 ## 5. Home page
 
 **Hero (navy band).**
-- Eyebrow: "MIT-WPU · Sports Sphere"
+- Eyebrow: "MIT-WPU · Department of Sports"
 - Headline: **YOUR GAME. YOUR MOMENT. YOUR CHAMPIONSHIP.**
 - Supporting line: "Find your competition, register in minutes and follow every match from the first whistle to the final."
 - Buttons: **Explore tournaments** (primary) · **Register** · **Watch live** (only shown when something is live)
-- Right side: the Sports Sphere logo, or, when matches are live, a compact live scoreboard instead.
+- Right side: the MIT-WPU logo, or, when matches are live, a compact live scoreboard instead.
 
 **Sections, each shown only when it has real data:**
 1. **Live now:** match cards with pulsing status. Hidden when nothing is live.

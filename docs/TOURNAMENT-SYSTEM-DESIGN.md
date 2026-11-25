@@ -1,4 +1,4 @@
-# Sports Sphere — Tournament Management & Live Scoring: System Design
+# MIT-WPU Sports — Tournament Management & Live Scoring: System Design
 
 Status: **DRAFT, for approval.** Nothing in this document has been built yet. Date: 17 Nov 2026.
 
@@ -391,5 +391,5 @@ Each phase is tested before the next starts: automated tests for every reducer a
 4. How reliable is internet at the Dronacharya Complex courts? Is a venue Wi-Fi network available?
 5. Spectators: scores and tables only, or player stats (top scorers)?
 6. Should visiting colleges have their own coordinator login?
-7. Protest fee and time limit, withdrawal rules: are there existing Sports Sphere rules?
+7. Protest fee and time limit, withdrawal rules: are there existing Department of Sports rules?
 8. Is there a server for production (university IT), or should we plan cloud hosting?

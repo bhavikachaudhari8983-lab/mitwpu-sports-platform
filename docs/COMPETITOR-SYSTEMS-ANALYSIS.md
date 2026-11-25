@@ -134,7 +134,7 @@ Observations worth tightening (factual, from the headers themselves — not expl
 - **CAS** is the pattern for a central identity provider: one hardened login, reCAPTCHA + OTP, strict headers, server sessions. Its weakness is the legacy Web Forms/ViewState base.
 - **Courtside** is a clean modern template for exactly the kind of thing you're building: Next.js on Vercel + Supabase (Auth + Postgres + Realtime), PWA for phone install, real-time availability, QR check-in, an admin area, and an AI helper. It's the closest public comparison to the Sports Sphere registration portal.
 
-### Courtside vs the Sports Sphere portal you're building
+### Courtside vs the MIT-WPU Sports portal you're building
 | Capability | Courtside | Your portal |
 |---|---|---|
 | Framework | Next.js + Supabase (managed) | Next.js + Prisma (self-hosted DB, swappable Postgres) |

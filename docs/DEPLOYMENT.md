@@ -1,9 +1,11 @@
 # Deployment (Vercel + Supabase)
 
-Live preview: https://sports-sphere-platform.vercel.app (demo mode: OTPs shown on screen, all data fictional).
+Live preview: https://mitwpu-sports-platform.vercel.app (demo mode: OTPs shown on screen, all data fictional). The old address https://sports-sphere-platform.vercel.app still works.
+
+**Rebrand, 25 Nov 2026:** live demo data was renamed in place with `scripts/rebrand-live-data.ts` (nothing deleted; audit log and signed certificate titles untouched). `NEXTAUTH_URL` and `PUBLIC_BASE_URL` on Vercel still name the old address: change both to `https://mitwpu-sports-platform.vercel.app` and redeploy, so email and certificate links use the new address.
 
 ## How it is wired
-- **Vercel project** `sports-sphere-platform` (team `bhavika8`), functions in Mumbai (`bom1`, see `vercel.json`).
+- **Vercel project** `mitwpu-sports-platform` (renamed from `sports-sphere-platform`; team `bhavika8`), functions in Mumbai (`bom1`, see `vercel.json`).
 - **Supabase** database `sports-sphere-db` (free plan, Mumbai), added through the Vercel Marketplace, so its
   `POSTGRES_*` / `SUPABASE_*` variables are managed by Vercel automatically.
 - App settings on Vercel (production): `DATABASE_URL` (the pooled `POSTGRES_PRISMA_URL` + `connection_limit=1`),

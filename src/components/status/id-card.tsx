@@ -54,14 +54,14 @@ export function IdCard() {
       ctx.fillRect(0, 120, W, 12);
       ctx.fillStyle = "#ffffff";
       ctx.font = `700 30px ${F}`;
-      const logo = await loadImg("/brand/sports-sphere-logo.png");
+      const logo = await loadImg("/brand/sports-sphere-logo.png").catch(() => null);
       ctx.save();
       ctx.beginPath();
       ctx.arc(76, 60, 46, 0, Math.PI * 2);
       ctx.fillStyle = "#ffffff";
       ctx.fill();
       ctx.clip();
-      ctx.drawImage(logo, 30, 14, 92, 92);
+      if (logo) ctx.drawImage(logo, 30, 14, 92, 92);
       ctx.restore();
       ctx.fillStyle = "#0E1430";
       ctx.font = `italic 800 30px ${F}`;
@@ -72,15 +72,21 @@ export function IdCard() {
       ctx.fillStyle = "#475569";
       ctx.font = `400 22px ${F}`;
       ctx.fillText(`SPORTS ID · ${card.meetName}`, 140, 96);
-      if (card.photoDocId) {
-        const photo = await loadImg(`/api/documents/${card.photoDocId}`);
+      {
+        // A photo that fails to load shouldn't stop the whole card: draw an empty photo box instead.
+        const photo = card.photoDocId ? await loadImg(`/api/documents/${card.photoDocId}`).catch(() => null) : null;
         const pw = 232, ph = 298, px = 36, py = 166;
-        const s = Math.max(pw / photo.width, ph / photo.height);
         ctx.save();
         ctx.beginPath();
         ctx.roundRect(px, py, pw, ph, 14);
         ctx.clip();
-        ctx.drawImage(photo, px + (pw - photo.width * s) / 2, py + (ph - photo.height * s) / 2, photo.width * s, photo.height * s);
+        if (photo) {
+          const s = Math.max(pw / photo.width, ph / photo.height);
+          ctx.drawImage(photo, px + (pw - photo.width * s) / 2, py + (ph - photo.height * s) / 2, photo.width * s, photo.height * s);
+        } else {
+          ctx.fillStyle = "#E2E8F0";
+          ctx.fillRect(px, py, pw, ph);
+        }
         ctx.restore();
       }
       ctx.fillStyle = "#0E1430";

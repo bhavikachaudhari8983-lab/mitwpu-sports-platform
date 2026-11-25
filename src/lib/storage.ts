@@ -18,14 +18,26 @@ const EXT: Record<string, string> = {
   "application/pdf": "pdf",
 };
 
+/** File storage is unreachable or refused the file. Shown to the user as a "try again" message, not a crash. */
+export class StorageError extends Error {}
+
 export async function saveFile(data: Uint8Array, mimeType: string): Promise<string> {
   const ext = EXT[mimeType];
   if (!ext) throw new Error(`Unsupported type ${mimeType}`);
   const key = `${randomUUID()}.${ext}`;
   const remote = supabase();
   if (remote) {
-    const r = await remote.fetch(key, { method: "POST", headers: { "Content-Type": mimeType, "x-upsert": "false" }, body: Buffer.from(data) });
-    if (!r.ok) throw new Error(`Storage upload failed (${r.status}): ${await r.text()}`);
+    let r: Response;
+    try {
+      r = await remote.fetch(key, { method: "POST", headers: { "Content-Type": mimeType, "x-upsert": "false" }, body: Buffer.from(data) });
+    } catch (e) {
+      console.error("[storage] upload failed", e);
+      throw new StorageError("Storage unreachable");
+    }
+    if (!r.ok) {
+      console.error(`[storage] upload failed (${r.status}): ${await r.text()}`);
+      throw new StorageError(`Storage upload failed (${r.status})`);
+    }
     return key;
   }
   await mkdir(uploadRoot(), { recursive: true });
@@ -65,6 +77,9 @@ export const STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET?.trim() || "up
 
 /** Supabase Storage client (REST, no SDK), or null when not configured. */
 function supabase() {
+  // A local SQLite database always keeps its files on local disk. Otherwise a local run with the Vercel-pulled
+  // .env.local (which sets SUPABASE_URL) would put test uploads into the live bucket.
+  if ((process.env.DATABASE_URL ?? "").trim().startsWith("file:")) return null;
   const url = process.env.SUPABASE_URL?.trim().replace(/\/$/, "");
   const secret = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (!url || !secret) return null;

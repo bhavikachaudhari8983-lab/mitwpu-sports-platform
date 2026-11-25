@@ -85,6 +85,10 @@ export async function applyVerifiedIndianProfile(student: Student, profile: Digi
   const checks: CheckInput[] = [...(await erpChecks(student, profile.name, profile.dob, SOURCE_LABEL[source]))];
   checks.push({ type: "DUPLICATE", passed: true, details: "No other profile with this identity" });
 
+  // Save the files first: if storage fails, nothing is locked yet and the student can simply try again.
+  await storeServiceFile(student.id, "REFERENCE_PHOTO", source, profile.photo);
+  if (profile.class10Certificate) await storeServiceFile(student.id, "CLASS10", source, profile.class10Certificate);
+
   await prisma.student.update({
     where: { id: student.id },
     data: {
@@ -100,8 +104,6 @@ export async function applyVerifiedIndianProfile(student: Student, profile: Digi
       wizardStep: Math.max(student.wizardStep, 1),
     },
   });
-  await storeServiceFile(student.id, "REFERENCE_PHOTO", source, profile.photo);
-  if (profile.class10Certificate) await storeServiceFile(student.id, "CLASS10", source, profile.class10Certificate);
   await replaceChecks(student.id, checks);
 
   const failed = checks.filter((c) => !c.passed);
@@ -214,6 +216,10 @@ export async function applyPassport(
   }
   checks.push({ type: "DUPLICATE", passed: true, details: "No other profile with this passport" });
 
+  // Save the file first: if storage fails, nothing is locked yet and the student can simply try again.
+  const photo = await passportService.getReferencePhoto(input);
+  if (photo) await storeServiceFile(student.id, "REFERENCE_PHOTO", "PASSPORT", photo);
+
   await prisma.student.update({
     where: { id: student.id },
     data: {
@@ -233,8 +239,6 @@ export async function applyPassport(
       wizardStep: Math.max(student.wizardStep, 1),
     },
   });
-  const photo = await passportService.getReferencePhoto(input);
-  if (photo) await storeServiceFile(student.id, "REFERENCE_PHOTO", "PASSPORT", photo);
   await replaceChecks(student.id, checks);
 
   const failed = checks.filter((c) => !c.passed);

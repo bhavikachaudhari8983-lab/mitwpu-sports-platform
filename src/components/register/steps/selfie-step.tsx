@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/toast";
 import type { DraftDoc } from "@/lib/registration-types";
+import { isOffline, whenOnline } from "@/lib/use-online";
 import { useStepValidator, useWizard } from "../wizard-context";
 import { DocumentUpload } from "../document-upload";
 
@@ -97,7 +98,23 @@ export function SelfieStep() {
     form.append("type", "SELFIE");
     form.append("source", "CAMERA");
     form.append("file", new File([shot.blob], "live-selfie.jpg", { type: "image/jpeg" }));
-    const res = await fetch("/api/uploads", { method: "POST", body: form });
+    // A dropped connection used to throw here and leave the button spinning for ever. Now: wait for the
+    // connection and try again (up to 5 attempts), then let the student retry by hand.
+    let res: Response | null = null;
+    for (let attempt = 0; attempt < 5 && !res; attempt++) {
+      if (attempt > 0) {
+        if (isOffline()) {
+          toast.error("You're offline", "Your selfie will upload as soon as you're back online.");
+          await whenOnline();
+        } else await new Promise((r) => setTimeout(r, 1500 * 2 ** (attempt - 1)));
+      }
+      res = await fetch("/api/uploads", { method: "POST", body: form }).catch(() => null);
+    }
+    if (!res) {
+      setState("captured");
+      toast.error("Upload failed", "Check your connection and tap “Use this photo” again.");
+      return;
+    }
     const body = (await res.json().catch(() => ({}))) as DraftDoc & { error?: string };
     if (!res.ok) {
       setState("captured");

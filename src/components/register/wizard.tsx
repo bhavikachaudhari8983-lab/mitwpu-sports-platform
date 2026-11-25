@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/toast";
 import { WIZARD_STEPS } from "@/lib/constants";
 import type { RegistrationDraft } from "@/lib/registration-types";
 import { api } from "@/lib/client-api";
+import { isOffline } from "@/lib/use-online";
 import { cn } from "@/lib/utils";
 import { WizardProvider, useWizard, type SaveState, type VerifyOptions } from "./wizard-context";
 import { STEP_COMPONENTS } from "./steps";
@@ -43,7 +44,10 @@ function WizardShell() {
     setBusy(true);
     const saved = await flush();
     setBusy(false);
-    if (!saved) toast.error("Couldn't save your changes", "Check your connection — we'll keep trying.");
+    if (!saved) {
+      if (isOffline()) toast.error("You're offline", "Your changes are kept and will save automatically when you're back online.");
+      else toast.error("Couldn't save your changes", "Check your connection — we'll keep trying.");
+    }
     setStep(to);
   }
 
@@ -57,7 +61,7 @@ function WizardShell() {
     await flush();
     const to = Math.min(step + 1, maxStep);
     if (to > draft.wizardStep) {
-      const r = await api<{ draft: RegistrationDraft }>("/api/register/draft", { method: "PATCH", body: { step: to } });
+      const r = await api<{ draft: RegistrationDraft }>("/api/register/draft", { method: "PATCH", body: { step: to }, retries: 3 });
       if (r.ok) setDraft(r.data.draft);
     }
     setBusy(false);
@@ -144,6 +148,11 @@ function SaveIndicator({ state }: { state: SaveState }) {
       {state === "error" && (
         <span className="inline-flex items-center gap-1.5 text-danger-fg">
           <CloudOff className="size-4" aria-hidden /> Not saved — retrying
+        </span>
+      )}
+      {state === "offline" && (
+        <span className="inline-flex items-center gap-1.5 text-warning-fg">
+          <CloudOff className="size-4" aria-hidden /> Offline — will save when you&apos;re back
         </span>
       )}
     </span>

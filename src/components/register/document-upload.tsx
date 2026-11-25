@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { compressImage } from "@/lib/image-compress";
+import { isOffline, whenOnline } from "@/lib/use-online";
 import { UPLOAD_MAX_BYTES, type DocType } from "@/lib/constants";
 import type { DraftDoc } from "@/lib/registration-types";
 import { cn, formatBytes } from "@/lib/utils";
@@ -28,7 +29,7 @@ type Props = {
 const ACCEPT_ALL = "image/jpeg,image/png,image/webp,application/pdf";
 const ACCEPT_IMG = "image/jpeg,image/png,image/webp";
 
-function uploadWithProgress(form: FormData, onProgress: (pct: number) => void): Promise<{ ok: boolean; body: unknown }> {
+function uploadWithProgress(form: FormData, onProgress: (pct: number) => void): Promise<{ ok: boolean; body: unknown; network?: boolean }> {
   return new Promise((resolve) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/uploads");
@@ -42,7 +43,7 @@ function uploadWithProgress(form: FormData, onProgress: (pct: number) => void): 
       }
       resolve({ ok: xhr.status >= 200 && xhr.status < 300, body });
     };
-    xhr.onerror = () => resolve({ ok: false, body: { error: "Network error — please try again." } });
+    xhr.onerror = () => resolve({ ok: false, network: true, body: { error: isOffline() ? "You're offline. Choose the file again when you're back online." : "Network error — please try again." } });
     xhr.send(form);
   });
 }
@@ -53,6 +54,7 @@ export function DocumentUpload({ type, label, description, required, imageOnly, 
   const camRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
   const [progress, setProgress] = useState<number | null>(null);
+  const [waiting, setWaiting] = useState(false);
   const [localError, setLocalError] = useState<string>();
   const [localPreview, setLocalPreview] = useState<Record<string, string>>({});
   const mine = docs.filter((d) => d.type === type);
@@ -75,12 +77,30 @@ export function DocumentUpload({ type, label, description, required, imageOnly, 
       setLocalError(`This file is ${formatBytes(toSend.size)}. The maximum is 5 MB.`);
       return;
     }
+    const compressed = toSend !== file;
+    // Read the bytes into memory once: a file picked from disk or the camera can't always be read again after a
+    // failed attempt, which would make every retry fail. (Files are ≤ 5 MB, so this is cheap.)
+    try {
+      toSend = new File([await toSend.arrayBuffer()], toSend.name, { type: toSend.type });
+    } catch {
+      setLocalError("Couldn't read this file. Please choose it again.");
+      return;
+    }
     const form = new FormData();
     form.append("type", type);
     form.append("source", source);
     form.append("file", toSend);
     setProgress(0);
-    const res = await uploadWithProgress(form, setProgress);
+    let res = await uploadWithProgress(form, setProgress);
+    // Network drop (not a server refusal): wait for the connection, then try again, up to 4 more times.
+    for (let attempt = 0; !res.ok && res.network && attempt < 4; attempt++) {
+      setWaiting(true);
+      if (isOffline()) await whenOnline();
+      else await new Promise((r) => setTimeout(r, 1500 * 2 ** attempt));
+      setWaiting(false);
+      setProgress(0);
+      res = await uploadWithProgress(form, setProgress);
+    }
     setProgress(null);
     if (!res.ok) {
       const msg = (res.body as { error?: string }).error ?? "Upload failed.";
@@ -90,7 +110,7 @@ export function DocumentUpload({ type, label, description, required, imageOnly, 
     const doc = res.body as DraftDoc;
     if (toSend.type.startsWith("image/")) setLocalPreview((p) => ({ ...p, [doc.id]: URL.createObjectURL(toSend) }));
     onChange(multiple ? [...docs, doc] : [...docs.filter((d) => d.type !== type), doc]);
-    toast.success(`${label} uploaded`, `${formatBytes(toSend.size)}${toSend !== file ? " (compressed)" : ""}`);
+    toast.success(`${label} uploaded`, `${formatBytes(toSend.size)}${compressed ? " (compressed)" : ""}`);
   }
 
   async function remove(doc: DraftDoc) {
@@ -158,7 +178,7 @@ export function DocumentUpload({ type, label, description, required, imageOnly, 
       {progress !== null && (
         <div className="mt-3" role="status">
           <p className="flex items-center gap-2 text-small text-muted">
-            <Loader2 className="size-4 animate-spin" aria-hidden /> Uploading… {progress}%
+            <Loader2 className="size-4 animate-spin" aria-hidden /> {waiting ? "Connection lost — will upload as soon as you're back online…" : `Uploading… ${progress}%`}
           </p>
           <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface-2">
             <div className="h-full bg-accent transition-[width]" style={{ width: `${progress}%` }} />

@@ -4,8 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import type { RegistrationDraft } from "@/lib/registration-types";
 import type { DraftSection } from "@/lib/validation/registration";
 import { api } from "@/lib/client-api";
+import { isOffline } from "@/lib/use-online";
 
-export type SaveState = "idle" | "saving" | "saved" | "error";
+export type SaveState = "idle" | "saving" | "saved" | "error" | "offline";
 type Validator = () => boolean | Promise<boolean>;
 
 /** Identity-verification routes offered to this student (only ones that can genuinely work). */
@@ -28,6 +29,7 @@ type Ctx = {
 const WizardContext = createContext<Ctx | null>(null);
 
 const DEBOUNCE_MS = 900;
+const RETRY_MS = [2000, 5000, 10000, 20000, 30000];
 
 export function WizardProvider({ initial, demo, verifyOptions, children }: { initial: RegistrationDraft; demo: boolean; verifyOptions: VerifyOptions; children: ReactNode }) {
   const [draft, setDraft] = useState(initial);
@@ -37,6 +39,7 @@ export function WizardProvider({ initial, demo, verifyOptions, children }: { ini
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inflight = useRef<Promise<boolean> | null>(null);
   const validator = useRef<Validator | null>(null);
+  const retryIdx = useRef(0);
 
   const send = useCallback(async (): Promise<boolean> => {
     if (timer.current) clearTimeout(timer.current);
@@ -63,14 +66,41 @@ export function WizardProvider({ initial, demo, verifyOptions, children }: { ini
           pending.current.set(section, { ...values, ...(pending.current.get(section) ?? {}) });
         }
       }
-      setSaveState(allOk ? "saved" : "error");
+      setSaveState(allOk ? "saved" : isOffline() ? "offline" : "error");
       return allOk;
     })();
     inflight.current = p;
     const res = await p;
     inflight.current = null;
+    if (res) {
+      retryIdx.current = 0;
+    } else if (!isOffline() && !timer.current) {
+      // Keep trying on our own (2s, 5s, 10s, 20s, then every 30s). When offline, the "online" listener takes over.
+      const delay = RETRY_MS[Math.min(retryIdx.current, RETRY_MS.length - 1)];
+      retryIdx.current++;
+      timer.current = setTimeout(() => void sendRef.current(), delay);
+    }
     return res;
   }, []);
+  const sendRef = useRef(send);
+  useEffect(() => {
+    sendRef.current = send;
+  }, [send]);
+
+  // The moment the connection is back, save whatever is waiting.
+  useEffect(() => {
+    const onOnline = () => {
+      retryIdx.current = 0;
+      if (pending.current.size) void send();
+    };
+    const onOffline = () => pending.current.size && setSaveState("offline");
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+    return () => {
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+    };
+  }, [send]);
 
   const queueSave = useCallback(
     (section: DraftSection, values: Record<string, unknown>) => {

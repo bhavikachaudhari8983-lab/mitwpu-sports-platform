@@ -3,6 +3,7 @@ import { JetBrains_Mono, Lato } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { themeInitScript } from "@/components/layout/theme-toggle";
+import { OfflineBanner } from "@/components/layout/offline-banner";
 import { APP_NAME } from "@/lib/constants";
 
 // Lato = MIT-WPU Brand Book 2026 digital typeface (p.12), used for headings and body, same as the official website.
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-3 focus:text-accent-fg">
           Skip to main content
         </a>
+        <OfflineBanner />
         <Providers>{children}</Providers>
       </body>
     </html>

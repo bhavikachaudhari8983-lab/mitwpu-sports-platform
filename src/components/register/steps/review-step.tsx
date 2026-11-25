@@ -2,7 +2,8 @@
 
 import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, CheckCircle2, FileText, Pencil, Send } from "lucide-react";
+import { AlertTriangle, CheckCircle2, FileText, Pencil, Send, WifiOff } from "lucide-react";
+import { useOnline } from "@/lib/use-online";
 import { Card, CardBody, CardHeader, DefinitionList } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ const STEP_OF: Record<string, number> = { identity: 0, selfie: 1, personal: 2, a
 
 export function ReviewStep({ onGoTo }: StepProps) {
   const { draft, flush } = useWizard();
+  const online = useOnline();
   const router = useRouter();
   const toast = useToast();
   const [confirm, setConfirm] = useState(false);
@@ -42,7 +44,8 @@ export function ReviewStep({ onGoTo }: StepProps) {
   async function submit() {
     setLoading(true);
     await flush();
-    const r = await api<SubmitResult>("/api/register/submit", { body: {} });
+    // Safe to retry: the server refuses a second submit, and a network drop means no answer arrived.
+    const r = await api<SubmitResult>("/api/register/submit", { body: {}, retries: 2 });
     setLoading(false);
     setConfirm(false);
     if (!r.ok) {
@@ -160,9 +163,10 @@ export function ReviewStep({ onGoTo }: StepProps) {
           <p className="text-fg">
             When you submit, your registration goes to the sports office for verification. {willFlag && <strong>Because some details didn&apos;t match, it will be flagged for manual review.</strong>} You won&apos;t be able to edit it afterwards.
           </p>
-          <Button size="lg" onClick={() => setConfirm(true)} icon={<Send className="size-5" aria-hidden />} className="w-full sm:w-auto">
-            Submit registration
+          <Button size="lg" onClick={() => setConfirm(true)} disabled={!online} icon={online ? <Send className="size-5" aria-hidden /> : <WifiOff className="size-5" aria-hidden />} className="w-full sm:w-auto">
+            {online ? "Submit registration" : "Waiting for connection…"}
           </Button>
+          {!online && <p className="text-small text-warning-fg">You&apos;re offline. You can submit as soon as the connection is back. Nothing you&apos;ve entered is lost.</p>}
         </CardBody>
       </Card>
 
